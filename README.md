@@ -9,4 +9,11 @@ viable way to schedule code.
 
 Oh! You also need clips 630 or higher for this expert system to work.
 
+
+Running this program:
+
+clips -f main.clp
+
+Then follow the instructions and remember that paths are relative.
+
 -Joshua Scoggins
