@@ -1,0 +1,9 @@
+adds r37=-136,r34
+ld4 r38=[r37]
+adds r39=-48,r34
+ld4 r40=[r39]
+cmp4.lt p8,p0=r38,r40
+mov r19=0
+(p08) mov r19=1
+adds r20=-88,r34
+st8 [r20]=r19

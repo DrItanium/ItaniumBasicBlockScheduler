@@ -1,0 +1,10 @@
+(adds p0 r37 -136 r34)
+(ld4 p0 r38 {r37})
+(adds p0 r39 -48 r34)
+(ld4 p0 r40 {r39})
+(cmp4.lt p0 p8 p0 r38 r40)
+(mov p0 r19 0)
+(mov p8 r19 1)
+(adds p0 r20 -88 r34)
+(st8 p0 {r20} r19)
+
