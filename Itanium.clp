@@ -48,143 +48,143 @@
              (registers GPR ?Size $?Registers))
 
 (deffunction br (?Predicate ?Target)
-             (mk-noary-instruction ?Predicate br ?Target))
+             (make-instruction ?Predicate br ?Target))
 
 (deffunction br.cond (?Predicate ?Target)
-             (mk-noary-instruction ?Predicate br.cond ?Target))
+             (make-instruction ?Predicate br.cond ?Target))
 
 (deffunction br.few (?Predicate ?Target)
-             (mk-noary-instruction ?Predicate br.few ?Target))
+             (make-instruction ?Predicate br.few ?Target))
 
 (deffunction br.many (?Predicate ?Target)
-             (mk-noary-instruction ?Predicate br.many ?Target))
+             (make-instruction ?Predicate br.many ?Target))
 
 (deffunction br.cond.dptk.few (?Predicate ?Target)
-             (mk-noary-instruction ?Predicate br.cond.dptk.few ?Target))
+             (make-instruction ?Predicate br.cond.dptk.few ?Target))
 
 (deffunction br.cond.dptk.many (?Predicate ?Target)
-             (mk-noary-instruction ?Predicate br.cond.dptk.many ?Target))
+             (make-instruction ?Predicate br.cond.dptk.many ?Target))
 
 
 (deffunction br.cond.sptk.few (?Predicate ?Target)
-             (mk-noary-instruction ?Predicate br.cond.sptk.few ?Target))
+             (make-instruction ?Predicate br.cond.sptk.few ?Target))
 
 (deffunction br.cond.sptk.many (?Predicate ?Target)
-             (mk-noary-instruction ?Predicate br.cond.sptk.many ?Target))
+             (make-instruction ?Predicate br.cond.sptk.many ?Target))
 
 (deffunction br.ret.dptk.few (?Predicate ?Target)
-             (mk-noary-instruction ?Predicate br.ret.dptk.few ?Target))
+             (make-instruction ?Predicate br.ret.dptk.few ?Target))
 
 (deffunction br.ret.dptk.many (?Predicate ?Target)
-             (mk-noary-instruction ?Predicate br.ret.dptk.many ?Target))
+             (make-instruction ?Predicate br.ret.dptk.many ?Target))
 
 
 (deffunction br.ret.sptk.few (?Predicate ?Target)
-             (mk-noary-instruction ?Predicate br.ret.sptk.few ?Target))
+             (make-instruction ?Predicate br.ret.sptk.few ?Target))
 
 (deffunction br.ret.sptk.many (?Predicate ?Target)
-             (mk-noary-instruction ?Predicate br.ret.sptk.many ?Target))
+             (make-instruction ?Predicate br.ret.sptk.many ?Target))
 
 (deffunction br.call.dptk.few (?Predicate ?Target ?Source)
-             (mk-unary-instruction ?Predicate br.call.dptk.few ?Target ?Source))
+             (make-instruction ?Predicate br.call.dptk.few ?Target ?Source))
 
 (deffunction br.call.dptk.many (?Predicate ?Target ?Source)
-             (mk-unary-instruction ?Predicate br.call.dptk.many ?Target ?Source))
+             (make-instruction ?Predicate br.call.dptk.many ?Target ?Source))
 
 (deffunction br.call.sptk.few (?Predicate ?Target ?Source)
-             (mk-unary-instruction ?Predicate br.call.sptk.few ?Target ?Source))
+             (make-instruction ?Predicate br.call.sptk.few ?Target ?Source))
 
 (deffunction br.call.sptk.many (?Predicate ?Target ?Source)
-             (mk-unary-instruction ?Predicate br.call.sptk.many ?Target ?Source))
+             (make-instruction ?Predicate br.call.sptk.many ?Target ?Source))
 
 (deffunction adds (?Pred ?Dest ?Source0 ?Source1)
-             (mk-binary-instruction ?Pred adds ?Dest ?Source0 ?Source1))
+             (make-instruction ?Pred adds ?Dest ?Source0 ?Source1))
 
 (deffunction addl (?Pred ?Dest ?Source0 ?Source1)
-             (mk-binary-instruction ?Pred adds ?Dest ?Source0 ?Source1))
+             (make-instruction ?Pred adds ?Dest ?Source0 ?Source1))
 
 (deffunction add (?Pred ?Dest ?Source0 ?Source1)
-             (mk-binary-instruction ?Pred add ?Dest ?Source0 ?Source1))
+             (make-instruction ?Pred add ?Dest ?Source0 ?Source1))
 
 (deffunction sub (?P ?D ?S0 ?S1)
-             (mk-binary-instruction ?P sub ?D ?S0 ?S1))
+             (make-instruction ?P sub ?D ?S0 ?S1))
 
 (deffunction and-inst (?Pred ?Dest ?Source0 ?Source1)
-             (mk-binary-instruction ?Pred adds ?Dest ?Source0 ?Source1))
+             (make-instruction ?Pred adds ?Dest ?Source0 ?Source1))
 
 (deffunction xmpy.l (?Pred ?Dest ?Source0 ?Source1)
-             (mk-binary-instruction ?Pred xmpy.l ?Dest ?Source0 ?Source1))
+             (make-instruction ?Pred xmpy.l ?Dest ?Source0 ?Source1))
 
 (deffunction mov (?Pred ?Dest ?Source0)
-             (mk-unary-instruction ?Pred mov ?Dest ?Source0))
+             (make-instruction ?Pred mov ?Dest ?Source0))
 
 (deffunction mov.i (?Pred ?Dest ?Source0)
-             (mk-unary-instruction ?Pred mov.i ?Dest ?Source0))
+             (make-instruction ?Pred mov.i ?Dest ?Source0))
 
 (deffunction sxt4 (?Pred ?Dest ?Source0)
-             (mk-unary-instruction ?Pred sxt4 ?Dest ?Source0))
+             (make-instruction ?Pred sxt4 ?Dest ?Source0))
 
 (deffunction st8 (?Pred ?Dest ?Source0)
-             (mk-unary-instruction ?Pred st8 ?Dest ?Source0))
+             (make-instruction ?Pred st8 ?Dest ?Source0))
 
 (deffunction stf.spill (?Pred ?Dest ?Source0)
-             (mk-unary-instruction ?Pred stf.spill ?Dest ?Source0))
+             (make-instruction ?Pred stf.spill ?Dest ?Source0))
 
 (deffunction ldfs (?P ?D ?S)
-             (mk-unary-instruction ?P ldfs ?D ?S))
+             (make-instruction ?P ldfs ?D ?S))
 
 (deffunction nop.b (?P)
-             (mk-noary-instruction ?P nop.b 0x0))
+             (make-instruction ?P nop.b 0x0))
 
 (deffunction nop.i (?P)
-             (mk-noary-instruction ?P nop.i 0x0))
+             (make-instruction ?P nop.i 0x0))
 
 (deffunction nop.f (?P)
-             (mk-noary-instruction ?P nop.f 0x0))
+             (make-instruction ?P nop.f 0x0))
 
 (deffunction nop.m (?P)
-             (mk-noary-instruction ?P nop.m 0x0))
+             (make-instruction ?P nop.m 0x0))
 
 (deffunction nop.x (?P)
-             (mk-noary-instruction ?P nop.x 0x0))
+             (make-instruction ?P nop.x 0x0))
 
 (deffunction cmp.eq (?Predicate ?D0 ?D1 ?S0 ?S1)
-             (mk-predicate-instruction ?Predicate cmp.eq ?D0 ?D1 ?S0 ?S1))
+             (make-instruction ?Predicate cmp.eq ?D0 ?D1 ?S0 ?S1))
 (deffunction cmp.lt (?Predicate ?D0 ?D1 ?S0 ?S1)
-             (mk-predicate-instruction ?Predicate cmp.lt ?D0 ?D1 ?S0 ?S1))
+             (make-instruction ?Predicate cmp.lt ?D0 ?D1 ?S0 ?S1))
 (deffunction cmp.gt (?Predicate ?D0 ?D1 ?S0 ?S1)
-             (mk-predicate-instruction ?Predicate cmp.gt ?D0 ?D1 ?S0 ?S1))
+             (make-instruction ?Predicate cmp.gt ?D0 ?D1 ?S0 ?S1))
 
 (deffunction cmp4.eq (?Predicate ?D0 ?D1 ?S0 ?S1)
-             (mk-predicate-instruction ?Predicate cmp4.eq ?D0 ?D1 ?S0 ?S1))
+             (make-instruction ?Predicate cmp4.eq ?D0 ?D1 ?S0 ?S1))
 
 (deffunction cmp4.lt (?Predicate ?D0 ?D1 ?S0 ?S1)
-             (mk-predicate-instruction ?Predicate cmp4.lt ?D0 ?D1 ?S0 ?S1))
+             (make-instruction ?Predicate cmp4.lt ?D0 ?D1 ?S0 ?S1))
 (deffunction cmp4.gt (?Predicate ?D0 ?D1 ?S0 ?S1)
-             (mk-predicate-instruction ?Predicate cmp4.gt ?D0 ?D1 ?S0 ?S1))
+             (make-instruction ?Predicate cmp4.gt ?D0 ?D1 ?S0 ?S1))
 (deffunction cmp4.eq (?Predicate ?D0 ?D1 ?S0 ?S1)
-             (mk-predicate-instruction ?Predicate cmp4.eq ?D0 ?D1 ?S0 ?S1))
+             (make-instruction ?Predicate cmp4.eq ?D0 ?D1 ?S0 ?S1))
 
 (deffunction setf.sig (?P ?D ?S)
-             (mk-unary-instruction ?P setf.sig ?D ?S))
+             (make-instruction ?P setf.sig ?D ?S))
 
 (deffunction getf.sig (?P ?D ?S)
-             (mk-unary-instruction ?P getf.sig ?D ?S))
+             (make-instruction ?P getf.sig ?D ?S))
 
 (deffunction ld8 (?P ?D ?S)
-             (mk-unary-instruction ?P ld8 ?D ?S))
+             (make-instruction ?P ld8 ?D ?S))
 
 (deffunction ld4 (?P ?D ?S)
-             (mk-unary-instruction ?P ld4 ?D ?S))
+             (make-instruction ?P ld4 ?D ?S))
 
 (deffunction st8 (?P ?D ?S)
-             (mk-unary-instruction ?P st8 ?D ?S))
+             (make-instruction ?P st8 ?D ?S))
 
 (deffunction st4 (?P ?D ?S)
-             (mk-unary-instruction ?P st4 ?D ?S))
+             (make-instruction ?P st4 ?D ?S))
 
 (deffunction alloc (?P ?D ?I ?L ?O ?R)
-             (simple-mk-instruction ?P alloc ?D (create$ ar.pfs ?I ?L ?O ?R)))
+             (make-instruction ?P alloc ?D (create$ ar.pfs ?I ?L ?O ?R)))
 
 (deffunction init-ia64-machine ()
              (defop-range A 1 and or nop.a add)
