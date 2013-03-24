@@ -24,7 +24,7 @@
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defclass Object (is-a USER)
-  (slot parent (type SYMBOL))
+  (slot parent (visibility public) (type SYMBOL))
   (slot id (visibility public) (type SYMBOL) (access initialize-only))
   (message-handler init around)
   (message-handler as-string primary))
@@ -64,18 +64,18 @@
 (defmessage-handler Instruction as-string primary ()
 						  (if (= (length$ ?self:source-registers) 0) then
 							 (str-cat "(" ?self:Predicate ") " ?self:Name " "
-										 (implode$ ?destination-registers))
+										 (implode$ ?self:destination-registers))
 							 else
 							 (str-cat "(" ?self:Predicate ") " ?self:Name " "
-										 (implode$ ?destination-registers) " = " 
-										 (implode$ ?source-registers))))
+										 (implode$ ?self:destination-registers) " = " 
+										 (implode$ ?self:source-registers))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defclass ExecutionObject 
   (is-a Object)
-  (slot Name (type SYMBOL) (default ?DERIVE))
-  (slot Class (type SYMBOL) (default ?DERIVE))
-  (slot Length (type NUMBER) (range 0 ?VARIABLE) (default 1)))
+  (slot Name   (visibility public) (type SYMBOL) (default ?DERIVE))
+  (slot Class  (visibility public) (type SYMBOL) (default ?DERIVE))
+  (slot Length (visibility public) (type NUMBER) (range 0 ?VARIABLE) (default 1)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -83,7 +83,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defclass Register (is-a Object)
+(defclass Register (is-a ExecutionObject)
   (multislot OtherNames (type SYMBOL) (default ?DERIVE))
   (message-handler .RegisterEquals primary))
 
