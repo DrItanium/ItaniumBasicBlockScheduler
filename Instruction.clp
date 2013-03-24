@@ -39,13 +39,16 @@
 					  (Name ?name)
 					  (DestinationRegisters ?destination-registers)
 					  (SourceRegisters ?source-registers)))
+
 (defmethod make-instruction
   ((?predicate SYMBOL)
 	(?operation SYMBOL)
 	(?destination-registers MULTIFIELD)
 	(?source-registers MULTIFIELD))
   (make-instruction (new-time-index)
-						  ?predicate ?operation ?destination-registers
+						  ?predicate 
+						  ?operation 
+						  ?destination-registers
 						  ?source-registers))
 (defmethod make-instruction 
   ((?predicate SYMBOL)
@@ -54,11 +57,10 @@
 	(?d1 SYMBOL STRING INSTANCE)
 	(?s0 SYMBOL STRING INSTANCE)
 	(?s1 SYMBOL STRING INSTANCE))
-  (make-instruction
-	 ?predicate
-	 ?operation
-	 (create$ ?d0 ?d1)
-	 (create$ ?s0 ?s1)))
+  (make-instruction ?predicate
+						  ?operation
+						  (create$ ?d0 ?d1)
+						  (create$ ?s0 ?s1)))
 
 
 (defmethod make-instruction
@@ -67,7 +69,8 @@
 	(?destination SYMBOL STRING)
 	(?s0 SYMBOL STRING INSTANCE)
 	(?s1 SYMBOL STRING INSTANCE))
-  (make-instruction ?predicate ?operation 
+  (make-instruction ?predicate 
+						  ?operation 
 						  (create$ ?destination) 
 						  (create$ ?s0 ?s1)))
 
@@ -76,57 +79,95 @@
 	(?operation SYMBOL)
 	(?destination SYMBOL STRING INSTANCE)
 	(?source SYMBOL STRING INSTANCE))
-  (make-instruction 
-	 ?predicate 
-	 ?operation
-	 (create$ ?destination)
-	 (create$ ?source)))
+  (make-instruction ?predicate 
+						  ?operation
+						  (create$ ?destination)
+						  (create$ ?source)))
 
 (defmethod make-instruction 
   ((?predicate SYMBOL)
 	(?operation SYMBOL)
 	(?destination MULTIFIELD))
-  (make-instance 
-	 ?predicate
-	 ?op
-	 ?destination
-	 (create$)))
+  (make-instruction ?predicate
+						  ?operation
+						  ?destination
+						  (create$)))
 
 
-(deffunction defop "Defines an operation" (?Op ?Type ?Length)
-				 (return (make-instance (gensym*) of Operation (Name ?Op) 
-												(Class ?Type) (Length ?Length))))
+(defmethod defop 
+  "Defines an operation"
+  ((?Op SYMBOL STRING)
+	(?Type SYMBOL STRING)
+	(?Length INTEGER (> ?Length 0)))
+  (make-instance of Operation
+					  (Name ?Op)
+					  (Class ?Type)
+					  (Length ?Length)))
 
-(deffunction defregister "Defines a register for a given class" (?Name ?Class ?Size)
-				 (return (make-instance (gensym*) of Register (Name ?Name)
-												(Class ?Class) (Length ?Size))))
+(defmethod defregister 
+  "Defines a register for a given class"
+  ((?Name SYMBOL STRING)
+	(?Class SYMBOL STRING)
+	(?Size INTEGER (>= ?Size 0)))
+  (make-instance of Register
+					  (Name ?Name)
+					  (Class ?Class)
+					  (Length ?Size)))
+(defmethod defregister-range
+  ((?Prefix SYMBOL STRING)
+	(?Start INTEGER (>= ?Start 0))
+	(?Stop INTEGER (and (>= ?Stop ?Start)
+							  (>= ?Stop 0)))
+	(?Class SYMBOL STRING)
+	(?Size INTEGER (>= ?Size 0)))
+  (bind ?i ?Start)
+  (while (< ?i ?Stop) do
+			(defregister (sym-cat ?Prefix ?i)
+							 ?Class
+							 ?Size)
+			(bind ?i (+ ?i 1))))
 
-(deffunction defregister-range "Defines a range of registers of a given type"
-				 (?Prefix ?Start ?Stop ?Class ?Size)
-				 (bind ?i (+ 1 ?Start))
-				 (bind ?total (sym-cat ?Prefix ?Start))
-				 (defregister ?total ?Class ?Size)
-				 (while (< ?i ?Stop) do
-						  (bind ?Name (sym-cat ?Prefix ?i))
-						  (defregister ?Name ?Class ?Size)
-						  (bind ?i (1+ ?i))))
+(defmethod defop-range
+  ((?Type SYMBOL STRING)
+	(?Length INTEGER)
+	(?Ops MULTIFIELD SYMBOL STRING))
+  (progn$ (?op ?Ops)
+			 (defop ?op ?Type ?Length)))
 
-(deffunction defop-range 
-				 (?Type ?Length $?Ops)
-				 (bind ?Count (length ?Ops))
-				 (bind ?i 1)
-				 (while (<= ?i ?Count) do
-						  (defop (nth ?i $?Ops) ?Type ?Length)
-						  (bind ?i (+ 1 ?i))))
+(defmethod defop-range
+  ((?Type SYMBOL STRING)
+	(?Length INTEGER)
+	($?Ops SYMBOL STRING (> (length$ $?Ops) 1)))
+  (defop-range ?Type ?Length $?Ops))
 
-(deffunction registers "Defines a list of registers of a given type"
-				 (?Class ?Size $?Registers)
-				 (bind ?Count (length ?Registers))
-				 (bind ?Total (nth 1 $?Registers))
-				 (defregister ?Total ?Class ?Size)
-				 (bind ?i 2)
-				 (while (<= ?i ?Count) do
-						  (bind ?Total (nth ?i $?Registers))
-						  (defregister ?Total ?Class ?Size)
-						  (bind ?i (1+ ?i))))
+(defmethod defop-range
+  ((?Type SYMBOL STRING)
+	(?Length INTEGER)
+	(?Op SYMBOL STRING))
+  (defop ?Op ?Type ?Length))
 
+(defmethod registers 
+  "Defines a list of registers of a given type"
+  ((?Class SYMBOL STRING)
+	(?Size INTEGER (>= ?Size 0))
+	(?registers MULTIFIELD SYMBOL STRING (> (length$ ?registers) 1)))
+  (progn$ (?register $?registers)
+			 (defregister ?register ?Class ?Size)))
+
+(defmethod registers
+  ((?Class SYMBOL STRING)
+	(?Size INTEGER (>= ?Size 0))
+	(?registers MULTIFIELD SYMBOL STRING (= (length$ ?registers) 1)))
+  (defregister (nth$ 1 ?registers) ?Class ?Size))
+
+(defmethod registers
+  ((?Class SYMBOL STRING)
+	(?Size INTEGER (>= ?Size 0))
+	($?registers SYMBOL STRING (> (length$ ?registers) 1)))
+  (registers ?Class ?Size ?registers))
+
+(defmethod registers
+  ((?Class SYMBOL STRING)
+	(?Size INTEGER (>= ?Size 0))
+	(?register SYMBOL STRING))
+  (defregister ?register ?Class ?Size))
