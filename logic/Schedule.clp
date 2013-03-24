@@ -67,20 +67,35 @@
 						(bind ?tmp (symbol-to-instance-name ?v))
 						(printout t (send ?tmp as-string) crlf))
 			(printout t ";;" crlf)
+			(assert (Restart Scheduling))
 			(modify-instance ?ig (Printed TRUE)))
 
 (defrule restart-scheduling
          (declare (salience -2))
-			(Stage Scheduling $?)
+			(Stage Schedule $?)
+			?f <- (Restart Scheduling)
 			(object (is-a Schedule) 
 			        (collect $?collect))
 			(test (> (length$ ?collect) 0))
 			=>
+			(retract ?f)
 			(assert (Schedule Instructions)))
 
-(defrule end-scheduling
+(defrule end-restart-scheduling 
          (declare (salience -1))
-			(Stage Scheduling $?)
+			(Stage Schedule $?)
+			;we still have the schedule instructions identifier
+			?f <- (Restart Scheduling)
+			?s <- (object (is-a Schedule)
+			        (collect))
+			=>
+			(retract ?f)
+			(unmake-instance ?s))
+
+
+(defrule scheduling-error
+         (declare (salience -1))
+			(Stage Schedule $?)
 			;we still have the schedule instructions identifier
 			?f <- (Schedule Instructions)
 			?s <- (object (is-a Schedule)

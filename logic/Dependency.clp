@@ -50,13 +50,14 @@
 				 "Does a check to see if _any_ element in the first list is in the second"
 				 (?L1 ?L2 $?IGNORE)
 				 (foreach ?reg0 ?L1
-							 (foreach ?reg1 ?L2
-										 (bind ?t0 (sym-cat { ?reg0 }))
-										 (bind ?t1 (sym-cat { ?reg1 }))
-										 (if (and (not (subsetp (create$ ?reg0) ?IGNORE))
-													 (or (eq ?reg0 ?reg1) 
-														  (eq ?t0 ?reg1)
-														  (eq ?reg0 ?t1))) then (return TRUE))))
+							 (if (not (member$ ?reg0 ?IGNORE)) then
+							 (bind ?t0 (sym-cat { ?reg0 }))
+								(foreach ?reg1 ?L2
+											(bind ?t1 (sym-cat { ?reg1 }))
+											(if (or (eq ?reg0 ?reg1) 
+													  (eq ?t0 ?reg1)
+													  (eq ?reg0 ?t1)) then 
+											  (return TRUE)))))
 				 (return FALSE))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -180,6 +181,7 @@
 
 (defrule inject-producers-consumers
 			(Stage Analysis $?)
+			(declare (salience -1))
 			?d <- (Dependency (firstInstructionID ?fi) 
 									(secondInstructionID ?si))
 			?d0 <- (object (is-a DependencyChain)
@@ -191,6 +193,6 @@
 
 
 			=>
-			(modify-instance ?d0 (consumers $?cons ?fi))
-			(modify-instance ?d1 (producers $?prods ?si))
+			(modify-instance ?d0 (consumers $?cons ?si))
+			(modify-instance ?d1 (producers $?prods ?fi))
 			(retract ?d))

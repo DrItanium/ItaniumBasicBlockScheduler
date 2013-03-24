@@ -24,21 +24,15 @@
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 (defrule stages-init
-         (declare (salience 10000))
+			(declare (salience 10000))
 			(initial-fact)
 			=>
-			(assert (Stage Imbue Analysis Collect Schedule Print)))
+			(assert (Stage Imbue Analysis Inject Collect Schedule Print)))
 
 (defrule next-stage
-         (declare (salience -10000))
+			(declare (salience -10000))
 			?f <- (Stage ? $?rest)
 			=>
 			(retract ?f)
-			(assert (Stage $?rest)))
-
-(defrule finish-execution
-         (declare (salience -9999))
-			?f <- (Stage ?)
-			=>
-			(retract ?f))
-
+			(if (> (length$ ?rest) 0) then
+			  (assert (Stage $?rest))))
