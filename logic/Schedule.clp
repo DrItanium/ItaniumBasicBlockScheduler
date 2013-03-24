@@ -45,6 +45,7 @@
 ; dispatch to the target instructions to remove from the list of producers
 ;------------------------------------------------------------------------------
 (defrule determine-scheduability
+         "An object is able to be scheduled if it has no remaining producers"
          (Stage Schedule $?)
 			?inst <- (object (is-a Instruction)
 								  (scheduled FALSE)
@@ -53,6 +54,7 @@
 								  (id ?id))
 			=>
 			(printout t (send ?inst as-string) crlf)
+			;what if we delete the instance instead?
 			(modify-instance ?inst (scheduled TRUE))
 			(progn$ (?c ?cs)
 			        (assert (Remove producer ?id from ?c))))
