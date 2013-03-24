@@ -98,16 +98,18 @@
 (defrule imbue-branch-dependencies
 			(Stage Imbue $?)
 			?bd <- (BranchImbue ?name ?i)
-			?inst <- (object (is-a Instruction) 
+			?branch <- (object (is-a Instruction) 
 					  (Name ?name) 
 					  (id ?bid))
-			(object (is-a Instruction) 
+			?inst <- (object (is-a Instruction) 
 					  (TimeIndex ?i) 
 					  (id ?oid)
 					  (InstructionType ?IT))
 			=>
+			;Register the branch in the consumer set
+			(slot-insert$ ?inst consumers 1 ?bid)
 			(if (neq ?IT B) then
-			  (slot-insert$ ?inst producers 1 ?oid))
+			  (slot-insert$ ?branch producers 1 ?oid))
 			(retract ?bd))
 
 (defrule define-WAW-dependency "Defines/or modifies a dependency"
