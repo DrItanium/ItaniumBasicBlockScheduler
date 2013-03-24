@@ -37,20 +37,17 @@
 						  (return (str-cat ?self:id)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defclass DependencyChain 
-  (is-a Object)
-  (multislot producers)
-  (multislot consumers)
-  (message-handler as-string primary))
-
-(defmessage-handler DependencyChain as-string primary ()
-						  (format nil "{%s,%s,%s}" ?self:id 
-									 (implode$ ?self:producers) 
-									 (implode$ ?self:consumers)))
-
-
+;(defclass DependencyChain 
+;  (is-a Object)
+;  (multislot producers)
+;  (multislot consumers)
+;  (message-handler as-string primary))
+;
+;(defmessage-handler DependencyChain as-string primary ()
+;						  (format nil "{%s,%s,%s}" ?self:id 
+;									 (implode$ ?self:producers) 
+;									 (implode$ ?self:consumers)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (defclass Instruction (is-a Object)
   (slot Predicate (type SYMBOL))
   (slot Name (type SYMBOL))
@@ -58,19 +55,20 @@
   (slot ExecutionLength (type NUMBER))
   (multislot destination-registers (type SYMBOL))
   (multislot source-registers (type SYMBOL))
-  (slot DependencyChain (type SYMBOL))
+  (multislot producers (type SYMBOL))
+  ;(slot DependencyChain (type SYMBOL))
   (slot InstructionType (type SYMBOL) (default-dynamic nil))
-  (message-handler as-string primary)
-  (message-handler get-producers)
-  (message-handler get-consumers))
+  (message-handler as-string primary))
+;  (message-handler get-producers)
+;  (message-handler get-consumers))
 
-(defmessage-handler Instruction get-producers ()
- (send (symbol-to-instance-name ?self:DependencyChain)
-       get-producers))
-
-(defmessage-handler Instruction get-consumers ()
- (send (symbol-to-instance-name ?self:DependencyChain)
-       get-consumers))
+;(defmessage-handler Instruction get-producers ()
+; (send (symbol-to-instance-name ?self:DependencyChain)
+;       get-producers))
+;
+;(defmessage-handler Instruction get-consumers ()
+; (send (symbol-to-instance-name ?self:DependencyChain)
+;       get-consumers))
 
 (defmessage-handler Instruction as-string primary ()
 						  (if (= (length$ ?self:source-registers) 0) then
