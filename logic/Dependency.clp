@@ -61,6 +61,7 @@
 
 (defrule imbue-op 
 			"Imbue's the operational type into the given instruction"
+			(declare (salience 1))
 			(Stage Imbue $?)
 			(object (is-a Operation) 
 					  (Class ?Class) 
@@ -97,10 +98,10 @@
 (defrule imbue-branch-dependencies
 			(Stage Imbue $?)
 			?bd <- (BranchImbue ?name ?i)
-			(object (is-a Instruction) 
+			?inst <- (object (is-a Instruction) 
 					  (Name ?name) 
 					  (id ?bid))
-			?inst <- (object (is-a Instruction) 
+			(object (is-a Instruction) 
 					  (TimeIndex ?i) 
 					  (id ?oid)
 					  (InstructionType ?IT))
@@ -201,6 +202,8 @@
 			(Stage Analysis $?)
 			?d <- (Dependency (firstInstructionID ?fi) 
 									(secondInstructionID ?si))
+			(object (is-a Instruction)
+			        (id ?fi))
 			?d1 <- (object (is-a Instruction)
 								(id ?si))
 			=>
