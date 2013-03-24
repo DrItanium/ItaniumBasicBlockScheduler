@@ -47,8 +47,8 @@
 (defrule determine-scheduability
          (Stage Schedule $?)
 			?inst <- (object (is-a Instruction)
-			                 (producers)
 								  (scheduled FALSE)
+			                 (producers)
 								  (consumers $?cs)
 								  (id ?id))
 			=>
@@ -63,21 +63,41 @@
 			=>
 			(printout t ";;" crlf))
 
+(defrule build-initial-fact
+			(Stage Schedule-Update-Init $?)
+			(object (is-a Instruction)
+					  (scheduled FALSE)
+			        (id ?id)
+					  (producers $?p))
+			(exists (Remove producer ? from ?id))
+			=>
+			(assert (Instruction ?id has producers list $?p)))
+			
+;we need to merge the set of producers to remove which we can then 
+;easily compare to the original list to figure out 
 (defrule strip-producers
          (Stage Schedule-Update $?)
 			?f <- (Remove producer ?id from ?c)
+			?f2 <- (Instruction ?c has producers list $?b ?id $?a)
+			=>
+			(retract ?f ?f2)
+			(assert (Instruction ?c has producers list $?b $?a)))
+
+(defrule update-producer-set
+         (Stage Schedule-Update $?)
+		   ?f <- (Instruction ?c has producers list $?list)
+			(not (exists (Remove producer ? from ?c)))
 			?inst <- (object (is-a Instruction)
-				              (id ?c)
-								  (producers $?a ?id $?b))
+				              (id ?c))
 			=>
 			(retract ?f)
-			(assert (Restart Scheduling))
-			(modify-instance ?inst (producers $?a $?b)))
+			(modify-instance ?inst (producers $?list))
+			(assert (Restart Scheduling)))
 
 (defrule restart-scheduling
-         (declare (salience -1))
+         (declare (salience -2))
 			?stg <- (Stage Schedule-Update $?rest)
 			?f <- (Restart Scheduling)
 			=>
 			(retract ?f ?stg)
-			(assert (Stage Schedule Schedule-Update $?rest)))
+			(assert (Stage Schedule Schedule-Update-Init Schedule-Update $?rest)))
