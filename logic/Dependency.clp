@@ -49,11 +49,11 @@
 				 "Does a check to see if _any_ element in the first list is in the second"
 				 (?L1 ?L2 $?IGNORE)
 				 (foreach ?reg0 ?L1
-				          (if (and (not (numberp ?reg0))
-									    (not (member$ ?reg0 ?IGNORE))
-									    (or (member$ ?reg0 ?L2)
-										     (member$ (sym-cat { ?reg0 }) ?L2))) then
-							  (return TRUE)))
+							 (if (and (not (numberp ?reg0))
+										 (not (member$ ?reg0 ?IGNORE))
+										 (or (member$ ?reg0 ?L2)
+											  (member$ (sym-cat { ?reg0 }) ?L2))) then
+								(return TRUE)))
 				 (return FALSE))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rules                                                                     ;;
@@ -114,21 +114,21 @@
 			  (modify-instance ?dc (producers $?prod ?oid)))
 			(retract ?bd))
 
-
 (defrule define-WAW-dependency "Defines/or modifies a dependency"
 			(Stage Analysis $?)
 			(object (is-a Instruction) 
 					  (InstructionType ~B)
-					  (id ?g0) 
-					  (destination-registers $?dr0)
-					  (TimeIndex ?tc0))
+					  (destination-registers $? ?d&~p0 $?)
+					  (TimeIndex ?tc0)
+					  (id ?g0))
 			(object (is-a Instruction) 
-					  (id ?g1) 
 					  (InstructionType ~B)
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
-					  (Predicate ?p)
-					  (destination-registers $?dr1))
-			(test (contains-registerp $?dr0 $?dr1 p0))
+					  (destination-registers $? 
+													 ?o&:(or (eq ?o ?d)
+																(eq ?o (sym-cat { ?d })))
+													 $?)
+					  (id ?g1))
 			=>
 			(assert (Dependency (firstInstructionID ?g0) 
 									  (secondInstructionID ?g1))))
@@ -136,16 +136,16 @@
 (defrule define-RAW-dependency "Defines/or modifies a dependency"
 			(Stage Analysis $?)
 			(object (is-a Instruction) 
-					  (id ?g0) 
+					  (InstructionType ~B)
+					  (TimeIndex ?tc0)
 					  (destination-registers $?dr0)
-					  (TimeIndex ?tc0) 
-					  (InstructionType ~B))
+					  (id ?g0))
 			(object (is-a Instruction) 
-					  (id ?g1&~?g0) 
+					  (InstructionType ~B)
+					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
 					  (Predicate ?p)
 					  (source-registers $?sr0) 
-					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
-					  (InstructionType ~B))
+					  (id ?g1))
 			(test (contains-registerp $?dr0
 											  (create$ ?p $?sr0) p0))
 			=>
@@ -155,16 +155,16 @@
 (defrule define-WAR-dependency "Defines/or modifies a WAR dependency"
 			(Stage Analysis $?)
 			(object (is-a Instruction) 
-					  (id ?g0) 
-					  (source-registers $?sr0) 
+					  (InstructionType ~B)
 					  (TimeIndex ?tc0)
-					  (InstructionType ~B))
+					  (source-registers $?sr0) 
+					  (id ?g0))
 			(object (is-a Instruction) 
-					  (id ?g1&~?g0) 
-					  (Predicate ?p)
-					  (destination-registers $?dr0) 
+					  (InstructionType ~B)
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
-					  (InstructionType ~B))
+					  (destination-registers $?dr0) 
+					  (Predicate ?p)
+					  (id ?g1))
 			(test (contains-registerp $?sr0
 											  (create$ ?p $?dr0) p0))
 			=>
@@ -177,14 +177,10 @@
 			?d <- (Dependency (firstInstructionID ?fi) 
 									(secondInstructionID ?si))
 			?d0 <- (object (is-a DependencyChain)
-								(parent ?fi)
-								(consumers $?cons))
+								(parent ?fi))
 			?d1 <- (object (is-a DependencyChain)
-								(parent ?si)
-								(producers $?prods))
-
-
+								(parent ?si))
 			=>
-			(modify-instance ?d0 (consumers $?cons ?si))
-			(modify-instance ?d1 (producers $?prods ?fi))
+			(slot-insert$ ?d0 consumers 1 ?si)
+			(slot-insert$ ?d1 producers 1 ?fi)
 			(retract ?d))
