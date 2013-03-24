@@ -24,7 +24,12 @@
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;; Schedule.clp - denotes functions and rules related to Schedules
 ;; By Joshua Scoggins
-
+(defclass Schedule
+          (is-a Object)
+			 (multislot collect)
+			 (multislot at)
+			 (multislot success)
+			 (multislot failure))
 (defrule schedule
  (declare (salience 1))
  (Schedule)
