@@ -50,16 +50,12 @@
 				 "Does a check to see if _any_ element in the first list is in the second"
 				 (?L1 ?L2 $?IGNORE)
 				 (foreach ?reg0 ?L1
-							 (if (not (member$ ?reg0 ?IGNORE)) then
-							 (bind ?t0 (sym-cat { ?reg0 }))
-								(foreach ?reg1 ?L2
-											(bind ?t1 (sym-cat { ?reg1 }))
-											(if (or (eq ?reg0 ?reg1) 
-													  (eq ?t0 ?reg1)
-													  (eq ?reg0 ?t1)) then 
-											  (return TRUE)))))
+				          (if (and (not (numberp ?reg0))
+									    (not (member$ ?reg0 ?IGNORE))
+									    (or (member$ ?reg0 ?L2)
+										     (member$ (sym-cat { ?reg0 }) ?L2))) then
+							  (return TRUE)))
 				 (return FALSE))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rules                                                                     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -123,16 +119,16 @@
 (defrule define-WAW-dependency "Defines/or modifies a dependency"
 			(Stage Analysis $?)
 			(object (is-a Instruction) 
+					  (InstructionType ~B)
 					  (id ?g0) 
 					  (destination-registers $?dr0)
-					  (TimeIndex ?tc0) 
-					  (InstructionType ~B))
+					  (TimeIndex ?tc0))
 			(object (is-a Instruction) 
-					  (id ?g1&~?g0) 
-					  (Predicate ?p)
-					  (destination-registers $?dr1) 
+					  (id ?g1) 
+					  (InstructionType ~B)
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
-					  (InstructionType ~B))
+					  (Predicate ?p)
+					  (destination-registers $?dr1))
 			(test (contains-registerp $?dr0 $?dr1 p0))
 			=>
 			(assert (Dependency (firstInstructionID ?g0) 
@@ -180,8 +176,8 @@
 									  (dependencyType WAR))))
 
 (defrule inject-producers-consumers
-			(Stage Analysis $?)
 			(declare (salience -1))
+			(Stage Analysis $?)
 			?d <- (Dependency (firstInstructionID ?fi) 
 									(secondInstructionID ?si))
 			?d0 <- (object (is-a DependencyChain)
