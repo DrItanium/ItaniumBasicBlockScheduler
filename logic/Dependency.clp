@@ -34,8 +34,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (deftemplate Dependency 
 				 "Represents a Data Dependency between two instructions"
-				 (slot firstInstructionGUID (type NUMBER))
-				 (slot secondInstructionGUID (type NUMBER))
+				 (slot firstInstructionID (type NUMBER))
+				 (slot secondInstructionID (type NUMBER))
 				 (slot dependencyType (type SYMBOL)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -65,15 +65,15 @@
 
 (defrule imbue-op 
 			"Imbue's the operational type into the given instruction"
-			(Imbue)
+			(Stage Imbue $?)
 			(object (is-a Operation) 
 					  (Class ?Class) 
 					  (Name ?oName) 
 					  (Length ?oLength))
 			?inst <- (object (is-a Instruction) 
-								  (GUID ?gid) 
-								  (Name ?name&?oName) 
-								  (ExecutionLength ?length&~?oLength))
+								  (id ?gid) 
+								  (Name ?oName) 
+								  (ExecutionLength ~?oLength))
 			=>
 			(modify-instance ?inst 
 								  (InstructionType ?Class)
@@ -82,16 +82,17 @@
 			  (assert (Check ?gid))))
 
 (defrule generate-branch-dependencies 
-			(Imbue)
+			(Stage Imbue $?)
 			?chk <- (Check ?gid)
 			?inst <- (object (is-a Instruction) 
-								  (GUID ?gid) 
+								  (id ?gid) 
 								  (Name ?name) 
 								  (ExecutionLength ?l&:(<> ?l -1)) 
 								  (TimeIndex ?ti) 
-								  (InstructionType B) 
-								  (DependencyInformation ?dci))
-			(test (not (send ?dci .HasProducers)))
+								  (InstructionType B))
+			(object (is-a DependencyChain)
+					  (parent ?gid)
+					  (producers))
 			=>
 			(retract ?chk)
 			(bind ?i 0)
@@ -100,112 +101,106 @@
 					 (bind ?i (+ ?i 1))))
 
 (defrule imbue-branch-dependencies
-			(Imbue)
+			(Stage Imbue $?)
 			?bd <- (BranchImbue ?name ?i)
-			?branch <- (object (is-a Instruction) 
-									 (Name ?name) 
-									 (DependencyInformation ?dci))
-			?other <- (object (is-a Instruction) 
-									(TimeIndex ?i) 
-									(InstructionType ?IT))
+			(object (is-a Instruction) 
+					  (Name ?name) 
+					  (DependencyInformation ?dci)
+					  (id ?bid))
+
+			(object (is-a Instruction) 
+					  (TimeIndex ?i) 
+					  (id ?oid)
+					  (InstructionType ?IT))
+			?dc <- (object (is-a DependencyChain)
+								(parent ?bid)
+								(producers $?prod))
 			=>
 			(if (neq ?IT B) then
-			  (send ?branch .AddProducer 
-					  (instance-to-symbol ?other)))
+			  (modify-instance ?dc (producers $?prod ?oid)))
 			(retract ?bd))
-
-(defrule final-rule-imbue
-			(declare (salience -1000))
-			?im <- (Imbue)
-			=>
-			(retract ?im)
-			(assert (Analysis)))
 
 
 (defrule define-WAW-dependency "Defines/or modifies a dependency"
-			(Analysis)
+			(Stage Analysis $?)
 			(object (is-a Instruction) 
-					  (GUID ?g0) 
-					  (DestinationRegisters ?DR0)
+					  (id ?g0) 
+					  (destination-registers $?dr0)
 					  (TimeIndex ?tc0) 
-					  (InstructionType ?z0&~B))
+					  (InstructionType ~B))
 			(object (is-a Instruction) 
-					  (GUID ?g1&~?g0) 
+					  (id ?g1&~?g0) 
 					  (Predicate ?p)
-					  (DestinationRegisters ?DR1) 
+					  (DestinationRegisters $?dr1) 
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
-					  (InstructionType ?z1&~B))
-			(test (contains-registerp (send ?DR0 get-Contents)
-											  (send ?DR1 get-Contents) p0))
+					  (InstructionType ~B))
+			(test (contains-registerp $?dr0 $?dr1 p0))
 			=>
-			(assert (Dependency (firstInstructionGUID ?g0) 
-									  (secondInstructionGUID ?g1) (dependencyType WAW))))
+			(assert (Dependency (firstInstructionID ?g0) 
+									  (secondInstructionID ?g1) 
+									  (dependencyType WAW))))
 
 (defrule define-RAW-dependency "Defines/or modifies a dependency"
-			(Analysis)
+			(Stage Analysis $?)
 			(object (is-a Instruction) 
-					  (GUID ?g0) 
-					  (DestinationRegisters ?DR0)
+					  (id ?g0) 
+					  (destination-registers $?dr0)
 					  (TimeIndex ?tc0) 
-					  (InstructionType ?z0&~B))
+					  (InstructionType ~B))
 			(object (is-a Instruction) 
-					  (GUID ?g1&~?g0) 
+					  (id ?g1&~?g0) 
 					  (Predicate ?p)
-					  (SourceRegisters ?SR0) 
+					  (SourceRegisters $?sr0) 
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
-					  (InstructionType ?z1&~B))
-			(test (contains-registerp (send ?DR0 get-Contents)
-											  (create$ ?p (send ?SR0 get-Contents)) p0))
+					  (InstructionType ~B))
+			(test (contains-registerp $?dr0
+											  (create$ ?p $?sr0) p0))
 			=>
-			(assert (Dependency (firstInstructionGUID ?g0) 
-									  (secondInstructionGUID ?g1)
+			(assert (Dependency (firstInstructionID ?g0) 
+									  (secondInstructionID ?g1)
 									  (dependencyType RAW))))
 
 (defrule define-WAR-dependency "Defines/or modifies a WAR dependency"
-			(Analysis)
+			(Stage Analysis $?)
 			(object (is-a Instruction) 
-					  (GUID ?g0) 
-					  (SourceRegisters ?SR0) 
+					  (id ?g0) 
+					  (source-registers $?sr0) 
 					  (TimeIndex ?tc0)
 					  (InstructionType ~B))
 			(object (is-a Instruction) 
-					  (GUID ?g1&~?g0) 
+					  (id ?g1&~?g0) 
 					  (Predicate ?p)
-					  (DestinationRegisters ?DR0) 
+					  (destination-registers $?dr0) 
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
 					  (InstructionType ~B))
-			(test (contains-registerp 
-					  (send ?SR0 get-Contents) 
-					  (create$ ?p (send ?DR0 get-Contents)) p0))
+			(test (contains-registerp $?sr0
+											  (create$ ?p $?dr0) p0))
 			=>
-			(assert (Dependency (firstInstructionGUID ?g0)
-									  (secondInstructionGUID ?g1) 
+			(assert (Dependency (firstInstructionID ?g0)
+									  (secondInstructionID ?g1) 
 									  (dependencyType WAR))))
 
 (defrule inject-producers-consumers
-			(Analysis)
-			?d <- (Dependency (firstInstructionGUID ?g0) 
-				               (secondInstructionGUID ?g1))
-			?i0 <- (object (is-a Instruction) 
-				            (GUID ?g0)) 
-			?i1 <- (object (is-a Instruction) 
-				            (GUID ?g1)) 
+			(Stage Analysis $?)
+			?d <- (Dependency (firstInstructionID ?g0) 
+									(secondInstructionID ?g1))
+			?d0 <- (object (is-a DependencyChain)
+								(parent ?g0)
+								(consumers $?cons))
+			?d1 <- (object (is-a DependencyChain)
+								(parent ?g1)
+								(producers $?prods))
+
+
 			=>
-			(send ?i0 .AddConsumer (instance-to-symbol ?i1))
-			(send ?i1 .AddProducer (instance-to-symbol ?i0))
+			(modify-instance ?d0 (consumers $?cons ?g1))
+			(modify-instance ?d1 (producers $?prds ?g0))
 			(retract ?d))
 
 ;(defrule printout-dependency-info "Prints out each dependency chain"
 ; (declare (salience -12))
-; (Analysis)
+; (Stage Analysis $?)
 ; (object (is-a Instruction) (TimeIndex ?ti) (DependencyInformation ?di))
 ; =>
 ; (printout t ?ti ": producers: " (send (send ?di get-Producers) get-Contents) 
 ;  " consumers: " (send (send ?di get-Consumers) get-Contents) crlf))
-
-(defrule final-analysis-rule
-			(declare (salience -1000))
-			?a <- (Analysis)
-			=>
-			(retract ?a)
-			(assert (Collect)))
