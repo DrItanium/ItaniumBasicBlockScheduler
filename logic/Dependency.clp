@@ -67,9 +67,9 @@
 					  (Name ?oName) 
 					  (Length ?oLength))
 			?inst <- (object (is-a Instruction) 
-								  (id ?gid) 
 								  (Name ?oName) 
-								  (ExecutionLength ~?oLength))
+								  (ExecutionLength ~?oLength)
+								  (id ?gid))
 			=>
 			(modify-instance ?inst 
 								  (InstructionType ?Class)
@@ -107,11 +107,10 @@
 					  (id ?oid)
 					  (InstructionType ?IT))
 			?dc <- (object (is-a DependencyChain)
-								(parent ?bid)
-								(producers $?prod))
+								(parent ?bid))
 			=>
 			(if (neq ?IT B) then
-			  (modify-instance ?dc (producers $?prod ?oid)))
+			  (slot-insert$ ?dc producers 1 ?oid))
 			(retract ?bd))
 
 (defrule define-WAW-dependency "Defines/or modifies a dependency"
@@ -122,8 +121,8 @@
 					  (TimeIndex ?tc0)
 					  (id ?g0))
 			(object (is-a Instruction) 
-					  (InstructionType ~B)
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
+					  (InstructionType ~B)
 					  (destination-registers $? 
 													 ?o&:(or (eq ?o ?d)
 																(eq ?o (sym-cat { ?d })))
@@ -132,24 +131,56 @@
 			=>
 			(assert (Dependency (firstInstructionID ?g0) 
 									  (secondInstructionID ?g1))))
-
-(defrule define-RAW-dependency "Defines/or modifies a dependency"
+(defrule define-RAW-dependency-predicate 
+			"Defines/or modifies a dependency"
 			(Stage Analysis $?)
 			(object (is-a Instruction) 
 					  (InstructionType ~B)
+					  (destination-registers $? ?d&~p0 $?)
 					  (TimeIndex ?tc0)
-					  (destination-registers $?dr0)
 					  (id ?g0))
 			(object (is-a Instruction) 
-					  (InstructionType ~B)
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
-					  (Predicate ?p)
-					  (source-registers $?sr0) 
+					  (InstructionType ~B)
+					  (Predicate ?d)
 					  (id ?g1))
-			(test (contains-registerp $?dr0
-											  (create$ ?p $?sr0) p0))
 			=>
 			(assert (Dependency (firstInstructionID ?g0) 
+									  (secondInstructionID ?g1))))
+
+(defrule define-RAW-dependency 
+			"Defines/or modifies a dependency"
+			(Stage Analysis $?)
+			(object (is-a Instruction) 
+					  (InstructionType ~B)
+					  (destination-registers $? ?d&~p0 $?)
+					  (TimeIndex ?tc0)
+					  (id ?g0))
+			(object (is-a Instruction) 
+					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
+					  (InstructionType ~B)
+					  (source-registers $? ?s&:(or (eq ?s ?d)
+															 (eq ?s (sym-cat { ?d }))) $?)
+					  (id ?g1))
+			=>
+			(assert (Dependency (firstInstructionID ?g0) 
+									  (secondInstructionID ?g1))))
+
+(defrule define-WAR-dependency-predicate  
+ "Defines/or modifies a WAR dependency"
+			(Stage Analysis $?)
+			(object (is-a Instruction) 
+					  (InstructionType ~B)
+					  (source-registers $? ?s&~p0 $?) 
+					  (TimeIndex ?tc0)
+					  (id ?g0))
+			(object (is-a Instruction) 
+					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
+					  (InstructionType ~B)
+					  (Predicate ?s)
+					  (id ?g1))
+			=>
+			(assert (Dependency (firstInstructionID ?g0)
 									  (secondInstructionID ?g1))))
 
 (defrule define-WAR-dependency "Defines/or modifies a WAR dependency"
@@ -157,16 +188,14 @@
 			(object (is-a Instruction) 
 					  (InstructionType ~B)
 					  (TimeIndex ?tc0)
-					  (source-registers $?sr0) 
+					  (source-registers $? ?s&~p0 $?) 
 					  (id ?g0))
 			(object (is-a Instruction) 
-					  (InstructionType ~B)
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
-					  (destination-registers $?dr0) 
-					  (Predicate ?p)
+					  (InstructionType ~B)
+					  (destination-registers $? ?d&:(or (eq ?d ?s)
+																   (eq ?d (sym-cat { ?s }))) $?) 
 					  (id ?g1))
-			(test (contains-registerp $?sr0
-											  (create$ ?p $?dr0) p0))
 			=>
 			(assert (Dependency (firstInstructionID ?g0)
 									  (secondInstructionID ?g1))))
