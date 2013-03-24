@@ -34,8 +34,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (deftemplate Dependency 
 				 "Represents a Data Dependency between two instructions"
-				 (slot firstInstructionID (type NUMBER))
-				 (slot secondInstructionID (type NUMBER))
+				 (slot firstInstructionID (type SYMBOL))
+				 (slot secondInstructionID (type SYMBOL))
 				 (slot dependencyType (type SYMBOL)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -105,9 +105,7 @@
 			?bd <- (BranchImbue ?name ?i)
 			(object (is-a Instruction) 
 					  (Name ?name) 
-					  (DependencyInformation ?dci)
 					  (id ?bid))
-
 			(object (is-a Instruction) 
 					  (TimeIndex ?i) 
 					  (id ?oid)
@@ -131,7 +129,7 @@
 			(object (is-a Instruction) 
 					  (id ?g1&~?g0) 
 					  (Predicate ?p)
-					  (DestinationRegisters $?dr1) 
+					  (destination-registers $?dr1) 
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
 					  (InstructionType ~B))
 			(test (contains-registerp $?dr0 $?dr1 p0))
@@ -150,7 +148,7 @@
 			(object (is-a Instruction) 
 					  (id ?g1&~?g0) 
 					  (Predicate ?p)
-					  (SourceRegisters $?sr0) 
+					  (source-registers $?sr0) 
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
 					  (InstructionType ~B))
 			(test (contains-registerp $?dr0
@@ -182,25 +180,17 @@
 
 (defrule inject-producers-consumers
 			(Stage Analysis $?)
-			?d <- (Dependency (firstInstructionID ?g0) 
-									(secondInstructionID ?g1))
+			?d <- (Dependency (firstInstructionID ?fi) 
+									(secondInstructionID ?si))
 			?d0 <- (object (is-a DependencyChain)
-								(parent ?g0)
+								(parent ?fi)
 								(consumers $?cons))
 			?d1 <- (object (is-a DependencyChain)
-								(parent ?g1)
+								(parent ?si)
 								(producers $?prods))
 
 
 			=>
-			(modify-instance ?d0 (consumers $?cons ?g1))
-			(modify-instance ?d1 (producers $?prds ?g0))
+			(modify-instance ?d0 (consumers $?cons ?fi))
+			(modify-instance ?d1 (producers $?prods ?si))
 			(retract ?d))
-
-;(defrule printout-dependency-info "Prints out each dependency chain"
-; (declare (salience -12))
-; (Stage Analysis $?)
-; (object (is-a Instruction) (TimeIndex ?ti) (DependencyInformation ?di))
-; =>
-; (printout t ?ti ": producers: " (send (send ?di get-Producers) get-Contents) 
-;  " consumers: " (send (send ?di get-Consumers) get-Contents) crlf))
