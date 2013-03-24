@@ -43,4 +43,4 @@
  "When it is finished the result will be printed out." crlf
  "Parallel sections of code are separated by ;;." crlf
  "The groups of instructions separated by ;; are known as Instruction Groups" crlf)
-(block "examples/Blocks/BlockLarge.clp")
+;(block "examples/Blocks/BlockLarge.clp")
