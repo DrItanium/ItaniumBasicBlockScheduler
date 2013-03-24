@@ -34,17 +34,16 @@
 			(test (> (length$ ?collect) 0))
 			=>
 			(retract ?f)
-			(bind ?elements $?collect)
 			(bind ?a0 $?at)
 			(bind ?leftOver (create$))
 			(bind ?result (create$))
-			(foreach ?c ?elements
+			(foreach ?c $?collect 
 						(bind ?inst (symbol-to-instance-name ?c))
 						(bind ?cond0 (not (member$ ?c ?at))) 
 						(bind ?cond1 (subsetp (send ?inst get-producers) $?at))
 						(if (and ?cond0 ?cond1) then
 						  ;success
-						  (bind ?a0 (create$ ?a0 ?c))
+						  (bind ?a0 (create$ ?c ?a0))
 						  (bind ?result (create$ ?result ?c))
 						  else
 						  ;failure
