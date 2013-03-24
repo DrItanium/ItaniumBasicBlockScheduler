@@ -1,4 +1,4 @@
-;Copyright (c) 2012, Joshua Scoggins 
+;Copyright (c) 2013, Joshua Scoggins 
 ;All rights reserved.
 ;
 ;Redistribution and use in source and binary forms, with or without
@@ -22,32 +22,12 @@
 ;ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 ;(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-(deftemplate Path "Defines a dependency path"
- (multislot contents (type SYMBOL) (default ?DERIVE))
- (slot length (type INTEGER) (range 0 ?VARIABLE) (default 0))
- (slot GUID (type INTEGER)))
-
-(defrule define-dependency-path "Defines a dependency path"
- (Dependency (firstInstructionGUID ?g0) (secondInstructionGUID ?g1)
-  (dependentRegisters ?r))
- =>
- (assert (Path (contents (quote ?g0 ?g1)) (length 2) (GUID (new-guid)))))
-
-(defrule modify-dependency-path "Modifies a dependency by extending it's length"
- ?Path <- (Path (contents $?First ?Last) (length ?length))
- (Dependency (firstInstructionGUID ?g0&:(eq ?Last ?g0)) (secondInstructionGUID ?g1))
- =>
- (modify ?Path (contents $?First ?Last ?g1) (length (1+ ?length))))
-
-(defrule remove-subset-paths "Removes paths that are contained in another path"
- (Path (contents $?C) (GUID ?g0))
- ?subst <- (Path (contents $?C2) (GUID ?g1&~?g0))
- (test (subsetp $?C2 $?C))
- =>
- (retract ?subst))
-
-;(defrule print-paths "Prints all dependencies at the end of the day"
-; (declare (salience -10000))
-; (Path (contents $?contents))
-; =>
-; (printout t ?contents crlf))
+(load "lib/lisp.clp")
+(load "lib/Classes.clp")
+(load "lib/InstructionGroupID.clp")
+(load "lib/GUID.clp")
+(load "lib/TimeIndex.clp")
+(load "lib/Group.clp")
+(load "lib/Instruction.clp")
+(load "lib/Itanium.clp")
+(load "lib/Support.clp")

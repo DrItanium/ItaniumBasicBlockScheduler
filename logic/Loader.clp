@@ -1,4 +1,4 @@
-;Copyright (c) 2012, Joshua Scoggins 
+;Copyright (c) 2013, Joshua Scoggins 
 ;All rights reserved.
 ;
 ;Redistribution and use in source and binary forms, with or without
@@ -22,15 +22,7 @@
 ;ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 ;(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-;;Import
-(batch* "lib/Loader.clp")
-(batch* "logic/Loader.clp")
-
-(printout t 
- "Welcome to the Code Scheduler!" crlf
- "To start scheduling type in (block \"/path/to/file\")" crlf
- "Then type in (analyze)" crlf
- "When it is finished the result will be printed out." crlf
- "Parallel sections of code are separated by ;;." crlf
- "The groups of instructions separated by ;; are known as Instruction Groups" crlf)
-;(block "examples/Blocks/BlockLarge.clp")
+(load "logic/StageAdvancement.clp")
+(load "logic/Dependency.clp")
+(load "logic/Collect.clp")
+(load "logic/Schedule.clp")
