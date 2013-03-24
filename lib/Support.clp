@@ -35,5 +35,4 @@
 (deffunction analyze () "Use this function instead of run becase it asserts a
  specific rule that has to be initiated so that the objects don't start
  automatically running!"
- (assert (Imbue))
  (run))
