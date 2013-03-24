@@ -1,3 +1,4 @@
+;------------------------------------------------------------------------------
 ;Copyright (c) 2012, Joshua Scoggins 
 ;All rights reserved.
 ;
@@ -22,8 +23,27 @@
 ;ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 ;(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+;------------------------------------------------------------------------------
 ;; Schedule.clp - denotes functions and rules related to Schedules
 ;; By Joshua Scoggins
+;------------------------------------------------------------------------------
+; The current problem is that the scheduler is not very smart when it comes to
+; doing dependency analysis. It is simple but not very smart and as such there
+; is a lot of overhead using the subset command. 
+;
+; The real problem is that we are not using the set of consumers to trigger the
+; next elements to be scheduled. At least, this is one way to do it.
+;
+; Another way would be to decompose the schedule rule into multiple rules to
+; do the subset check within the LHS of the rule instead of the RHS. This is
+; similar to how I did it in my thesis. The problem with this approach is that
+; we are relying on the subset command when we can use the set of consumers to
+; mark instructions for dispatch. 
+;
+; If we take a destructive approach then we can dispatch each instruction once
+; its list of producers is empty. This requires the use of consumers to
+; dispatch to the target instructions to remove from the list of producers
+;------------------------------------------------------------------------------
 (defrule schedule
 			(declare (salience 1))
 			(Stage Schedule $?)
