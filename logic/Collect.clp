@@ -23,15 +23,12 @@
 ;(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 (defrule collect-instructions
- (Collect)
- ?instruction <- (object (is-a Instruction))
- ?cl <- (object (is-a List) (Name Collect))
- =>
- (send ?cl .Add (instance-name-to-symbol (instance-name ?instruction))))
-
-(defrule final-collect-rule
- (declare (salience -1000))
- ?c <- (Collect)
- =>
- (retract ?c)
- (assert (Schedule)))
+			(Stage Collect $?)
+			(not (exists (object (is-a Schedule))))
+			=>
+			(bind ?collection (create$))
+			(do-for-all-instances 
+			  ((?a Instruction)) TRUE
+			  (bind ?collection (create$ ?collection ?a:id)))
+			(make-instance of Schedule
+								(collect ?collection)))
