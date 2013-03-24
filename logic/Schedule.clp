@@ -24,53 +24,67 @@
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;; Schedule.clp - denotes functions and rules related to Schedules
 ;; By Joshua Scoggins
-(defclass Schedule
-          (is-a Object)
-			 (multislot collect)
-			 (multislot at)
-			 (multislot success)
-			 (multislot failure))
 (defrule schedule
- (declare (salience 1))
- (Schedule)
- ?collect <- (object (is-a List) (Name Collect))
- (test (not (send ?collect .IsEmpty)))
- ?at <- (object (is-a List) (Name At))
- =>
- (bind ?q (make-instance (gensym*) of InstructionGroup
-  (TimeIndex (new-igid))))
- (bind ?elements (quote (send ?collect get-Contents)))
- (foreach ?c ?elements
-  (bind ?inst (symbol-to-instance-name ?c))
-  (bind ?cond0 (not (send ?at .Contains ?c)))
-  (bind ?cond1 (send ?at .ContainsSubset (send ?inst .Producers)))
-  (if (and ?cond0 ?cond1) then
-   (send ?at .Add ?c)
-   (send ?collect .Remove ?c)
-   (send ?q .Add ?c)))
- (if (send ?q .IsEmpty) then (unmake-instance ?q)))
+			(declare (salience 1))
+			(Stage Schedule $?)
+			?f <- (Schedule Instructions)
+			?s <- (object (is-a Schedule)
+					  (collect $?collect)
+					  (at $?at))
+			(test (> (length$ ?collect) 0))
+			=>
+			(retract ?f)
+			(bind ?elements $?collect)
+			(bind ?a0 $?at)
+			(bind ?leftOver (create$))
+			(bind ?result (create$))
+			(foreach ?c ?elements
+						(bind ?inst (symbol-to-instance-name ?c))
+						(bind ?cond0 (not (member$ ?c ?at))) 
+						(bind ?cond1 (subsetp (send ?inst get-producers) $?at))
+						(if (and ?cond0 ?cond1) then
+						  ;success
+						  (bind ?a0 (create$ ?a0 ?c))
+						  (bind ?result (create$ ?result ?c))
+						  else
+						  ;failure
+						  (bind ?leftOver (create$ ?leftOver ?c))))
+			(modify-instance ?s (collect $?leftOver)
+			                    (at ?a0))
+			(if (> (length$ ?result) 0) then
+			  (make-instance of InstructionGroup
+								  (TimeIndex (new-igid))
+								  (contents ?result))))
 
 (defrule print-instruction-group
- (Schedule)
- ?ig <- (object (is-a InstructionGroup) (TimeIndex ?ti)
-	 (Printed FALSE))
- =>
- (foreach ?v (send (send ?ig get-Contents) get-Contents)
-  (printout t (send (instance-name ?v) .ToString) crlf))
- (printout t ";;" crlf)
- (send ?ig put-Printed TRUE))
+			(Stage Schedule $?)
+			?ig <- (object (is-a InstructionGroup) 
+								(TimeIndex ?ti)
+								(Printed FALSE)
+								(contents $?contents))
+			=>
+			(foreach ?v $?contents
+						(bind ?tmp (symbol-to-instance-nane ?v))
+						(printout t (send ?tmp as-string) crlf))
+			(printout t ";;" crlf)
+			(modify-instance ?ig (Printed TRUE)))
 
 (defrule restart-scheduling
- (declare (salience -999))
- ?s <- (Schedule)
- (test (not (send [Collect] .IsEmpty)))
- =>
- (retract ?s)
- (assert (Schedule)))
+         (declare (salience -2))
+			(Stage Scheduling $?)
+			(object (is-a Schedule) 
+			        (collect $?collect))
+			(test (> (length$ ?collect) 0))
+			=>
+			(assert (Schedule Instructions)))
 
-(defrule final-scheduling-rule
- (declare (salience -1000))
- ?s <- (Schedule)
- (test (send [Collect] .IsEmpty))
- =>
- (retract ?s))
+(defrule end-scheduling
+         (declare (salience -1))
+			(Stage Scheduling $?)
+			;we still have the schedule instructions identifier
+			?f <- (Schedule Instructions)
+			?s <- (object (is-a Schedule)
+			        (collect))
+			=>
+			(retract ?f)
+			(unmake-instance ?s))

@@ -26,6 +26,7 @@
 			(Stage Collect $?)
 			(not (exists (object (is-a Schedule))))
 			=>
+			(assert (Schedule Instructions))
 			(bind ?collection (create$))
 			(do-for-all-instances 
 			  ((?a Instruction)) TRUE
