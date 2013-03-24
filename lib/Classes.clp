@@ -42,11 +42,12 @@
   (slot Name (type SYMBOL))
   (slot TimeIndex (type NUMBER))
   (slot ExecutionLength (type NUMBER))
+  (slot scheduled (type SYMBOL) (allowed-symbols FALSE TRUE))
+  (slot InstructionType (type SYMBOL) (default-dynamic nil))
   (multislot destination-registers (type SYMBOL))
   (multislot source-registers (type SYMBOL))
   (multislot producers (type SYMBOL))
   (multislot consumers (type SYMBOL))
-  (slot InstructionType (type SYMBOL) (default-dynamic nil))
   (message-handler as-string primary))
 
 (defmessage-handler Instruction as-string primary ()
