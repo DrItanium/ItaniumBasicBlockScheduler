@@ -44,81 +44,40 @@
 ; its list of producers is empty. This requires the use of consumers to
 ; dispatch to the target instructions to remove from the list of producers
 ;------------------------------------------------------------------------------
-(defrule schedule
-			(declare (salience 1))
+(defrule determine-scheduability
+         (Stage Schedule $?)
+			?inst <- (object (is-a Instruction)
+			                 (producers)
+								  (scheduled FALSE)
+								  (consumers $?cs)
+								  (id ?id))
+			=>
+			(printout t (send ?inst as-string) crlf)
+			(modify-instance ?inst (scheduled TRUE))
+			(progn$ (?c ?cs)
+			        (assert (Remove producer ?id from ?c))))
+			     
+(defrule close-schedule-round
+         (declare (salience -1))
 			(Stage Schedule $?)
-			?f <- (Schedule Instructions)
-			?s <- (object (is-a Schedule)
-					  (collect $?collect)
-					  (at $?at))
-			(test (> (length$ ?collect) 0))
+			=>
+			(printout t ";;" crlf))
+
+(defrule strip-producers
+         (Stage Schedule-Update $?)
+			?f <- (Remove producer ?id from ?c)
+			?inst <- (object (is-a Instruction)
+				              (id ?c)
+								  (producers $?a ?id $?b))
 			=>
 			(retract ?f)
-			(bind ?a0 $?at)
-			(bind ?leftOver (create$))
-			(bind ?result (create$))
-			(foreach ?c $?collect 
-						(bind ?inst (symbol-to-instance-name ?c))
-						(bind ?cond0 (not (member$ ?c ?at))) 
-						(bind ?cond1 (subsetp (send ?inst get-producers) $?at))
-						(if (and ?cond0 ?cond1) then
-						  ;success
-						  (bind ?a0 (create$ ?c ?a0))
-						  (bind ?result (create$ ?result ?c))
-						  else
-						  ;failure
-						  (bind ?leftOver (create$ ?leftOver ?c))))
-			(modify-instance ?s (collect $?leftOver)
-			                    (at ?a0))
-			(if (> (length$ ?result) 0) then
-			  (make-instance of InstructionGroup
-								  (TimeIndex (new-igid))
-								  (contents ?result))))
-
-(defrule print-instruction-group
-			(Stage Schedule $?)
-			?ig <- (object (is-a InstructionGroup) 
-								(TimeIndex ?ti)
-								(Printed FALSE)
-								(contents $?contents))
-			=>
-			(foreach ?v $?contents
-						(bind ?tmp (symbol-to-instance-name ?v))
-						(printout t (send ?tmp as-string) crlf))
-			(printout t ";;" crlf)
 			(assert (Restart Scheduling))
-			(modify-instance ?ig (Printed TRUE)))
+			(modify-instance ?inst (producers $?a $?b)))
 
 (defrule restart-scheduling
-         (declare (salience -2))
-			(Stage Schedule $?)
-			?f <- (Restart Scheduling)
-			(object (is-a Schedule) 
-			        (collect $?collect))
-			(test (> (length$ ?collect) 0))
-			=>
-			(retract ?f)
-			(assert (Schedule Instructions)))
-
-(defrule end-restart-scheduling 
          (declare (salience -1))
-			(Stage Schedule $?)
-			;we still have the schedule instructions identifier
+			?stg <- (Stage Schedule-Update $?rest)
 			?f <- (Restart Scheduling)
-			?s <- (object (is-a Schedule)
-			        (collect))
 			=>
-			(retract ?f)
-			(unmake-instance ?s))
-
-
-(defrule scheduling-error
-         (declare (salience -1))
-			(Stage Schedule $?)
-			;we still have the schedule instructions identifier
-			?f <- (Schedule Instructions)
-			?s <- (object (is-a Schedule)
-			        (collect))
-			=>
-			(retract ?f)
-			(unmake-instance ?s))
+			(retract ?f ?stg)
+			(assert (Stage Schedule Schedule-Update $?rest)))
