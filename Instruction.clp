@@ -25,6 +25,7 @@
 ;; Instruction.clp - Contains Rules and Functions pertaining to Instructions
 ;; Written by Joshua Scoggins
 
+(defgeneric make-instruction)
 
 (defmethod make-instruction
   ((?time-index INTEGER)
@@ -46,14 +47,6 @@
   (make-instruction (new-time-index)
 						  ?predicate ?operation ?destination-registers
 						  ?source-registers))
-(defmethod simple-make-instruction
-  ((?predicate SYMBOL)
-	(?operation SYMBOL)
-	(?destination-registers MULTIFIELD)
-	(?source-registers MULTIFIELD))
-  (make-instruction ?predicate ?operation ?destination-registers
-						  ?source-registers))
-
 (defmethod make-instruction 
   ((?predicate SYMBOL)
 	(?operation SYMBOL)
@@ -67,18 +60,6 @@
 	 (create$ ?d0 ?d1)
 	 (create$ ?s0 ?s1)))
 
-(defmethod make-predicate-instruction 
-  ((?predicate SYMBOL)
-	(?operation SYMBOL)
-	(?d0 SYMBOL STRING INSTANCE)
-	(?d1 SYMBOL STRING INSTANCE)
-	(?s0 SYMBOL STRING INSTANCE)
-	(?s1 SYMBOL STRING INSTANCE))
-  (make-instruction
-	 ?predicate
-	 ?operation
-	 ?d0 ?d1
-	 ?s0 ?s1))
 
 (defmethod make-instruction
   ((?predicate SYMBOL)
@@ -89,16 +70,6 @@
   (make-instruction ?predicate ?operation 
 						  (create$ ?destination) 
 						  (create$ ?s0 ?s1)))
-
-(defmethod make-binary-instruction
-  ((?predicate SYMBOL)
-	(?operation SYMBOL)
-	(?destination SYMBOL STRING)
-	(?s0 SYMBOL STRING INSTANCE)
-	(?s1 SYMBOL STRING INSTANCE))
-  (make-instruction ?predicate ?operation 
-						  ?destination
-						  ?s0 ?s1))
 
 (defmethod make-instruction
   ((?predicate SYMBOL)
