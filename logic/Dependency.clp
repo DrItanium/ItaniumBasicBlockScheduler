@@ -35,8 +35,7 @@
 (deftemplate Dependency 
 				 "Represents a Data Dependency between two instructions"
 				 (slot firstInstructionID (type SYMBOL))
-				 (slot secondInstructionID (type SYMBOL))
-				 (slot dependencyType (type SYMBOL)))
+				 (slot secondInstructionID (type SYMBOL)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Functions                                                                 ;;
@@ -132,8 +131,7 @@
 			(test (contains-registerp $?dr0 $?dr1 p0))
 			=>
 			(assert (Dependency (firstInstructionID ?g0) 
-									  (secondInstructionID ?g1) 
-									  (dependencyType WAW))))
+									  (secondInstructionID ?g1))))
 
 (defrule define-RAW-dependency "Defines/or modifies a dependency"
 			(Stage Analysis $?)
@@ -152,8 +150,7 @@
 											  (create$ ?p $?sr0) p0))
 			=>
 			(assert (Dependency (firstInstructionID ?g0) 
-									  (secondInstructionID ?g1)
-									  (dependencyType RAW))))
+									  (secondInstructionID ?g1))))
 
 (defrule define-WAR-dependency "Defines/or modifies a WAR dependency"
 			(Stage Analysis $?)
@@ -172,8 +169,7 @@
 											  (create$ ?p $?dr0) p0))
 			=>
 			(assert (Dependency (firstInstructionID ?g0)
-									  (secondInstructionID ?g1) 
-									  (dependencyType WAR))))
+									  (secondInstructionID ?g1))))
 
 (defrule inject-producers-consumers
 			(declare (salience -1))
