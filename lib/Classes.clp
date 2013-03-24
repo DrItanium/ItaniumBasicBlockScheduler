@@ -58,8 +58,19 @@
   (slot ExecutionLength (type NUMBER))
   (multislot destination-registers (type SYMBOL))
   (multislot source-registers (type SYMBOL))
+  (slot DependencyChain (type SYMBOL))
   (slot InstructionType (type SYMBOL) (default-dynamic nil))
-  (message-handler as-string primary))
+  (message-handler as-string primary)
+  (message-handler get-producers)
+  (message-handler get-consumers))
+
+(defmessage-handler Instruction get-producers ()
+ (send (symbol-to-instance-name ?self:DependencyChain)
+       get-producers))
+
+(defmessage-handler Instruction get-consumers ()
+ (send (symbol-to-instance-name ?self:DependencyChain)
+       get-consumers))
 
 (defmessage-handler Instruction as-string primary ()
 						  (if (= (length$ ?self:source-registers) 0) then
@@ -106,3 +117,10 @@
   (slot Printed (type SYMBOL) (default-dynamic FALSE)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defclass Schedule
+          (is-a Object)
+			 (multislot collect)
+			 (multislot at)
+			 (multislot success)
+			 (multislot failure))

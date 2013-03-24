@@ -33,12 +33,17 @@
 	(?name SYMBOL STRING)
 	(?destination-registers MULTIFIELD)
 	(?source-registers MULTIFIELD))
-  (make-instance of Instruction
+  (bind ?n0 (gensym*))
+  (bind ?n1 (gensym*))
+  (make-instance ?n0 of Instruction
 					  (Predicate ?predicate)
 					  (TimeIndex ?time-index)
 					  (Name ?name)
+					  (DependencyChain ?n1)
 					  (DestinationRegisters ?destination-registers)
-					  (SourceRegisters ?source-registers)))
+					  (SourceRegisters ?source-registers))
+  (make-instance ?n1 of DependencyChain
+	              (parent ?n0)))
 
 (defmethod make-instruction
   ((?predicate SYMBOL)
