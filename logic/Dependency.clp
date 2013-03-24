@@ -202,10 +202,11 @@
 			(Stage Analysis $?)
 			?d <- (Dependency (firstInstructionID ?fi) 
 									(secondInstructionID ?si))
-			(object (is-a Instruction)
+			?d0 <- (object (is-a Instruction)
 			        (id ?fi))
 			?d1 <- (object (is-a Instruction)
 								(id ?si))
 			=>
+			(slot-insert$ ?d0 consumers 1 ?si)
 			(slot-insert$ ?d1 producers 1 ?fi)
 			(retract ?d))
