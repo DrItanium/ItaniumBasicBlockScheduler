@@ -32,126 +32,168 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Templates                                                                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(deftemplate Dependency "Represents a Data Dependency between two instructions"
- (slot firstInstructionGUID (type NUMBER))
- (slot secondInstructionGUID (type NUMBER))
- (slot dependencyType (type SYMBOL)))
+(deftemplate Dependency 
+				 "Represents a Data Dependency between two instructions"
+				 (slot firstInstructionGUID (type NUMBER))
+				 (slot secondInstructionGUID (type NUMBER))
+				 (slot dependencyType (type SYMBOL)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Functions                                                                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (deffunction instance-to-symbol 
- "Converts an instance name to a symbol"
- (?I)
- (return (instance-name-to-symbol (instance-name ?I))))
+				 "Converts an instance name to a symbol"
+				 (?I)
+				 (return (instance-name-to-symbol (instance-name ?I))))
 
-(deffunction contains-registerp "Does a check to see if _any_ element in the first list is in the second"
- (?L1 ?L2 $?IGNORE)
- (foreach ?reg0 ?L1
-  (foreach ?reg1 ?L2
-   (bind ?t0 (sym-cat { ?reg0 }))
-   (bind ?t1 (sym-cat { ?reg1 }))
-   (if (and (not (subsetp (create$ ?reg0) ?IGNORE))
-        (or (eq ?reg0 ?reg1) 
-         (eq ?t0 ?reg1)
-         (eq ?reg0 ?t1))) then (return TRUE))))
- (return FALSE))
+(deffunction contains-registerp 
+				 "Does a check to see if _any_ element in the first list is in the second"
+				 (?L1 ?L2 $?IGNORE)
+				 (foreach ?reg0 ?L1
+							 (foreach ?reg1 ?L2
+										 (bind ?t0 (sym-cat { ?reg0 }))
+										 (bind ?t1 (sym-cat { ?reg1 }))
+										 (if (and (not (subsetp (create$ ?reg0) ?IGNORE))
+													 (or (eq ?reg0 ?reg1) 
+														  (eq ?t0 ?reg1)
+														  (eq ?reg0 ?t1))) then (return TRUE))))
+				 (return FALSE))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rules                                                                     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defrule imbue-op "Imbue's the operational type into the given instruction"
- (Imbue)
- (object (is-a Operation) (Class ?Class) (Name ?oName) (Length ?oLength))
- ?inst <- (object (is-a Instruction) (GUID ?gid) (Name ?name&?oName) 
-	 (ExecutionLength ?length&~?oLength))
- =>
- (send ?inst put-InstructionType ?Class)
- (send ?inst put-ExecutionLength ?oLength)
- (if (eq ?Class B) then (assert (Check ?gid))))
+(defrule imbue-op 
+			"Imbue's the operational type into the given instruction"
+			(Imbue)
+			(object (is-a Operation) 
+					  (Class ?Class) 
+					  (Name ?oName) 
+					  (Length ?oLength))
+			?inst <- (object (is-a Instruction) 
+								  (GUID ?gid) 
+								  (Name ?name&?oName) 
+								  (ExecutionLength ?length&~?oLength))
+			=>
+			(modify-instance ?inst 
+								  (InstructionType ?Class)
+								  (ExecutionLength ?oLength))
+			(if (eq ?Class B) then 
+			  (assert (Check ?gid))))
 
 (defrule generate-branch-dependencies 
- (Imbue)
- ?chk <- (Check ?gid)
- ?inst <- (object (is-a Instruction) (GUID ?gid) (Name ?name) 
-	 (ExecutionLength ?l&:(<> ?l -1)) (TimeIndex ?ti) 
-	 (InstructionType B) (DependencyInformation ?dci))
- (test (not (send ?dci .HasProducers)))
- =>
- (retract ?chk)
- (bind ?i 0)
- (while (< ?i ?ti)
-  (assert (BranchImbue ?name ?i))
-  (bind ?i (+ ?i 1))))
+			(Imbue)
+			?chk <- (Check ?gid)
+			?inst <- (object (is-a Instruction) 
+								  (GUID ?gid) 
+								  (Name ?name) 
+								  (ExecutionLength ?l&:(<> ?l -1)) 
+								  (TimeIndex ?ti) 
+								  (InstructionType B) 
+								  (DependencyInformation ?dci))
+			(test (not (send ?dci .HasProducers)))
+			=>
+			(retract ?chk)
+			(bind ?i 0)
+			(while (< ?i ?ti)
+					 (assert (BranchImbue ?name ?i))
+					 (bind ?i (+ ?i 1))))
 
 (defrule imbue-branch-dependencies
- (Imbue)
- ?bd <- (BranchImbue ?name ?i)
- ?branch <- (object (is-a Instruction) (Name ?name) 
-	 (DependencyInformation ?dci))
- ?other <- (object (is-a Instruction) (TimeIndex ?i) (InstructionType ?IT))
-  =>
-  (if (neq ?IT B) then
-    (send ?branch .AddProducer (instance-to-symbol ?other)))
-  (retract ?bd))
+			(Imbue)
+			?bd <- (BranchImbue ?name ?i)
+			?branch <- (object (is-a Instruction) 
+									 (Name ?name) 
+									 (DependencyInformation ?dci))
+			?other <- (object (is-a Instruction) 
+									(TimeIndex ?i) 
+									(InstructionType ?IT))
+			=>
+			(if (neq ?IT B) then
+			  (send ?branch .AddProducer 
+					  (instance-to-symbol ?other)))
+			(retract ?bd))
 
 (defrule final-rule-imbue
- (declare (salience -1000))
- ?im <- (Imbue)
- =>
- (retract ?im)
- (assert (Analysis)))
+			(declare (salience -1000))
+			?im <- (Imbue)
+			=>
+			(retract ?im)
+			(assert (Analysis)))
 
 
 (defrule define-WAW-dependency "Defines/or modifies a dependency"
- (Analysis)
- (object (is-a Instruction) (GUID ?g0) (DestinationRegisters ?DR0)
-  (TimeIndex ?tc0) (InstructionType ?z0&~B))
- (object (is-a Instruction) (GUID ?g1&~?g0) (Predicate ?p)
-  (DestinationRegisters ?DR1) (TimeIndex ?tc1&:(< ?tc0 ?tc1)) (InstructionType ?z1&~B))
- (test (contains-registerp (send ?DR0 get-Contents)
-		  (send ?DR1 get-Contents) p0))
- =>
- (assert (Dependency (firstInstructionGUID ?g0) 
-			 (secondInstructionGUID ?g1) (dependencyType WAW))))
+			(Analysis)
+			(object (is-a Instruction) 
+					  (GUID ?g0) 
+					  (DestinationRegisters ?DR0)
+					  (TimeIndex ?tc0) 
+					  (InstructionType ?z0&~B))
+			(object (is-a Instruction) 
+					  (GUID ?g1&~?g0) 
+					  (Predicate ?p)
+					  (DestinationRegisters ?DR1) 
+					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
+					  (InstructionType ?z1&~B))
+			(test (contains-registerp (send ?DR0 get-Contents)
+											  (send ?DR1 get-Contents) p0))
+			=>
+			(assert (Dependency (firstInstructionGUID ?g0) 
+									  (secondInstructionGUID ?g1) (dependencyType WAW))))
 
 (defrule define-RAW-dependency "Defines/or modifies a dependency"
- (Analysis)
- (object (is-a Instruction) (GUID ?g0) (DestinationRegisters ?DR0)
-  (TimeIndex ?tc0) (InstructionType ?z0&~B))
- (object (is-a Instruction) (GUID ?g1&~?g0) (Predicate ?p)
-  (SourceRegisters ?SR0) (TimeIndex ?tc1&:(< ?tc0 ?tc1)) (InstructionType ?z1&~B))
- (test (contains-registerp (send ?DR0 get-Contents)
-		  (create$ ?p (send ?SR0 get-Contents)) p0))
- =>
- (assert (Dependency (firstInstructionGUID ?g0) (secondInstructionGUID ?g1)
-			 (dependencyType RAW))))
+			(Analysis)
+			(object (is-a Instruction) 
+					  (GUID ?g0) 
+					  (DestinationRegisters ?DR0)
+					  (TimeIndex ?tc0) 
+					  (InstructionType ?z0&~B))
+			(object (is-a Instruction) 
+					  (GUID ?g1&~?g0) 
+					  (Predicate ?p)
+					  (SourceRegisters ?SR0) 
+					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
+					  (InstructionType ?z1&~B))
+			(test (contains-registerp (send ?DR0 get-Contents)
+											  (create$ ?p (send ?SR0 get-Contents)) p0))
+			=>
+			(assert (Dependency (firstInstructionGUID ?g0) 
+									  (secondInstructionGUID ?g1)
+									  (dependencyType RAW))))
 
 (defrule define-WAR-dependency "Defines/or modifies a WAR dependency"
- (Analysis)
- (object (is-a Instruction) (GUID ?g0) (SourceRegisters ?SR0) (TimeIndex ?tc0)
-  (InstructionType ~B))
- (object (is-a Instruction) (GUID ?g1&~?g0) (Predicate ?p)
-  (DestinationRegisters ?DR0) (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
-  (InstructionType ~B))
- (test (contains-registerp 
-		  (send ?SR0 get-Contents) 
-		  (create$ ?p (send ?DR0 get-Contents)) p0))
- =>
- (assert (Dependency (firstInstructionGUID ?g0)
-			 (secondInstructionGUID ?g1) 
-			 (dependencyType WAR))))
+			(Analysis)
+			(object (is-a Instruction) 
+					  (GUID ?g0) 
+					  (SourceRegisters ?SR0) 
+					  (TimeIndex ?tc0)
+					  (InstructionType ~B))
+			(object (is-a Instruction) 
+					  (GUID ?g1&~?g0) 
+					  (Predicate ?p)
+					  (DestinationRegisters ?DR0) 
+					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
+					  (InstructionType ~B))
+			(test (contains-registerp 
+					  (send ?SR0 get-Contents) 
+					  (create$ ?p (send ?DR0 get-Contents)) p0))
+			=>
+			(assert (Dependency (firstInstructionGUID ?g0)
+									  (secondInstructionGUID ?g1) 
+									  (dependencyType WAR))))
 
 (defrule inject-producers-consumers
- (Analysis)
- ?d <- (Dependency (firstInstructionGUID ?g0) (secondInstructionGUID ?g1))
- ?i0 <- (object (is-a Instruction) (GUID ?g0)) 
- ?i1 <- (object (is-a Instruction) (GUID ?g1)) 
- =>
- (send ?i0 .AddConsumer (instance-to-symbol ?i1))
- (send ?i1 .AddProducer (instance-to-symbol ?i0))
- (retract ?d))
+			(Analysis)
+			?d <- (Dependency (firstInstructionGUID ?g0) 
+				               (secondInstructionGUID ?g1))
+			?i0 <- (object (is-a Instruction) 
+				            (GUID ?g0)) 
+			?i1 <- (object (is-a Instruction) 
+				            (GUID ?g1)) 
+			=>
+			(send ?i0 .AddConsumer (instance-to-symbol ?i1))
+			(send ?i1 .AddProducer (instance-to-symbol ?i0))
+			(retract ?d))
 
 ;(defrule printout-dependency-info "Prints out each dependency chain"
 ; (declare (salience -12))
@@ -162,8 +204,8 @@
 ;  " consumers: " (send (send ?di get-Consumers) get-Contents) crlf))
 
 (defrule final-analysis-rule
- (declare (salience -1000))
- ?a <- (Analysis)
- =>
- (retract ?a)
- (assert (Collect)))
+			(declare (salience -1000))
+			?a <- (Analysis)
+			=>
+			(retract ?a)
+			(assert (Collect)))
