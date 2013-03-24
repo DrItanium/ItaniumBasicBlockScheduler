@@ -1,4 +1,4 @@
-(profile constructs)
+(progn (profile constructs)
 	;; Begin Test Code
 	(alloc p0 r35 25 24 0 0)
 	(mov p0 r34 r12)
@@ -2000,5 +2000,7 @@
 	(mov p0 r53 4)
 	(setf.sig p0 f7 r53)
 	(br.cond.dptk.few p8 4000000000000bf0)
-  (analyze)
+	(run)
+	(profile off))
   (profile-info)
+
