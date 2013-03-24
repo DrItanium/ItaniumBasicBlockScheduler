@@ -121,6 +121,4 @@
 (defclass Schedule
           (is-a Object)
 			 (multislot collect)
-			 (multislot at)
-			 (multislot success)
-			 (multislot failure))
+			 (multislot at))
