@@ -24,7 +24,6 @@
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 (deffunction reload-environment () 
  (reset) 
- (reset-guid) 
  (reset-time-index) 
  (init-ia64-machine))
  
