@@ -54,8 +54,7 @@
 								  (id ?id))
 			=>
 			(printout t (send ?inst as-string) crlf)
-			;what if we delete the instance instead?
-			(modify-instance ?inst (scheduled TRUE))
+			(send ?inst put-scheduled TRUE)
 			(progn$ (?c ?cs)
 			        (assert (Remove producer ?id from ?c))))
 			     
