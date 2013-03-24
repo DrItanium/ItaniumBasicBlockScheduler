@@ -26,75 +26,136 @@
 ;; Written by Joshua Scoggins
 
 
-(deffunction mk-instruction
- (?TimeIndex ?Predicate ?Name 
-  ?DestinationRegisters ?SourceRegisters)
- (bind ?inst (make-instance (gensym*) of Instruction 
-				  (Predicate ?Predicate)
-				  (Name ?Name)
-				  (TimeIndex ?TimeIndex)))
- (send ?inst .AddSourceRegisters ?SourceRegisters)
- (send ?inst .AddDestinationRegisters ?DestinationRegisters)
- (return ?inst))
+(defmethod make-instruction
+  ((?time-index INTEGER)
+	(?predicate SYMBOL)
+	(?name SYMBOL STRING)
+	(?destination-registers MULTIFIELD)
+	(?source-registers MULTIFIELD))
+  (make-instance of Instruction
+					  (Predicate ?predicate)
+					  (TimeIndex ?time-index)
+					  (Name ?name)
+					  (DestinationRegisters ?destination-registers)
+					  (SourceRegisters ?source-registers)))
+(defmethod make-instruction
+  ((?predicate SYMBOL)
+	(?operation SYMBOL)
+	(?destination-registers MULTIFIELD)
+	(?source-registers MULTIFIELD))
+  (make-instruction (new-time-index)
+						  ?predicate ?operation ?destination-registers
+						  ?source-registers))
+(defmethod simple-make-instruction
+  ((?predicate SYMBOL)
+	(?operation SYMBOL)
+	(?destination-registers MULTIFIELD)
+	(?source-registers MULTIFIELD))
+  (make-instruction ?predicate ?operation ?destination-registers
+						  ?source-registers))
 
-(deffunction simple-mk-instruction "Creates a new instruction with the guid and time index automatically set"
- (?Predicate ?Op ?DRegisters ?SRegisters)
- (mk-instruction (new-time-index) ?Predicate ?Op ?DRegisters ?SRegisters))
+(defmethod make-instruction 
+  ((?predicate SYMBOL)
+	(?operation SYMBOL)
+	(?d0 SYMBOL STRING INSTANCE)
+	(?d1 SYMBOL STRING INSTANCE)
+	(?s0 SYMBOL STRING INSTANCE)
+	(?s1 SYMBOL STRING INSTANCE))
+  (make-instruction
+	 ?predicate
+	 ?operation
+	 (create$ ?d0 ?d1)
+	 (create$ ?s0 ?s1)))
 
-(deffunction mk-predicate-instruction "Creates a Predicate Instruction with a custom predicate"
- (?Predicate ?Op ?D0 ?D1 ?S0 ?S1)
- (bind ?DR (create$ ?D0 ?D1))
- (bind ?SR (create$ ?S0 ?S1))
- (mk-instruction (new-time-index) ?Predicate ?Op ?DR ?SR))
+(defmethod make-predicate-instruction 
+  ((?predicate SYMBOL)
+	(?operation SYMBOL)
+	(?d0 SYMBOL STRING INSTANCE)
+	(?d1 SYMBOL STRING INSTANCE)
+	(?s0 SYMBOL STRING INSTANCE)
+	(?s1 SYMBOL STRING INSTANCE))
+  (make-instruction
+	 ?predicate
+	 ?operation
+	 ?d0 ?d1
+	 ?s0 ?s1))
 
-(deffunction mk-binary-instruction "Creates a standard binary instruction"
- (?Predicate ?Op ?Destination ?S0 ?S1)
- (bind ?SR (create$ ?S0 ?S1))
- (mk-instruction (new-time-index) ?Predicate ?Op (create$ ?Destination) ?SR))
+(defmethod make-instruction
+  ((?predicate SYMBOL)
+	(?operation SYMBOL)
+	(?destination SYMBOL STRING)
+	(?s0 SYMBOL STRING INSTANCE)
+	(?s1 SYMBOL STRING INSTANCE))
+  (make-instruction ?predicate ?operation 
+						  (create$ ?destination) 
+						  (create$ ?s0 ?s1)))
 
-(deffunction mk-unary-instruction "Creates a standard unary instruction"
- (?Predicate ?Op ?Destination ?Source)
- (mk-instruction (new-time-index) ?Predicate ?Op 
-  (create$ ?Destination) (create$ ?Source)))
+(defmethod make-binary-instruction
+  ((?predicate SYMBOL)
+	(?operation SYMBOL)
+	(?destination SYMBOL STRING)
+	(?s0 SYMBOL STRING INSTANCE)
+	(?s1 SYMBOL STRING INSTANCE))
+  (make-instruction ?predicate ?operation 
+						  ?destination
+						  ?s0 ?s1))
 
-(deffunction mk-noary-instruction "Creates a standard noary instruction"
- (?Predicate ?Op ?Source) (mk-instruction (new-time-index) ?Predicate ?Op
-   ?Source (create$)))
+(defmethod make-instruction
+  ((?predicate SYMBOL)
+	(?operation SYMBOL)
+	(?destination SYMBOL STRING INSTANCE)
+	(?source SYMBOL STRING INSTANCE))
+  (make-instruction 
+	 ?predicate 
+	 ?operation
+	 (create$ ?destination)
+	 (create$ ?source)))
+
+(defmethod make-instruction 
+  ((?predicate SYMBOL)
+	(?operation SYMBOL)
+	(?destination MULTIFIELD))
+  (make-instance 
+	 ?predicate
+	 ?op
+	 ?destination
+	 (create$)))
+
 
 (deffunction defop "Defines an operation" (?Op ?Type ?Length)
- (return (make-instance (gensym*) of Operation (Name ?Op) 
-			 (Class ?Type) (Length ?Length))))
+				 (return (make-instance (gensym*) of Operation (Name ?Op) 
+												(Class ?Type) (Length ?Length))))
 
 (deffunction defregister "Defines a register for a given class" (?Name ?Class ?Size)
- (return (make-instance (gensym*) of Register (Name ?Name)
-			 (Class ?Class) (Length ?Size))))
+				 (return (make-instance (gensym*) of Register (Name ?Name)
+												(Class ?Class) (Length ?Size))))
 
 (deffunction defregister-range "Defines a range of registers of a given type"
- (?Prefix ?Start ?Stop ?Class ?Size)
- (bind ?i (+ 1 ?Start))
- (bind ?total (sym-cat ?Prefix ?Start))
- (defregister ?total ?Class ?Size)
- (while (< ?i ?Stop) do
-  (bind ?Name (sym-cat ?Prefix ?i))
-  (defregister ?Name ?Class ?Size)
-  (bind ?i (1+ ?i))))
+				 (?Prefix ?Start ?Stop ?Class ?Size)
+				 (bind ?i (+ 1 ?Start))
+				 (bind ?total (sym-cat ?Prefix ?Start))
+				 (defregister ?total ?Class ?Size)
+				 (while (< ?i ?Stop) do
+						  (bind ?Name (sym-cat ?Prefix ?i))
+						  (defregister ?Name ?Class ?Size)
+						  (bind ?i (1+ ?i))))
 
 (deffunction defop-range 
- (?Type ?Length $?Ops)
- (bind ?Count (length ?Ops))
- (bind ?i 1)
- (while (<= ?i ?Count) do
-  (defop (nth ?i $?Ops) ?Type ?Length)
-  (bind ?i (+ 1 ?i))))
+				 (?Type ?Length $?Ops)
+				 (bind ?Count (length ?Ops))
+				 (bind ?i 1)
+				 (while (<= ?i ?Count) do
+						  (defop (nth ?i $?Ops) ?Type ?Length)
+						  (bind ?i (+ 1 ?i))))
 
 (deffunction registers "Defines a list of registers of a given type"
- (?Class ?Size $?Registers)
- (bind ?Count (length ?Registers))
- (bind ?Total (nth 1 $?Registers))
- (defregister ?Total ?Class ?Size)
- (bind ?i 2)
- (while (<= ?i ?Count) do
-  (bind ?Total (nth ?i $?Registers))
-  (defregister ?Total ?Class ?Size)
-  (bind ?i (1+ ?i))))
+				 (?Class ?Size $?Registers)
+				 (bind ?Count (length ?Registers))
+				 (bind ?Total (nth 1 $?Registers))
+				 (defregister ?Total ?Class ?Size)
+				 (bind ?i 2)
+				 (while (<= ?i ?Count) do
+						  (bind ?Total (nth ?i $?Registers))
+						  (defregister ?Total ?Class ?Size)
+						  (bind ?i (1+ ?i))))
 
