@@ -27,7 +27,7 @@
 			(declare (salience 10000))
 			(initial-fact)
 			=>
-			(assert (Stage Imbue Analysis Inject Collect Schedule Print)))
+			(assert (Stage Imbue Analysis Schedule Schedule-Update)))
 
 (defrule next-stage
 			(declare (salience -10000))
