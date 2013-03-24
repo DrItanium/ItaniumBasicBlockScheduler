@@ -64,7 +64,7 @@
 								(contents $?contents))
 			=>
 			(foreach ?v $?contents
-						(bind ?tmp (symbol-to-instance-nane ?v))
+						(bind ?tmp (symbol-to-instance-name ?v))
 						(printout t (send ?tmp as-string) crlf))
 			(printout t ";;" crlf)
 			(modify-instance ?ig (Printed TRUE)))
