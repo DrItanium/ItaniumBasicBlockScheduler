@@ -40,8 +40,8 @@
 					  (TimeIndex ?time-index)
 					  (Name ?name)
 					  (DependencyChain ?n1)
-					  (DestinationRegisters ?destination-registers)
-					  (SourceRegisters ?source-registers))
+					  (destination-registers ?destination-registers)
+					  (source-registers ?source-registers))
   (make-instance ?n1 of DependencyChain
 	              (parent ?n0)))
 
@@ -58,10 +58,10 @@
 (defmethod make-instruction 
   ((?predicate SYMBOL)
 	(?operation SYMBOL)
-	(?d0 SYMBOL STRING INSTANCE)
-	(?d1 SYMBOL STRING INSTANCE)
-	(?s0 SYMBOL STRING INSTANCE)
-	(?s1 SYMBOL STRING INSTANCE))
+	(?d0 NUMBER SYMBOL STRING INSTANCE)
+	(?d1 NUMBER SYMBOL STRING INSTANCE)
+	(?s0 NUMBER SYMBOL STRING INSTANCE)
+	(?s1 NUMBER SYMBOL STRING INSTANCE))
   (make-instruction ?predicate
 						  ?operation
 						  (create$ ?d0 ?d1)
@@ -72,8 +72,8 @@
   ((?predicate SYMBOL)
 	(?operation SYMBOL)
 	(?destination SYMBOL STRING)
-	(?s0 SYMBOL STRING INSTANCE)
-	(?s1 SYMBOL STRING INSTANCE))
+	(?s0 NUMBER SYMBOL STRING INSTANCE)
+	(?s1 NUMBER SYMBOL STRING INSTANCE))
   (make-instruction ?predicate 
 						  ?operation 
 						  (create$ ?destination) 
@@ -82,8 +82,8 @@
 (defmethod make-instruction
   ((?predicate SYMBOL)
 	(?operation SYMBOL)
-	(?destination SYMBOL STRING INSTANCE)
-	(?source SYMBOL STRING INSTANCE))
+	(?destination NUMBER SYMBOL STRING INSTANCE)
+	(?source NUMBER SYMBOL STRING INSTANCE))
   (make-instruction ?predicate 
 						  ?operation
 						  (create$ ?destination)
@@ -97,6 +97,13 @@
 						  ?operation
 						  ?destination
 						  (create$)))
+(defmethod make-instruction
+  ((?predicate SYMBOL)
+	(?operation SYMBOL)
+	(?destination SYMBOL STRING NUMBER))
+  (make-instruction ?predicate
+	                 ?operation
+						  (create$ ?destination)))
 
 
 (defmethod defop 

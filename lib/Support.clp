@@ -29,9 +29,6 @@
  
 (deffunction block "Loads a new block from a file" (?B) 
  (reload-environment)
- (make-instance [At] of List (Name At))
- (make-instance [CanSee] of List (Name CanSee))
- (make-instance [Collect] of List (Name Collect))
  (batch ?B))
 
 
