@@ -44,6 +44,11 @@
 ; its list of producers is empty. This requires the use of consumers to
 ; dispatch to the target instructions to remove from the list of producers
 ;------------------------------------------------------------------------------
+; The use of the producer-count slot instead of producers is because we don't
+; actually care what the producer was, only if we have no producers remaining
+; This allows us to just decrement the value instead of doing expensive pattern
+; matching
+;------------------------------------------------------------------------------
 (defrule determine-scheduability
          "An object is able to be scheduled if it has no remaining producers"
          (Stage Schedule $?)
@@ -64,35 +69,14 @@
 			=>
 			(printout t ";;" crlf))
 
-(defrule build-initial-fact
-			(Stage Schedule-Update-Init $?)
-			(object (is-a Instruction)
-					  (scheduled FALSE)
-			        (id ?id)
-					  (producers $?p))
-			(exists (Remove producer ? from ?id))
-			=>
-			(assert (Instruction ?id has producers list $?p)))
-			
-;we need to merge the set of producers to remove which we can then 
-;easily compare to the original list to figure out 
-(defrule strip-producers
-         (Stage Schedule-Update $?)
-			?f <- (Remove producer ?id from ?c)
-			?f2 <- (Instruction ?c has producers list $?b ?id $?a)
-			=>
-			(retract ?f ?f2)
-			(assert (Instruction ?c has producers list $?b $?a)))
-
 (defrule update-producer-set
          (Stage Schedule-Update $?)
-		   ?f <- (Instruction ?c has producers list $?list)
-			(not (exists (Remove producer ? from ?c)))
+			?f <- (Remove producer ? from ?c)
 			?inst <- (object (is-a Instruction)
 				              (id ?c))
 			=>
 			(retract ?f)
-			(send ?inst put-producers $?list)
+			(send ?inst decrement-producer-count)
 			(assert (Restart Scheduling)))
 
 (defrule restart-scheduling
@@ -101,4 +85,4 @@
 			?stg <- (Stage Schedule-Update $?rest)
 			=>
 			(retract ?f ?stg)
-			(assert (Stage Schedule Schedule-Update-Init Schedule-Update $?rest)))
+			(assert (Stage Schedule Schedule-Update $?rest)))
