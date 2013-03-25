@@ -84,7 +84,7 @@
 			?inst <- (object (is-a Instruction) 
 								  (InstructionType B)
 								  (ExecutionLength ?l&:(<> ?l -1)) 
-								  (producers)
+								  (producer-count 0)
 								  (id ?gid) 
 								  (Name ?name) 
 								  (TimeIndex ?ti))
@@ -103,13 +103,14 @@
 					  (id ?bid))
 			?inst <- (object (is-a Instruction) 
 					  (TimeIndex ?i) 
-					  (id ?oid)
 					  (InstructionType ?IT))
 			=>
 			;Register the branch in the consumer set
 			(slot-insert$ ?inst consumers 1 ?bid)
 			(if (neq ?IT B) then
-			  (slot-insert$ ?branch producers 1 ?oid))
+			 ;we don't care what the producer actually is
+			 ;That is more important for region scheduling
+			  (send ?branch increment-producer-count))
 			(retract ?bd))
 
 (defrule define-WAW-dependency "Defines/or modifies a dependency"
@@ -209,6 +210,6 @@
 			?d1 <- (object (is-a Instruction)
 								(id ?si))
 			=>
+			(send ?d1 increment-producer-count)
 			(slot-insert$ ?d0 consumers 1 ?si)
-			(slot-insert$ ?d1 producers 1 ?fi)
 			(retract ?d))
