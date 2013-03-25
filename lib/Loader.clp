@@ -27,7 +27,6 @@
 (load "lib/InstructionGroupID.clp")
 (load "lib/GUID.clp")
 (load "lib/TimeIndex.clp")
-(load "lib/Group.clp")
 (load "lib/Instruction.clp")
 (load "lib/Itanium.clp")
 (load "lib/Support.clp")
