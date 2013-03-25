@@ -46,10 +46,18 @@
   (slot InstructionType (type SYMBOL) (default-dynamic nil))
   (multislot destination-registers (type SYMBOL))
   (multislot source-registers (type SYMBOL))
-  (multislot producers (type SYMBOL))
+  (slot producer-count (type INTEGER))
   (multislot consumers (type SYMBOL))
+  (message-handler increment-producer-count primary)
+  (message-handler decrement-producer-count primary)
   (message-handler as-string primary))
 
+(defmessage-handler Instruction increment-producer-count primary 
+ ()
+ (bind ?self:producer-count (+ ?self:producer-count 1)))
+(defmessage-handler Instruction decrement-producer-count primary 
+ ()
+ (bind ?self:producer-count (- ?self:producer-count 1)))
 (defmessage-handler Instruction as-string primary ()
 						  (if (= (length$ ?self:source-registers) 0) then
 							 (str-cat "(" ?self:Predicate ") " ?self:Name " "
