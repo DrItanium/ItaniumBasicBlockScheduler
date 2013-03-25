@@ -1999,4 +1999,3 @@
 	(mov p0 r53 4)
 	(setf.sig p0 f7 r53)
 	(br.cond.dptk.few p8 4000000000000bf0)
-	(run)
