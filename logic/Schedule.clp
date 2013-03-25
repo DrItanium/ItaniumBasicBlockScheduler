@@ -54,7 +54,7 @@
          (Stage Schedule $?)
 			?inst <- (object (is-a Instruction)
 								  (scheduled FALSE)
-			                 (producers)
+			                 (producer-count 0)
 								  (consumers $?cs)
 								  (id ?id))
 			=>
