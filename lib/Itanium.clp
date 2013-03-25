@@ -124,9 +124,6 @@
 (deffunction sxt4 (?Pred ?Dest ?Source0)
              (make-instruction ?Pred sxt4 ?Dest ?Source0))
 
-(deffunction st8 (?Pred ?Dest ?Source0)
-             (make-instruction ?Pred st8 ?Dest ?Source0))
-
 (deffunction stf.spill (?Pred ?Dest ?Source0)
              (make-instruction ?Pred stf.spill ?Dest ?Source0))
 
@@ -162,8 +159,6 @@
              (make-instruction ?Predicate cmp4.lt ?D0 ?D1 ?S0 ?S1))
 (deffunction cmp4.gt (?Predicate ?D0 ?D1 ?S0 ?S1)
              (make-instruction ?Predicate cmp4.gt ?D0 ?D1 ?S0 ?S1))
-(deffunction cmp4.eq (?Predicate ?D0 ?D1 ?S0 ?S1)
-             (make-instruction ?Predicate cmp4.eq ?D0 ?D1 ?S0 ?S1))
 
 (deffunction setf.sig (?P ?D ?S)
              (make-instruction ?P setf.sig ?D ?S))

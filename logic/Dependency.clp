@@ -38,24 +38,6 @@
 				 (slot secondInstructionID (type SYMBOL)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Functions                                                                 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(deffunction instance-to-symbol 
-				 "Converts an instance name to a symbol"
-				 (?I)
-				 (return (instance-name-to-symbol (instance-name ?I))))
-
-(deffunction contains-registerp 
-				 "Does a check to see if _any_ element in the first list is in the second"
-				 (?L1 ?L2 $?IGNORE)
-				 (foreach ?reg0 ?L1
-							 (if (and (not (numberp ?reg0))
-										 (not (member$ ?reg0 ?IGNORE))
-										 (or (member$ ?reg0 ?L2)
-											  (member$ (sym-cat { ?reg0 }) ?L2))) then
-								(return TRUE)))
-				 (return FALSE))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rules                                                                     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
