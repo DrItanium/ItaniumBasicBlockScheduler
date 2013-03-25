@@ -24,8 +24,6 @@
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 (load "lib/lisp.clp")
 (load "lib/Classes.clp")
-(load "lib/InstructionGroupID.clp")
-(load "lib/GUID.clp")
 (load "lib/TimeIndex.clp")
 (load "lib/Instruction.clp")
 (load "lib/Itanium.clp")
