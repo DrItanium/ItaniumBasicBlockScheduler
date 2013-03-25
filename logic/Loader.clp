@@ -24,5 +24,4 @@
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 (load "logic/StageAdvancement.clp")
 (load "logic/Dependency.clp")
-(load "logic/Collect.clp")
 (load "logic/Schedule.clp")
