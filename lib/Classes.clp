@@ -87,16 +87,3 @@
 															 FALSE))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defclass InstructionGroup 
-  (is-a Object)
-  (multislot contents)
-  (slot TimeIndex (type NUMBER))
-  (slot Printed (type SYMBOL) (default-dynamic FALSE)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defclass Schedule
-          (is-a Object)
-			 (multislot collect)
-			 (multislot at))
