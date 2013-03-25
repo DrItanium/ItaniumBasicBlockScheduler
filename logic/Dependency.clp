@@ -23,40 +23,8 @@
 ;(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Dependency.clp - denotes functions and rules related to Dependency        ;;
-;; analysis                                                                  ;;
+;; Dependency.clp - related to Dependency analysis                           ;;
 ;; By Joshua Scoggins                                                        ;; 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Templates                                                                 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(deftemplate Dependency 
-				 "Represents a Data Dependency between two instructions"
-				 (slot firstInstructionID (type SYMBOL))
-				 (slot secondInstructionID (type SYMBOL)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Functions                                                                 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(deffunction instance-to-symbol 
-				 "Converts an instance name to a symbol"
-				 (?I)
-				 (return (instance-name-to-symbol (instance-name ?I))))
-
-(deffunction contains-registerp 
-				 "Does a check to see if _any_ element in the first list is in the second"
-				 (?L1 ?L2 $?IGNORE)
-				 (foreach ?reg0 ?L1
-							 (if (and (not (numberp ?reg0))
-										 (not (member$ ?reg0 ?IGNORE))
-										 (or (member$ ?reg0 ?L2)
-											  (member$ (sym-cat { ?reg0 }) ?L2))) then
-								(return TRUE)))
-				 (return FALSE))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Rules                                                                     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defrule imbue-op 

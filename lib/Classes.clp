@@ -95,3 +95,9 @@
 															 FALSE))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Templates                                                                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(deftemplate Dependency 
+				 "Represents a Data Dependency between two instructions"
+				 (slot firstInstructionID (type SYMBOL))
+				 (slot secondInstructionID (type SYMBOL)))
