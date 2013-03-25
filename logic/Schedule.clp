@@ -92,13 +92,13 @@
 				              (id ?c))
 			=>
 			(retract ?f)
-			(modify-instance ?inst (producers $?list))
+			(send ?inst put-producers $?list)
 			(assert (Restart Scheduling)))
 
 (defrule restart-scheduling
          (declare (salience -2))
-			?stg <- (Stage Schedule-Update $?rest)
 			?f <- (Restart Scheduling)
+			?stg <- (Stage Schedule-Update $?rest)
 			=>
 			(retract ?f ?stg)
 			(assert (Stage Schedule Schedule-Update-Init Schedule-Update $?rest)))
