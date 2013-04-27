@@ -24,13 +24,10 @@
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defclass Object (is-a USER)
-  (slot parent (visibility public) (type SYMBOL))
-  (message-handler init around)
   (message-handler as-string primary))
 
 (defmessage-handler Object as-string primary ()
-						  (return (str-cat 
-									  (instance-name-to-symbol (instance-name ?self)))))
+						  (str-cat (instance-name-to-symbol (instance-name ?self))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defclass Instruction (is-a Object)
@@ -49,20 +46,21 @@
   (message-handler as-string primary))
 
 (defmessage-handler Instruction increment-producer-count primary 
- ()
- (bind ?self:producer-count (+ ?self:producer-count 1)))
+						  ()
+						  (bind ?self:producer-count (+ ?self:producer-count 1)))
 (defmessage-handler Instruction decrement-producer-count primary 
- ()
- (bind ?self:producer-count (- ?self:producer-count 1)))
+						  ()
+						  (bind ?self:producer-count (- ?self:producer-count 1)))
 (defmessage-handler Instruction as-string primary ()
-						  (if (= (length$ ?self:source-registers) 0) then
-							 (str-cat "(" ?self:Predicate ") " ?self:Name " "
-										 (implode$ ?self:destination-registers))
-							 else
-							 (str-cat "(" ?self:Predicate ") " ?self:Name " "
-										 (implode$ ?self:destination-registers) " = " 
-										 (implode$ ?self:source-registers))))
-
+						  (format nil "(%s) %s %s %s" 
+									 ?self:Predicate 
+									 ?self:Name 
+									 (implode$ ?self:destination-registers)
+									 (if (= (length$ ?self:source-registers) 0) then
+										""
+										else
+										(implode$ (create$ =
+																 ?self:destination-registers)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defclass ExecutionObject 
   (is-a Object)
@@ -85,10 +83,9 @@
 						  "Checks to see if the register is equal to the given symbol.
 						  It also checks to see if the symbol is the memory access version of the given
 						  register."
-						  (return (and (symbolp ?sym) 
-											(or (eq ?sym ?self:Name) 
-												 (not (eq (member$ ?sym ?self:OtherNames) 
-															 FALSE))))))
+						  (or (eq ?sym ?self:Name) 
+								(member$ ?sym ?self:OtherNames)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Templates                                                                 ;;
