@@ -60,7 +60,7 @@
 										""
 										else
 										(implode$ (create$ =
-																 ?self:destination-registers)))))
+																 ?self:source-registers)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defclass ExecutionObject 
   (is-a Object)
