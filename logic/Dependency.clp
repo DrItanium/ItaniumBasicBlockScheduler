@@ -58,10 +58,8 @@
 								  (TimeIndex ?ti))
 			=>
 			(retract ?chk)
-			(bind ?i 0)
-			(while (< ?i ?ti)
-					 (assert (BranchImbue ?name ?i))
-					 (bind ?i (+ ?i 1))))
+			(loop-for-count (?i 0 (- ?ti 1)) do
+			                (assert (BranchImbue ?name ?i))))
 
 (defrule imbue-branch-dependencies
 			(Stage Imbue $?)
@@ -171,13 +169,9 @@
 (defrule inject-producers-consumers
 			(declare (salience -1))
 			(Stage Analysis $?)
-			?d <- (Dependency (firstInstructionID ?fi) 
-									(secondInstructionID ?si))
-			?d0 <- (object (is-a Instruction)
-			        (name ?fi))
-			?d1 <- (object (is-a Instruction)
-								(name ?si))
+			?d <- (Dependency (firstInstructionID ?d0) 
+									(secondInstructionID ?d1))
 			=>
 			(send ?d1 increment-producer-count)
-			(slot-insert$ ?d0 consumers 1 ?si)
+			(slot-insert$ ?d0 consumers 1 ?d1)
 			(retract ?d))
