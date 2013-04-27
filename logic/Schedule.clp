@@ -61,7 +61,7 @@
 			(printout t (send ?inst as-string) crlf)
 			(send ?inst put-scheduled TRUE)
 			(progn$ (?c ?cs)
-			        (assert (Remove producer ?id from ?c))))
+			        (assert (From ?c remove producer ?id))))
 			     
 (defrule close-schedule-round
          (declare (salience -1))
@@ -71,7 +71,7 @@
 
 (defrule update-producer-set
          (Stage Schedule-Update $?)
-			?f <- (Remove producer ? from ?c)
+			?f <- (From ?c remove producer ?)
 			?inst <- (object (is-a Instruction)
 				              (name ?c))
 			=>
