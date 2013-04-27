@@ -56,7 +56,7 @@
 								  (scheduled FALSE)
 			                 (producer-count 0)
 								  (consumers $?cs)
-								  (id ?id))
+								  (name ?id))
 			=>
 			(printout t (send ?inst as-string) crlf)
 			(send ?inst put-scheduled TRUE)
@@ -73,7 +73,7 @@
          (Stage Schedule-Update $?)
 			?f <- (Remove producer ? from ?c)
 			?inst <- (object (is-a Instruction)
-				              (id ?c))
+				              (name ?c))
 			=>
 			(retract ?f)
 			(send ?inst decrement-producer-count)
