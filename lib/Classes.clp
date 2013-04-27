@@ -25,16 +25,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defclass Object (is-a USER)
   (slot parent (visibility public) (type SYMBOL))
-  (slot id (visibility public) (type SYMBOL) (access initialize-only))
   (message-handler init around)
   (message-handler as-string primary))
 
-(defmessage-handler Object init around ()
-						  (call-next-handler)
-						  (bind ?self:id (instance-name-to-symbol (instance-name ?self))))
-
 (defmessage-handler Object as-string primary ()
-						  (return (str-cat ?self:id)))
+						  (return (str-cat 
+									  (instance-name-to-symbol (instance-name ?self)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defclass Instruction (is-a Object)
@@ -99,5 +95,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (deftemplate Dependency 
 				 "Represents a Data Dependency between two instructions"
-				 (slot firstInstructionID (type SYMBOL))
-				 (slot secondInstructionID (type SYMBOL)))
+				 (slot firstInstructionID (type INSTANCE))
+				 (slot secondInstructionID (type INSTANCE)))
