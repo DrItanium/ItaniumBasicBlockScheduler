@@ -86,12 +86,15 @@
 					  (destination-registers $? ?d&~p0 $?)
 					  (TimeIndex ?tc0)
 					  (name ?g0))
+						 ;eq will return false if any of the elements do not equal
+						 ;the first. However, neq will return false if any of the
+						 ;elements equals the first. This means that (not (neq ))
+						 ;will return true if one of the elements equals ?o
 			(object (is-a Instruction) 
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
 					  (InstructionType ~B)
 					  (destination-registers $? 
-													 ?o&:(or (eq ?o ?d)
-																(eq ?o (sym-cat { ?d })))
+													 ?o&:(not (neq ?o ?d (sym-cat { ?d })))
 													 $?)
 					  (name ?g1))
 			=>
@@ -125,8 +128,7 @@
 			(object (is-a Instruction) 
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
 					  (InstructionType ~B)
-					  (source-registers $? ?s&:(or (eq ?s ?d)
-															 (eq ?s (sym-cat { ?d }))) $?)
+					  (source-registers $? ?s&:(not (neq ?s ?d (sym-cat { ?d }))) $?)
 					  (name ?g1))
 			=>
 			(assert (Dependency (firstInstructionID ?g0) 
@@ -137,12 +139,12 @@
 			(Stage Analysis $?)
 			(object (is-a Instruction) 
 					  (InstructionType ~B)
-					  (source-registers $? ?s&~p0 $?) 
 					  (TimeIndex ?tc0)
+					  (source-registers $? ?s&~p0 $?) 
 					  (name ?g0))
 			(object (is-a Instruction) 
-					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
 					  (InstructionType ~B)
+					  (TimeIndex ?tc1&:(< ?tc0 ?tc1))
 					  (Predicate ?s)
 					  (name ?g1))
 			=>
@@ -153,14 +155,13 @@
 			(Stage Analysis $?)
 			(object (is-a Instruction) 
 					  (InstructionType ~B)
-					  (TimeIndex ?tc0)
 					  (source-registers $? ?s&~p0 $?) 
+					  (TimeIndex ?tc0)
 					  (name ?g0))
 			(object (is-a Instruction) 
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
 					  (InstructionType ~B)
-					  (destination-registers $? ?d&:(or (eq ?d ?s)
-																   (eq ?d (sym-cat { ?s }))) $?) 
+					  (destination-registers $? ?d&:(not (neq ?d ?s (sym-cat { ?s }))) $?)
 					  (name ?g1))
 			=>
 			(assert (Dependency (firstInstructionID ?g0)
