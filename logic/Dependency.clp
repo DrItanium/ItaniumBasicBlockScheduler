@@ -79,13 +79,37 @@
 			  (send ?branch increment-producer-count))
 			(retract ?bd))
 
+(defrule initial-select-first-compare-instruction
+         (declare (salience 10000))
+         (Stage Analysis-Entry $?)
+			(object (is-a Instruction) 
+			        (TimeIndex 0)
+					  (name ?name))
+         =>
+         (assert (Instruction ?name)))
+
+(defrule skip-current-instruction-if-branch
+         (declare (salience 1000))
+         (Stage Analysis $?)
+			?f <- (Instruction ?name)
+			(object (is-a Instruction) 
+			 (name ?name) 
+			 (TimeIndex ?tc0) 
+			 (InstructionType B))
+			(object (is-a Instruction) 
+			 (TimeIndex ?tc1&:(= (+ 1 ?tc0) ?tc1)) 
+			 (name ?nName))
+			=>
+			(retract ?f)
+			(assert (Instruction ?nName)))
+
 (defrule define-WAW-dependency "Defines/or modifies a dependency"
 			(Stage Analysis $?)
+			(Instruction ?g0)
 			(object (is-a Instruction) 
-					  (InstructionType ~B)
-					  (destination-registers $? ?d&~p0 $?)
+			        (name ?g0)
 					  (TimeIndex ?tc0)
-					  (name ?g0))
+					  (destination-registers $? ?d&~p0 $?))
 						 ;eq will return false if any of the elements do not equal
 						 ;the first. However, neq will return false if any of the
 						 ;elements equals the first. This means that (not (neq ))
@@ -103,11 +127,11 @@
 (defrule define-RAW-dependency-predicate 
 			"Defines/or modifies a dependency"
 			(Stage Analysis $?)
+			(Instruction ?g0)
 			(object (is-a Instruction) 
-					  (InstructionType ~B)
-					  (destination-registers $? ?d&~p0 $?)
+			        (name ?g0)
 					  (TimeIndex ?tc0)
-					  (name ?g0))
+					  (destination-registers $? ?d&~p0 $?))
 			(object (is-a Instruction) 
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
 					  (InstructionType ~B)
@@ -120,11 +144,11 @@
 (defrule define-RAW-dependency 
 			"Defines/or modifies a dependency"
 			(Stage Analysis $?)
+			(Instruction ?g0)
 			(object (is-a Instruction) 
-					  (InstructionType ~B)
-					  (destination-registers $? ?d&~p0 $?)
+					  (name ?g0)
 					  (TimeIndex ?tc0)
-					  (name ?g0))
+					  (destination-registers $? ?d&~p0 $?))
 			(object (is-a Instruction) 
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
 					  (InstructionType ~B)
@@ -137,14 +161,14 @@
 (defrule define-WAR-dependency-predicate  
  "Defines/or modifies a WAR dependency"
 			(Stage Analysis $?)
+			(Instruction ?g0)
 			(object (is-a Instruction) 
-					  (InstructionType ~B)
+					  (name ?g0)
 					  (TimeIndex ?tc0)
-					  (source-registers $? ?s&~p0 $?) 
-					  (name ?g0))
+					  (source-registers $? ?s&~p0 $?))
 			(object (is-a Instruction) 
-					  (InstructionType ~B)
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1))
+					  (InstructionType ~B)
 					  (Predicate ?s)
 					  (name ?g1))
 			=>
@@ -153,11 +177,11 @@
 
 (defrule define-WAR-dependency "Defines/or modifies a WAR dependency"
 			(Stage Analysis $?)
+			(Instruction ?g0)
 			(object (is-a Instruction) 
-					  (InstructionType ~B)
-					  (source-registers $? ?s&~p0 $?) 
+					  (name ?g0)
 					  (TimeIndex ?tc0)
-					  (name ?g0))
+					  (source-registers $? ?s&~p0 $?))
 			(object (is-a Instruction) 
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
 					  (InstructionType ~B)
@@ -176,3 +200,34 @@
 			(send ?d1 increment-producer-count)
 			(slot-insert$ ?d0 consumers 1 ?d1)
 			(retract ?d))
+
+(defrule start-analysis-restart-process
+         (declare (salience -1000))
+         (Stage Analysis $?)
+         ?f <- (Instruction ?g0)
+			(object (is-a Instruction) 
+			        (name ?g0) 
+			        (TimeIndex ?i))
+         =>
+         (retract ?f)
+         (assert (Attempt Instruction (+ ?i 1))))
+          
+(defrule try-restart-analysis-process
+         (declare (salience -1000))
+			(Stage Analysis $?)
+         ?f2 <- (Attempt Instruction ?i)
+			(object (is-a Instruction)
+			        (TimeIndex ?i)
+					  (name ?name))
+         =>
+         (retract ?f2)
+         (assert (Instruction ?name)))
+
+(defrule finish-analysis-process  
+         (declare (salience -1000))
+         (Stage Analysis $?)
+         ?f2 <- (Attempt Instruction ?i)
+         (not (exists (object (is-a Instruction)
+                              (TimeIndex ?i))))
+         =>
+         (retract ?f2))
