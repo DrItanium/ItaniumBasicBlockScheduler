@@ -175,7 +175,7 @@
 			(object (is-a Instruction) 
 					  (name ?g0)
 					  (TimeIndex ?tc0)
-					  (source-registers $? ?s&~p0 $?))
+					  (source-registers $? ?s&~p0&:(symbolp ?s) $?))
 			(object (is-a Instruction) 
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
 					  (InstructionType ~B)
