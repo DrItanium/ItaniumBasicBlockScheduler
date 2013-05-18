@@ -51,7 +51,7 @@
 			?chk <- (Check ?gid)
 			?inst <- (object (is-a Instruction) 
 								  (InstructionType B)
-								  (ExecutionLength ?l&:(<> ?l -1)) 
+								  (ExecutionLength ~-1)
 								  (producer-count 0)
 								  (name ?gid) 
 								  (Name ?name) 
@@ -97,7 +97,7 @@
 			 (TimeIndex ?tc0) 
 			 (InstructionType B))
 			(object (is-a Instruction) 
-			 (TimeIndex ?tc1&:(= (+ 1 ?tc0) ?tc1)) 
+			 (TimeIndex =(+ 1 ?tc0))
 			 (name ?nName))
 			=>
 			(retract ?f)
@@ -110,16 +110,10 @@
 			        (name ?g0)
 					  (TimeIndex ?tc0)
 					  (destination-registers $? ?d&~p0 $?))
-						 ;eq will return false if any of the elements do not equal
-						 ;the first. However, neq will return false if any of the
-						 ;elements equals the first. This means that (not (neq ))
-						 ;will return true if one of the elements equals ?o
 			(object (is-a Instruction) 
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
 					  (InstructionType ~B)
-					  (destination-registers $? 
-													 ?o&:(not (neq ?o ?d (sym-cat { ?d })))
-													 $?)
+					  (destination-registers $? ?d|=(sym-cat { ?d }) $?)
 					  (name ?g1))
 			=>
 			(assert (Dependency (firstInstructionID ?g0) 
@@ -152,7 +146,7 @@
 			(object (is-a Instruction) 
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
 					  (InstructionType ~B)
-					  (source-registers $? ?s&:(not (neq ?s ?d (sym-cat { ?d }))) $?)
+					  (source-registers $? ?d|=(sym-cat { ?d }) $?)
 					  (name ?g1))
 			=>
 			(assert (Dependency (firstInstructionID ?g0) 
@@ -185,7 +179,7 @@
 			(object (is-a Instruction) 
 					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
 					  (InstructionType ~B)
-					  (destination-registers $? ?d&:(not (neq ?d ?s (sym-cat { ?s }))) $?)
+					  (destination-registers $? ?s|=(sym-cat { ?s }) $?)
 					  (name ?g1))
 			=>
 			(assert (Dependency (firstInstructionID ?g0)
