@@ -116,8 +116,9 @@
 					  (destination-registers $? ?d|=(sym-cat { ?d }) $?)
 					  (name ?g1))
 			=>
-			(assert (Dependency (firstInstructionID ?g0) 
-									  (secondInstructionID ?g1))))
+			(assert (Dependency (firstInstructionID ?g0)
+									  (secondInstructionID ?g1))
+              (Inject)))
 (defrule define-RAW-dependency-predicate 
 			"Defines/or modifies a dependency"
 			(Stage Analysis $?)
@@ -132,8 +133,9 @@
 					  (Predicate ?d)
 					  (name ?g1))
 			=>
-			(assert (Dependency (firstInstructionID ?g0) 
-									  (secondInstructionID ?g1))))
+			(assert (Dependency (firstInstructionID ?g0)
+									  (secondInstructionID ?g1))
+              (Inject)))
 
 (defrule define-RAW-dependency 
 			"Defines/or modifies a dependency"
@@ -149,8 +151,9 @@
 					  (source-registers $? ?d|=(sym-cat { ?d }) $?)
 					  (name ?g1))
 			=>
-			(assert (Dependency (firstInstructionID ?g0) 
-									  (secondInstructionID ?g1))))
+			(assert (Dependency (firstInstructionID ?g0)
+									  (secondInstructionID ?g1))
+              (Inject)))
 
 (defrule define-WAR-dependency-predicate  
  "Defines/or modifies a WAR dependency"
@@ -167,7 +170,8 @@
 					  (name ?g1))
 			=>
 			(assert (Dependency (firstInstructionID ?g0)
-									  (secondInstructionID ?g1))))
+									  (secondInstructionID ?g1))
+              (Inject)))
 
 (defrule define-WAR-dependency "Defines/or modifies a WAR dependency"
 			(Stage Analysis $?)
@@ -183,17 +187,24 @@
 					  (name ?g1))
 			=>
 			(assert (Dependency (firstInstructionID ?g0)
-									  (secondInstructionID ?g1))))
+									  (secondInstructionID ?g1))
+              (Inject)))
 
 (defrule inject-producers-consumers
-			(declare (salience -1))
+      (declare (salience -1))
 			(Stage Analysis $?)
-			?d <- (Dependency (firstInstructionID ?d0) 
-									      (secondInstructionID ?d1))
+      ?f <- (Inject)
+      (Instruction ?g0)
 			=>
-			(send ?d1 increment-producer-count)
-			(slot-insert$ ?d0 consumers 1 ?d1)
-			(retract ?d))
+      (retract ?f)
+      (bind ?contents (create$))
+      (delayed-do-for-all-facts ((?a Dependency)) 
+       (eq ?a:firstInstructionID ?g0)
+       ;reduce the number of messages by asserting facts instead
+       (send ?a:secondInstructionID increment-producer-count)
+       (bind ?contents (create$ ?contents ?a:secondInstructionID))
+       (retract ?a))
+      (slot-insert$ ?g0 consumers 1 ?contents))
 
 (defrule start-analysis-restart-process
          (declare (salience -1000))
