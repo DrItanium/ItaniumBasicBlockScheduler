@@ -28,209 +28,206 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defrule imbue-op 
-			"Imbue's the operational type into the given instruction"
-			(declare (salience 1))
-			(Stage Imbue $?)
-			(object (is-a Operation) 
-					  (Class ?Class) 
-					  (Name ?oName) 
-					  (Length ?oLength))
-			?inst <- (object (is-a Instruction) 
-								  (Name ?oName) 
-								  (ExecutionLength ~?oLength)
-								  (name ?gid))
-			=>
-			(modify-instance ?inst 
-								  (InstructionType ?Class)
-								  (ExecutionLength ?oLength))
-			(if (eq ?Class B) then 
-			  (assert (Check ?gid))))
+         "Imbue's the operational type into the given instruction"
+         (declare (salience 1))
+         (stage (current Imbue))
+         (object (is-a Operation) 
+                 (Class ?Class) 
+                 (Name ?oName) 
+                 (Length ?oLength))
+         ?inst <- (object (is-a Instruction) 
+                          (Name ?oName) 
+                          (ExecutionLength ~?oLength)
+                          (name ?gid))
+         =>
+         (modify-instance ?inst 
+                          (InstructionType ?Class)
+                          (ExecutionLength ?oLength))
+         (if (eq ?Class B) then 
+           (assert (Check ?gid))))
 
 (defrule generate-branch-dependencies 
-			(Stage Imbue $?)
-			?chk <- (Check ?gid)
-			?inst <- (object (is-a Instruction) 
-								  (InstructionType B)
-								  (ExecutionLength ~-1)
-								  (producer-count 0)
-								  (name ?gid) 
-								  (Name ?name) 
-								  (TimeIndex ?ti))
-			=>
-			(retract ?chk)
-			(loop-for-count (?i 0 (- ?ti 1)) do
-			                (assert (BranchImbue ?name ?i))))
+         (stage (current Imbue))
+         ?chk <- (Check ?gid)
+         ?inst <- (object (is-a Instruction) 
+                          (InstructionType B)
+                          (ExecutionLength ~-1)
+                          (producer-count 0)
+                          (name ?gid) 
+                          (Name ?name) 
+                          (TimeIndex ?ti))
+         =>
+         (retract ?chk)
+         (loop-for-count (?i 0 (- ?ti 1)) do
+                         (assert (BranchImbue ?name ?i))))
 
 (defrule imbue-branch-dependencies
-			(Stage Imbue $?)
-			?bd <- (BranchImbue ?name ?i)
-			?branch <- (object (is-a Instruction) 
-					  (Name ?name) 
-					  (name ?bid))
-			?inst <- (object (is-a Instruction) 
-					  (TimeIndex ?i) 
-					  (InstructionType ?IT))
-			=>
-			;Register the branch in the consumer set
-			(slot-insert$ ?inst consumers 1 ?bid)
-			(if (neq ?IT B) then
-			 ;we don't care what the producer actually is
-			 ;That is more important for region scheduling
-			  (send ?branch increment-producer-count))
-			(retract ?bd))
+         (stage (current Imbue))
+         ?bd <- (BranchImbue ?name ?i)
+         ?branch <- (object (is-a Instruction) 
+                            (Name ?name) 
+                            (name ?bid))
+         ?inst <- (object (is-a Instruction) 
+                          (TimeIndex ?i) 
+                          (InstructionType ?IT))
+         =>
+         ;Register the branch in the consumer set
+         (slot-insert$ ?inst consumers 1 ?bid)
+         (if (neq ?IT B) then
+           ;we don't care what the producer actually is
+           ;That is more important for region scheduling
+           (send ?branch increment-producer-count))
+         (retract ?bd))
 
 (defrule initial-select-first-compare-instruction
          (declare (salience 10000))
-         (Stage Analysis-Entry $?)
-			(object (is-a Instruction) 
-			        (TimeIndex 0)
-					  (name ?name))
+         (stage (current Analysis-Entry))
+         (object (is-a Instruction) 
+                 (TimeIndex 0)
+                 (name ?name))
          =>
          (assert (Instruction ?name)))
 
 (defrule skip-current-instruction-if-branch
          (declare (salience 1000))
-         (Stage Analysis $?)
-			?f <- (Instruction ?name)
-			(object (is-a Instruction) 
-			 (name ?name) 
-			 (TimeIndex ?tc0) 
-			 (InstructionType B))
-			(object (is-a Instruction) 
-			 (TimeIndex =(+ 1 ?tc0))
-			 (name ?nName))
-			=>
-			(retract ?f)
-			(assert (Instruction ?nName)))
+         (stage (current Analysis))
+         ?f <- (Instruction ?name)
+         (object (is-a Instruction) 
+                 (name ?name) 
+                 (InstructionType B)
+                 (TimeIndex ?tc0))
+         (object (is-a Instruction) 
+                 (TimeIndex =(+ 1 ?tc0))
+                 (name ?nName))
+         =>
+         (retract ?f)
+         (assert (Instruction ?nName)))
 
 (defrule define-WAW-dependency "Defines/or modifies a dependency"
-			(Stage Analysis $?)
-			(Instruction ?g0)
-			(object (is-a Instruction) 
-			        (name ?g0)
-					  (TimeIndex ?tc0)
-					  (destination-registers $? ?d&~p0 $?))
-			(object (is-a Instruction) 
-					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
-					  (InstructionType ~B)
-					  (destination-registers $? ?d|=(sym-cat { ?d }) $?)
-					  (name ?g1))
-			=>
-			(assert (Dependency (firstInstructionID ?g0)
-									  (secondInstructionID ?g1))
-              (Inject)))
+         (stage (current Analysis))
+         (Instruction ?g0)
+         (object (is-a Instruction) 
+                 (name ?g0)
+                 (TimeIndex ?tc0)
+                 (destination-registers $? ?d&~p0 $?))
+         (object (is-a Instruction) 
+                 (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
+                 (InstructionType ~B)
+                 (destination-registers $? ?d|=(sym-cat { ?d }) $?)
+                 (name ?g1))
+         =>
+         (assert (Dependency (firstInstructionID ?g0)
+                             (secondInstructionID ?g1))
+                 (Inject)))
 (defrule define-RAW-dependency-predicate 
-			"Defines/or modifies a dependency"
-			(Stage Analysis $?)
-			(Instruction ?g0)
-			(object (is-a Instruction) 
-			        (name ?g0)
-					  (TimeIndex ?tc0)
-					  (destination-registers $? ?d&~p0 $?))
-			(object (is-a Instruction) 
-					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
-					  (InstructionType ~B)
-					  (Predicate ?d)
-					  (name ?g1))
-			=>
-			(assert (Dependency (firstInstructionID ?g0)
-									  (secondInstructionID ?g1))
-              (Inject)))
+         "Defines/or modifies a dependency"
+         (stage (current Analysis))
+         (Instruction ?g0)
+         (object (is-a Instruction) 
+                 (name ?g0)
+                 (TimeIndex ?tc0)
+                 (destination-registers $? ?d&~p0 $?))
+         (object (is-a Instruction) 
+                 (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
+                 (InstructionType ~B)
+                 (Predicate ?d)
+                 (name ?g1))
+         =>
+         (assert (Dependency (firstInstructionID ?g0)
+                             (secondInstructionID ?g1))
+                 (Inject)))
 
 (defrule define-RAW-dependency 
-			"Defines/or modifies a dependency"
-			(Stage Analysis $?)
-			(Instruction ?g0)
-			(object (is-a Instruction) 
-					  (name ?g0)
-					  (TimeIndex ?tc0)
-					  (destination-registers $? ?d&~p0 $?))
-			(object (is-a Instruction) 
-					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
-					  (InstructionType ~B)
-					  (source-registers $? ?d|=(sym-cat { ?d }) $?)
-					  (name ?g1))
-			=>
-			(assert (Dependency (firstInstructionID ?g0)
-									  (secondInstructionID ?g1))
-              (Inject)))
+         "Defines/or modifies a dependency"
+         (stage (current Analysis))
+         (Instruction ?g0)
+         (object (is-a Instruction) 
+                 (name ?g0)
+                 (TimeIndex ?tc0)
+                 (destination-registers $? ?d&~p0 $?))
+         (object (is-a Instruction) 
+                 (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
+                 (InstructionType ~B)
+                 (source-registers $? ?d|=(sym-cat { ?d }) $?)
+                 (name ?g1))
+         =>
+         (assert (Dependency (firstInstructionID ?g0)
+                             (secondInstructionID ?g1))
+                 (Inject)))
 
 (defrule define-WAR-dependency-predicate  
- "Defines/or modifies a WAR dependency"
-			(Stage Analysis $?)
-			(Instruction ?g0)
-			(object (is-a Instruction) 
-					  (name ?g0)
-					  (TimeIndex ?tc0)
-					  (source-registers $? ?s&~p0&:(symbolp ?s) $?))
-			(object (is-a Instruction) 
-					  (TimeIndex ?tc1&:(< ?tc0 ?tc1))
-					  (InstructionType ~B)
-					  (Predicate ?s)
-					  (name ?g1))
-			=>
-			(assert (Dependency (firstInstructionID ?g0)
-									  (secondInstructionID ?g1))
-              (Inject)))
+         "Defines/or modifies a WAR dependency"
+         (stage (current Analysis))
+         (Instruction ?g0)
+         (object (is-a Instruction) 
+                 (name ?g0)
+                 (TimeIndex ?tc0)
+                 (source-registers $? ?s&~p0&:(symbolp ?s) $?))
+         (object (is-a Instruction) 
+                 (TimeIndex ?tc1&:(< ?tc0 ?tc1))
+                 (InstructionType ~B)
+                 (Predicate ?s)
+                 (name ?g1))
+         =>
+         (assert (Dependency (firstInstructionID ?g0)
+                             (secondInstructionID ?g1))
+                 (Inject)))
 
 (defrule define-WAR-dependency "Defines/or modifies a WAR dependency"
-			(Stage Analysis $?)
-			(Instruction ?g0)
-			(object (is-a Instruction) 
-					  (name ?g0)
-					  (TimeIndex ?tc0)
-					  (source-registers $? ?s&~p0&:(symbolp ?s) $?))
-			(object (is-a Instruction) 
-					  (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
-					  (InstructionType ~B)
-					  (destination-registers $? ?s|=(sym-cat { ?s }) $?)
-					  (name ?g1))
-			=>
-			(assert (Dependency (firstInstructionID ?g0)
-									  (secondInstructionID ?g1))
-              (Inject)))
+         (stage (current Analysis))
+         (Instruction ?g0)
+         (object (is-a Instruction) 
+                 (name ?g0)
+                 (TimeIndex ?tc0)
+                 (source-registers $? ?s&~p0&:(symbolp ?s) $?))
+         (object (is-a Instruction) 
+                 (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
+                 (InstructionType ~B)
+                 (destination-registers $? ?s|=(sym-cat { ?s }) $?)
+                 (name ?g1))
+         =>
+         (assert (Dependency (firstInstructionID ?g0)
+                             (secondInstructionID ?g1))
+                 (Inject)))
 
 (defrule inject-producers-consumers
-      (declare (salience -1))
-			(Stage Analysis $?)
-      ?f <- (Inject)
-      (Instruction ?g0)
-			=>
-      (retract ?f)
-      (bind ?contents (create$))
-      (delayed-do-for-all-facts ((?a Dependency)) 
-       (eq ?a:firstInstructionID ?g0)
-       ;reduce the number of messages by asserting facts instead
-       (send ?a:secondInstructionID increment-producer-count)
-       (bind ?contents (create$ ?contents ?a:secondInstructionID))
-       (retract ?a))
-      (slot-insert$ ?g0 consumers 1 ?contents))
+         (declare (salience -1))
+         (stage (current Analysis))
+         ?f <- (Inject)
+         (Instruction ?g0)
+         =>
+         (retract ?f)
+         (bind ?contents (create$))
+         (delayed-do-for-all-facts ((?a Dependency)) 
+                                   (eq ?a:firstInstructionID ?g0)
+                                   ;reduce the number of messages by asserting facts instead
+                                   (send ?a:secondInstructionID increment-producer-count)
+                                   (bind ?contents (create$ ?contents ?a:secondInstructionID))
+                                   (retract ?a))
+         (slot-insert$ ?g0 consumers 1 ?contents))
 
 (defrule start-analysis-restart-process
          (declare (salience -1000))
-         (Stage Analysis $?)
+         (stage (current Analysis))
          ?f <- (Instruction ?g0)
-			(object (is-a Instruction) 
-			        (name ?g0) 
-			        (TimeIndex ?i))
          =>
          (retract ?f)
-         (assert (Attempt Instruction (+ ?i 1))))
-          
+         (assert (Attempt Instruction (+ (send ?g0 get-TimeIndex) 1))))
+
 (defrule try-restart-analysis-process
          (declare (salience -1000))
-			(Stage Analysis $?)
+         (stage (current Analysis))
          ?f2 <- (Attempt Instruction ?i)
-			(object (is-a Instruction)
-			        (TimeIndex ?i)
-					  (name ?name))
+         (object (is-a Instruction)
+                 (TimeIndex ?i)
+                 (name ?name))
          =>
          (retract ?f2)
          (assert (Instruction ?name)))
 
 (defrule finish-analysis-process  
          (declare (salience -1000))
-         (Stage Analysis $?)
+         (stage (current Analysis))
          ?f2 <- (Attempt Instruction ?i)
          (not (exists (object (is-a Instruction)
                               (TimeIndex ?i))))

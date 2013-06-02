@@ -51,38 +51,36 @@
 ;------------------------------------------------------------------------------
 (defrule determine-scheduability
          "An object is able to be scheduled if it has no remaining producers"
-         (Stage Schedule $?)
-			?inst <- (object (is-a Instruction)
-								  (scheduled FALSE)
-			                 (producer-count 0)
-								  (consumers $?cs)
-								  (name ?id))
-			=>
-			(printout t (send ?inst as-string) crlf)
-			(send ?inst put-scheduled TRUE)
-			(progn$ (?c ?cs)
-			        (assert (Remove producer ?id from ?c))))
-			     
+         (stage (current Schedule))
+         ?inst <- (object (is-a Instruction)
+                          (scheduled FALSE)
+                          (producer-count 0)
+                          (consumers $?cs)
+                          (name ?id))
+         =>
+         (printout t (send ?inst as-string) crlf)
+         (send ?inst put-scheduled TRUE)
+         (progn$ (?c ?cs)
+                 (assert (Remove producer ?id from ?c))))
+
 (defrule close-schedule-round
          (declare (salience -1))
-			(Stage Schedule $?)
-			=>
-			(printout t ";;" crlf))
+         (stage (current Schedule))
+         =>
+         (printout t ";;" crlf))
 
 (defrule update-producer-set
-         (Stage Schedule-Update $?)
-			?f <- (Remove producer ? from ?c)
-			?inst <- (object (is-a Instruction)
-				              (name ?c))
-			=>
-			(retract ?f)
-			(send ?inst decrement-producer-count)
-			(assert (Restart Scheduling)))
+         (stage (current Schedule-Update))
+         ?f <- (Remove producer ? from ?c)
+         =>
+         (retract ?f)
+         (send ?c decrement-producer-count)
+         (assert (Restart Scheduling)))
 
 (defrule restart-scheduling
          (declare (salience -2))
-			?f <- (Restart Scheduling)
-			?stg <- (Stage Schedule-Update $?rest)
-			=>
-			(retract ?f ?stg)
-			(assert (Stage Schedule Schedule-Update $?rest)))
+         ?f <- (Restart Scheduling)
+         ?stg <- (stage (current Schedule-Update) (rest $?rest))
+         =>
+         (retract ?f)
+         (modify ?stg (current Schedule) (rest Schedule-Update $?rest)))

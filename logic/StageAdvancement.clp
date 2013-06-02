@@ -22,17 +22,25 @@
 ;ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 ;(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+(deftemplate stage 
+ (slot current (type SYMBOL))
+ (multislot rest (type SYMBOL)))
 (defrule stages-init
 			(declare (salience 10000))
 			(initial-fact)
 			=>
-			(assert (Stage Imbue Analysis-Entry Analysis Schedule Schedule-Update)))
+      (assert (stage (current Imbue) (rest Analysis-Entry Analysis Schedule
+                                      Schedule-Update))))
+
+(defrule end-stage-generation
+         (declare (salience -9999))
+         ?f <- (stage (rest))
+         =>
+         (retract ?f))
 
 (defrule next-stage
 			(declare (salience -10000))
-			?f <- (Stage ? $?rest)
+      ?f <- (stage (rest ?now $?rest))
 			=>
-			(retract ?f)
-			(if (> (length$ ?rest) 0) then
-			  (assert (Stage $?rest))))
+      (modify ?f (current ?now) 
+                 (rest $?rest)))
