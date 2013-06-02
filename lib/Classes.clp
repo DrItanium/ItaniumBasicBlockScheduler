@@ -48,9 +48,20 @@
 (defmessage-handler Instruction increment-producer-count primary 
 						  ()
 						  (bind ?self:producer-count (+ ?self:producer-count 1)))
+
 (defmessage-handler Instruction decrement-producer-count primary 
-						  ()
-						  (bind ?self:producer-count (- ?self:producer-count 1)))
+						  ($?input)
+              (if (= (length$ $?input) 0) then
+						  (bind ?self:producer-count (- ?self:producer-count 1))
+              else
+              (if (= (length$ $?input) 1) then
+              (bind ?self:producer-count (- ?self:producer-count 
+                                          (nth$ 1 ?input)))
+              else
+              (bind ?self:producer-count (- ?self:producer-count 
+                                          (+ (expand$ $?input)))))))
+
+              
 (defmessage-handler Instruction as-string primary ()
 						  (format nil "(%s) %s %s %s" 
 									 ?self:Predicate 

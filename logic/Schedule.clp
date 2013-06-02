@@ -52,16 +52,15 @@
 (defrule determine-scheduability
          "An object is able to be scheduled if it has no remaining producers"
          (stage (current Schedule))
-         ?inst <- (object (is-a Instruction)
-                          (scheduled FALSE)
-                          (producer-count 0)
-                          (consumers $?cs)
-                          (name ?id))
+         (object (is-a Instruction)
+                 (producer-count 0)
+                 (scheduled FALSE)
+                 (name ?id))
          =>
-         (printout t (send ?inst as-string) crlf)
-         (send ?inst put-scheduled TRUE)
-         (progn$ (?c ?cs)
-                 (assert (Remove producer ?id from ?c))))
+         (printout t (send ?id as-string) crlf)
+         (send ?id put-scheduled TRUE)
+         (assert (Scheduled ?id)))
+
 
 (defrule close-schedule-round
          (declare (salience -1))
@@ -71,16 +70,22 @@
 
 (defrule update-producer-set
          (stage (current Schedule-Update))
-         ?f <- (Remove producer ? from ?c)
+         ?f <- (Scheduled ?id)
+         (object (is-a Instruction)
+                 (name ?id)
+                 (consumers $?cs))
          =>
          (retract ?f)
-         (send ?c decrement-producer-count)
-         (assert (Restart Scheduling)))
+         (assert (Restart Scheduling))
+         (progn$ (?c ?cs)
+                 (send ?c decrement-producer-count)))
 
 (defrule restart-scheduling
          (declare (salience -2))
          ?f <- (Restart Scheduling)
-         ?stg <- (stage (current Schedule-Update) (rest $?rest))
+         ?stg <- (stage (current Schedule-Update) 
+                        (rest $?rest))
          =>
          (retract ?f)
-         (modify ?stg (current Schedule) (rest Schedule-Update $?rest)))
+         (modify ?stg (current Schedule) 
+                 (rest Schedule-Update $?rest)))
