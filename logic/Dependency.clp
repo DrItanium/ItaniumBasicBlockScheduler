@@ -35,12 +35,12 @@
                  (Class ?Class) 
                  (Name ?oName) 
                  (Length ?oLength))
-         ?inst <- (object (is-a Instruction) 
-                          (Name ?oName) 
-                          (ExecutionLength ~?oLength)
-                          (name ?gid))
+         (object (is-a Instruction) 
+                 (Name ?oName) 
+                 (ExecutionLength ~?oLength)
+                 (name ?gid))
          =>
-         (modify-instance ?inst 
+         (modify-instance ?gid
                           (InstructionType ?Class)
                           (ExecutionLength ?oLength))
          (if (eq ?Class B) then 
@@ -49,13 +49,13 @@
 (defrule generate-branch-dependencies 
          (stage (current Imbue))
          ?chk <- (Check ?gid)
-         ?inst <- (object (is-a Instruction) 
-                          (InstructionType B)
-                          (ExecutionLength ~-1)
-                          (producer-count 0)
-                          (name ?gid) 
-                          (Name ?name) 
-                          (TimeIndex ?ti))
+         (object (is-a Instruction) 
+                 (name ?gid) 
+                 (InstructionType B)
+                 (ExecutionLength ~-1)
+                 (producer-count 0)
+                 (Name ?name) 
+                 (TimeIndex ?ti))
          =>
          (retract ?chk)
          (loop-for-count (?i 0 (- ?ti 1)) do
@@ -64,12 +64,12 @@
 (defrule imbue-branch-dependencies
          (stage (current Imbue))
          ?bd <- (BranchImbue ?name ?i)
-         ?branch <- (object (is-a Instruction) 
-                            (Name ?name) 
-                            (name ?bid))
          ?inst <- (object (is-a Instruction) 
                           (TimeIndex ?i) 
                           (InstructionType ?IT))
+         ?branch <- (object (is-a Instruction) 
+                            (Name ?name) 
+                            (name ?bid))
          =>
          ;Register the branch in the consumer set
          (slot-insert$ ?inst consumers 1 ?bid)
@@ -102,94 +102,85 @@
          =>
          (retract ?f)
          (assert (Instruction ?nName)))
-
-(defrule define-WAW-dependency "Defines/or modifies a dependency"
-         (stage (current Analysis))
-         (Instruction ?g0)
-         (object (is-a Instruction) 
+(defrule decompose-target-instruction-sections
+         (declare (salience 10))
+         (stage (current Analysis-Entry))
+         (object (is-a Instruction)
                  (name ?g0)
-                 (TimeIndex ?tc0)
-                 (destination-registers $? ?d&~p0 $?))
-         (object (is-a Instruction) 
-                 (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
+                 (TimeIndex ?ti)
                  (InstructionType ~B)
-                 (destination-registers $? ?d|=(sym-cat { ?d }) $?)
-                 (name ?g1))
+                 (destination-registers $?dest)
+                 (source-registers $?src)
+                 (Predicate ?p))
          =>
-         (assert (Dependency (firstInstructionID ?g0)
-                             (secondInstructionID ?g1))
-                 (Inject)))
-(defrule define-RAW-dependency-predicate 
-         "Defines/or modifies a dependency"
+         (if (neq ?p p0) then
+             (assert (Register Predicate ?g0 ?ti ?p)))
+         (progn$ (?s $?src)
+                 (if (and (neq ?s p0)
+                          (symbolp ?s)) then
+                     (bind ?first (sub-string 1 1 ?s))
+                     (bind ?register (sym-cat (if (eq ?first "{") then
+                                                  (sub-string 2 
+                                                   (- (str-length ?s) 1) ?s)
+                                                  else
+                                                  ?s)))
+                     (assert (Register Source ?g0 ?ti ?register ?s-index))))
+         (progn$ (?d $?dest)
+                 (if (neq ?d p0) then
+                     (assert (Register Destination ?g0 ?ti ?d)))))
+(defrule define-WAW-dependency
+         "Identifies a WAW dependency"
          (stage (current Analysis))
          (Instruction ?g0)
-         (object (is-a Instruction) 
-                 (name ?g0)
-                 (TimeIndex ?tc0)
-                 (destination-registers $? ?d&~p0 $?))
-         (object (is-a Instruction) 
-                 (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
-                 (InstructionType ~B)
-                 (Predicate ?d)
-                 (name ?g1))
-         =>
-         (assert (Dependency (firstInstructionID ?g0)
-                             (secondInstructionID ?g1))
-                 (Inject)))
-
-(defrule define-RAW-dependency 
-         "Defines/or modifies a dependency"
-         (stage (current Analysis))
-         (Instruction ?g0)
-         (object (is-a Instruction) 
-                 (name ?g0)
-                 (TimeIndex ?tc0)
-                 (destination-registers $? ?d&~p0 $?))
-         (object (is-a Instruction) 
-                 (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
-                 (InstructionType ~B)
-                 (source-registers $? ?d|=(sym-cat { ?d }) $?)
-                 (name ?g1))
+         (Register Destination ?g0 ?t0 ?d)
+         (Register Destination ?g1&~?g0 ?t1&:(> ?t1 ?t0) ?d)
          =>
          (assert (Dependency (firstInstructionID ?g0)
                              (secondInstructionID ?g1))
                  (Inject)))
 
-(defrule define-WAR-dependency-predicate  
-         "Defines/or modifies a WAR dependency"
+(defrule define-RAW-dependency:predicate
+         "Finds a RAW dependency with a predicate"
          (stage (current Analysis))
          (Instruction ?g0)
-         (object (is-a Instruction) 
-                 (name ?g0)
-                 (TimeIndex ?tc0)
-                 (source-registers $? ?s&~p0&:(symbolp ?s) $?))
-         (object (is-a Instruction) 
-                 (TimeIndex ?tc1&:(< ?tc0 ?tc1))
-                 (InstructionType ~B)
-                 (Predicate ?s)
-                 (name ?g1))
+         (Register Destination ?g0 ?t0 ?d)
+         (Register Predicate ?g1&~?g0 ?t1&:(> ?t1 ?t0) ?d)
          =>
          (assert (Dependency (firstInstructionID ?g0)
                              (secondInstructionID ?g1))
                  (Inject)))
 
-(defrule define-WAR-dependency "Defines/or modifies a WAR dependency"
+(defrule define-RAW-dependency
+         "Finds a RAW dependency"
          (stage (current Analysis))
          (Instruction ?g0)
-         (object (is-a Instruction) 
-                 (name ?g0)
-                 (TimeIndex ?tc0)
-                 (source-registers $? ?s&~p0&:(symbolp ?s) $?))
-         (object (is-a Instruction) 
-                 (TimeIndex ?tc1&:(< ?tc0 ?tc1)) 
-                 (InstructionType ~B)
-                 (destination-registers $? ?s|=(sym-cat { ?s }) $?)
-                 (name ?g1))
+         (Register Destination ?g0 ?t0 ?d)
+         (Register Source ?g1&~?g0 ?t1&:(> ?t1 ?t0) ?d ?)
          =>
          (assert (Dependency (firstInstructionID ?g0)
                              (secondInstructionID ?g1))
                  (Inject)))
 
+(defrule define-WAR-dependency:predicate
+         "Finds a WAR dependency with a predicate"
+         (stage (current Analysis))
+         (Instruction ?g0)
+         (Register Source ?g0 ?t0 ?d ?)
+         (Register Predicate ?g1&~?g0 ?t1&:(> ?t1 ?t0) ?d)
+         =>
+         (assert (Dependency (firstInstructionID ?g0)
+                             (secondInstructionID ?g1))
+                 (Inject)))
+(defrule define-WAR-dependency
+         "Finds a WAR dependency"
+         (stage (current Analysis))
+         (Instruction ?g0)
+         (Register Source ?g0 ?t0 ?d ?)
+         (Register Destination ?g1&~?g0 ?t1&:(> ?t1 ?t0) ?d)
+         =>
+         (assert (Dependency (firstInstructionID ?g0)
+                             (secondInstructionID ?g1))
+                 (Inject)))
 (defrule inject-producers-consumers
          (declare (salience -1))
          (stage (current Analysis))
