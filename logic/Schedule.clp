@@ -59,13 +59,16 @@
          =>
          (printout t (send ?id as-string) crlf)
          (send ?id put-scheduled TRUE)
-         (assert (Scheduled ?id)))
+         (assert (Scheduled ?id)
+	         (close block)))
 
 
 (defrule close-schedule-round
          (declare (salience -1))
          (stage (current Schedule))
+	 ?f <- (close block)
          =>
+	 (retract ?f)
          (printout t ";;" crlf))
 
 (defrule update-producer-set
