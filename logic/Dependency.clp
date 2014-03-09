@@ -58,8 +58,9 @@
                  (TimeIndex ?ti))
          =>
          (retract ?chk)
+         (send ?gid put-producer-count ?ti)
          (loop-for-count (?i 0 (- ?ti 1)) do
-                         (assert (BranchImbue ?name ?i))))
+                         (assert (BranchImbue ?gid ?i))))
 
 (defrule imbue-branch-dependencies
          (stage (current Imbue))
@@ -67,17 +68,14 @@
          ?inst <- (object (is-a Instruction) 
                           (TimeIndex ?i) 
                           (InstructionType ?IT))
-         ?branch <- (object (is-a Instruction) 
-                            (Name ?name) 
-                            (name ?bid))
          =>
+         (retract ?bd)
          ;Register the branch in the consumer set
-         (slot-insert$ ?inst consumers 1 ?bid)
-         (if (neq ?IT B) then
+         (slot-insert$ ?inst consumers 1 ?name)
+         (if (eq ?IT B) then
            ;we don't care what the producer actually is
            ;That is more important for region scheduling
-           (send ?branch increment-producer-count))
-         (retract ?bd))
+           (send ?name decrement-producer-count)))
 
 (defrule initial-select-first-compare-instruction
          (declare (salience 10000))
@@ -102,38 +100,60 @@
          =>
          (retract ?f)
          (assert (Instruction ?nName)))
+(deftemplate register-ref
+ (slot type
+  (default ?NONE))
+ (slot time-index
+  (type INTEGER)
+  (default ?NONE))
+ (slot target-register
+  (default ?NONE))
+ (slot parent
+  (default ?NONE)))
 (defrule decompose-target-instruction-sections
          (declare (salience 10))
          (stage (current Analysis-Entry))
          (object (is-a Instruction)
+                 (InstructionType ~B)
                  (name ?g0)
                  (TimeIndex ?ti)
-                 (InstructionType ~B)
                  (destination-registers $?dest)
                  (source-registers $?src)
                  (Predicate ?p))
          =>
          (if (neq ?p p0) then
-             (assert (Register Predicate ?g0 ?ti ?p)))
+          (assert (register-ref (type predicate)
+                                (time-index ?ti)
+                                (target-register ?p)
+                                (parent ?g0))))
+
          (progn$ (?s $?src)
                  (if (and (neq ?s p0)
                           (symbolp ?s)) then
-                     (bind ?first (sub-string 1 1 ?s))
-                     (bind ?register (sym-cat (if (eq ?first "{") then
-                                                  (sub-string 2 
-                                                   (- (str-length ?s) 1) ?s)
-                                                  else
-                                                  ?s)))
-                     (assert (Register Source ?g0 ?ti ?register ?s-index))))
+                  (assert (register-ref (type source)
+                           (time-index ?ti)
+                           (target-register (if (eq (sub-string 1 1 ?s) "{") then
+                                      (sym-cat (sub-string 2 (- (str-length ?s)
+                                                              1) ?s)) else ?s))
+                           (parent ?g0)))))
          (progn$ (?d $?dest)
-                 (if (neq ?d p0) then
-                     (assert (Register Destination ?g0 ?ti ?d)))))
+          (if (neq ?d p0) then
+           (assert (register-ref (type destination)
+                    (time-index ?ti)
+                    (target-register ?d)
+                    (parent ?g0))))))
 (defrule define-WAW-dependency
          "Identifies a WAW dependency"
          (stage (current Analysis))
          (Instruction ?g0)
-         (Register Destination ?g0 ?t0 ?d)
-         (Register Destination ?g1&~?g0 ?t1&:(> ?t1 ?t0) ?d)
+         (register-ref (parent ?g0)
+                       (type destination)
+                       (time-index ?t0)
+                       (target-register ?d))
+         (register-ref (time-index ?t1&:(> ?t1 ?t0))
+                       (type destination)
+                       (target-register ?d)
+                       (parent ?g1))
          =>
          (assert (Dependency (firstInstructionID ?g0)
                              (secondInstructionID ?g1))
@@ -143,8 +163,14 @@
          "Finds a RAW dependency with a predicate"
          (stage (current Analysis))
          (Instruction ?g0)
-         (Register Destination ?g0 ?t0 ?d)
-         (Register Predicate ?g1&~?g0 ?t1&:(> ?t1 ?t0) ?d)
+         (register-ref (parent ?g0)
+                       (type destination)
+                       (time-index ?t0)
+                       (target-register ?d))
+         (register-ref (time-index ?t1&:(> ?t1 ?t0))
+                       (type predicate)
+                       (target-register ?d)
+                       (parent ?g1))
          =>
          (assert (Dependency (firstInstructionID ?g0)
                              (secondInstructionID ?g1))
@@ -154,8 +180,14 @@
          "Finds a RAW dependency"
          (stage (current Analysis))
          (Instruction ?g0)
-         (Register Destination ?g0 ?t0 ?d)
-         (Register Source ?g1&~?g0 ?t1&:(> ?t1 ?t0) ?d ?)
+         (register-ref (parent ?g0)
+                       (type destination)
+                       (time-index ?t0)
+                       (target-register ?d))
+         (register-ref (time-index ?t1&:(> ?t1 ?t0))
+                       (type source)
+                       (target-register ?d)
+                       (parent ?g1))
          =>
          (assert (Dependency (firstInstructionID ?g0)
                              (secondInstructionID ?g1))
@@ -165,18 +197,31 @@
          "Finds a WAR dependency with a predicate"
          (stage (current Analysis))
          (Instruction ?g0)
-         (Register Source ?g0 ?t0 ?d ?)
-         (Register Predicate ?g1&~?g0 ?t1&:(> ?t1 ?t0) ?d)
+         (register-ref (parent ?g0)
+                       (type source)
+                       (time-index ?t0)
+                       (target-register ?d))
+         (register-ref (time-index ?t1&:(> ?t1 ?t0))
+                       (type predicate)
+                       (target-register ?d)
+                       (parent ?g1))
          =>
          (assert (Dependency (firstInstructionID ?g0)
                              (secondInstructionID ?g1))
                  (Inject)))
+
 (defrule define-WAR-dependency
          "Finds a WAR dependency"
          (stage (current Analysis))
          (Instruction ?g0)
-         (Register Source ?g0 ?t0 ?d ?)
-         (Register Destination ?g1&~?g0 ?t1&:(> ?t1 ?t0) ?d)
+         (register-ref (parent ?g0)
+                       (type source)
+                       (time-index ?t0)
+                       (target-register ?d))
+         (register-ref (time-index ?t1&:(> ?t1 ?t0))
+                       (type destination)
+                       (target-register ?d)
+                       (parent ?g1))
          =>
          (assert (Dependency (firstInstructionID ?g0)
                              (secondInstructionID ?g1))
@@ -190,10 +235,10 @@
          (retract ?f)
          (bind ?contents (create$))
          (delayed-do-for-all-facts ((?a Dependency)) 
-                                   (eq ?a:firstInstructionID ?g0)
+                                   TRUE
                                    ;reduce the number of messages by asserting facts instead
                                    (send ?a:secondInstructionID increment-producer-count)
-                                   (bind ?contents (create$ ?contents ?a:secondInstructionID))
+                                   (bind ?contents (insert$ ?contents 1 ?a:secondInstructionID))
                                    (retract ?a))
          (slot-insert$ ?g0 consumers 1 ?contents))
 
