@@ -101,15 +101,15 @@
          (retract ?f)
          (assert (Instruction ?nName)))
 (deftemplate register-ref
- (slot type
-  (default ?NONE))
- (slot time-index
-  (type INTEGER)
-  (default ?NONE))
- (slot target-register
-  (default ?NONE))
- (slot parent
-  (default ?NONE)))
+             (slot type
+                   (default ?NONE))
+             (slot time-index
+                   (type INTEGER)
+                   (default ?NONE))
+             (slot target-register
+                   (default ?NONE))
+             (slot parent
+                   (default ?NONE)))
 (defrule decompose-target-instruction-sections
          (declare (salience 10))
          (stage (current Analysis-Entry))
@@ -122,26 +122,26 @@
                  (Predicate ?p))
          =>
          (if (neq ?p p0) then
-          (assert (register-ref (type predicate)
-                                (time-index ?ti)
-                                (target-register ?p)
-                                (parent ?g0))))
+           (assert (register-ref (type predicate)
+                                 (time-index ?ti)
+                                 (target-register ?p)
+                                 (parent ?g0))))
 
          (progn$ (?s $?src)
                  (if (and (neq ?s p0)
                           (symbolp ?s)) then
-                  (assert (register-ref (type source)
-                           (time-index ?ti)
-                           (target-register (if (eq (sub-string 1 1 ?s) "{") then
-                                      (sym-cat (sub-string 2 (- (str-length ?s)
-                                                              1) ?s)) else ?s))
-                           (parent ?g0)))))
+                   (assert (register-ref (type source)
+                                         (time-index ?ti)
+                                         (target-register (if (eq (sub-string 1 1 ?s) "{") then
+                                                            (sym-cat (sub-string 2 (- (str-length ?s)
+                                                                                      1) ?s)) else ?s))
+                                         (parent ?g0)))))
          (progn$ (?d $?dest)
-          (if (neq ?d p0) then
-           (assert (register-ref (type destination)
-                    (time-index ?ti)
-                    (target-register ?d)
-                    (parent ?g0))))))
+                 (if (neq ?d p0) then
+                   (assert (register-ref (type destination)
+                                         (time-index ?ti)
+                                         (target-register ?d)
+                                         (parent ?g0))))))
 (defrule define-WAW-dependency
          "Identifies a WAW dependency"
          (stage (current Analysis))
@@ -262,10 +262,8 @@
          (assert (Instruction ?name)))
 
 (defrule finish-analysis-process  
-         (declare (salience -1000))
+         (declare (salience -1001))
          (stage (current Analysis))
          ?f2 <- (Attempt Instruction ?i)
-         (not (exists (object (is-a Instruction)
-                              (TimeIndex ?i))))
          =>
          (retract ?f2))
