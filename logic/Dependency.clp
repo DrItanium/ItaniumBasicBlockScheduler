@@ -190,36 +190,7 @@
          =>
          (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
 
-(defrule define-source-dependency-WAR
-         "Identifies a WAR dependency"
-         (stage (current Analysis))
-         (Instruction ?g0)
-         (register-ref (parent ?g0)
-                       (type source)
-                       (time-index ?t0)
-                       (target-register ?d))
-         (register-ref (time-index ?t1&:(> ?t1 ?t0))
-                       (target-register ?d)
-                       (type destination)
-                       (parent ?g1))
-         =>
-         (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
-
-(defrule define-source-dependency-WAR-predicate
-         (stage (current Analysis))
-         (Instruction ?g0)
-         (register-ref (parent ?g0)
-                       (type source)
-                       (time-index ?t0)
-                       (target-register ?d))
-         (register-ref (time-index ?t1&:(> ?t1 ?t0))
-                       (target-register ?d)
-                       (type predicate)
-                       (parent ?g1))
-         =>
-         (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
-
-
+; This is a generic scheduler and doesn't take special cases into account
 (defrule start-analysis-restart-process
          (declare (salience -1000))
          (stage (current Analysis))
