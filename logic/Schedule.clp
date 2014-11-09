@@ -74,14 +74,10 @@
 (defrule update-producer-set
          (stage (current Schedule-Update))
          ?f <- (Scheduled ?id)
-         ;(object (is-a Instruction)
-         ;        (name ?id)
-         ;        (consumers $?cs))
          =>
          (retract ?f)
-         (assert (Restart Scheduling))
-         (progn$ (?c (send ?id get-consumers))
-                 (send ?c decrement-producer-count)))
+         (send ?id decrement-consumers)
+         (assert (Restart Scheduling)))
 
 (defrule restart-scheduling
          (declare (salience -2))

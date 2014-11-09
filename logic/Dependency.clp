@@ -230,25 +230,20 @@
          (declare (salience -1))
          (stage (current Analysis))
          ?f <- (Inject)
-         (Instruction ?g0)
+         ?f2 <- (Instruction ?g0)
          =>
-         (retract ?f)
-         (bind ?contents (create$))
-         (delayed-do-for-all-facts ((?a Dependency)) 
-                                   TRUE
-                                   ;reduce the number of messages by asserting facts instead
-                                   (send ?a:secondInstructionID increment-producer-count)
-                                   (bind ?contents (insert$ ?contents 1 ?a:secondInstructionID))
-                                   (retract ?a))
-         (slot-insert$ ?g0 consumers 1 ?contents))
-
-(defrule start-analysis-restart-process
-         (declare (salience -1000))
-         (stage (current Analysis))
-         ?f <- (Instruction ?g0)
-         =>
-         (retract ?f)
+         (retract ?f ?f2)
+         (send ?g0 inject-producers-consumers)
          (assert (Attempt Instruction (+ (send ?g0 get-TimeIndex) 1))))
+
+
+;(defrule start-analysis-restart-process
+;         (declare (salience -1000))
+;         (stage (current Analysis))
+;         ?f <- (Instruction ?g0)
+;         =>
+;         (retract ?f)
+;         (assert (Attempt Instruction (+ (send ?g0 get-TimeIndex) 1))))
 
 (defrule try-restart-analysis-process
          (declare (salience -1000))
