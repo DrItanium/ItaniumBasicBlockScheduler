@@ -145,7 +145,7 @@
                     (target-register ?d)
                     (parent ?g0))))))
 
-(defrule define-destination-dependency
+(defrule define-destination-dependency-WAW
          "Identifies a WAW dependency"
          (stage (current Analysis))
          (Instruction ?g0)
@@ -155,12 +155,43 @@
                        (target-register ?d))
          (register-ref (time-index ?t1&:(> ?t1 ?t0))
                        (target-register ?d)
-                       (type destination|source|predicate)
+                       (type predicate)
                        (parent ?g1))
          =>
          (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
 
-(defrule define-source-dependency
+(defrule define-destination-dependency-RAW
+         "Identifies a RAW dependency"
+         (stage (current Analysis))
+         (Instruction ?g0)
+         (register-ref (parent ?g0)
+                       (type destination)
+                       (time-index ?t0)
+                       (target-register ?d))
+         (register-ref (time-index ?t1&:(> ?t1 ?t0))
+                       (target-register ?d)
+                       (type source)
+                       (parent ?g1))
+         =>
+         (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
+
+(defrule define-destination-dependency-RAW-predicate
+         "Identifies a RAW dependency with the predicate"
+         (stage (current Analysis))
+         (Instruction ?g0)
+         (register-ref (parent ?g0)
+                       (type destination)
+                       (time-index ?t0)
+                       (target-register ?d))
+         (register-ref (time-index ?t1&:(> ?t1 ?t0))
+                       (target-register ?d)
+                       (type predicate)
+                       (parent ?g1))
+         =>
+         (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
+
+(defrule define-source-dependency-WAR
+         "Identifies a WAR dependency"
          (stage (current Analysis))
          (Instruction ?g0)
          (register-ref (parent ?g0)
@@ -169,9 +200,22 @@
                        (target-register ?d))
          (register-ref (time-index ?t1&:(> ?t1 ?t0))
                        (target-register ?d)
-                       (type destination|predicate)
+                       (type destination)
                        (parent ?g1))
+         =>
+         (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
 
+(defrule define-source-dependency-WAR-predicate
+         (stage (current Analysis))
+         (Instruction ?g0)
+         (register-ref (parent ?g0)
+                       (type source)
+                       (time-index ?t0)
+                       (target-register ?d))
+         (register-ref (time-index ?t1&:(> ?t1 ?t0))
+                       (target-register ?d)
+                       (type predicate)
+                       (parent ?g1))
          =>
          (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
 
