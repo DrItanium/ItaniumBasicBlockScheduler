@@ -21,6 +21,14 @@
 ;(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;------------------------------------------------------------------------------
+; Globals
+;------------------------------------------------------------------------------
+(defglobal MAIN 
+           ; Temporary storage for dependency resolution
+           ?*TemporaryList* = (create$)
+           ; TIME Index generator
+           ?*TIME* = 0)
+;------------------------------------------------------------------------------
 ; Classes
 ;------------------------------------------------------------------------------
 (defclass Object 
@@ -125,8 +133,6 @@
 ;------------------------------------------------------------------------------
 ; TimeIndex - Global Time Index Tracker
 ;------------------------------------------------------------------------------
-(defglobal MAIN 
-           ?*TIME* = 0)
 
 (deffunction time-length 
              "Gets the time count of the program" 
@@ -563,3 +569,21 @@
              "Use this function instead of run becase it asserts a specific rule that has to be initiated so that the objects don't start automatically running!"
              ()
              (run))
+
+;------------------------------------------------------------------------------
+; Templates
+;------------------------------------------------------------------------------
+(deftemplate stage 
+             (slot current (type SYMBOL))
+             (multislot rest (type SYMBOL)))
+
+(deftemplate register-ref
+             (slot type
+                   (default ?NONE))
+             (slot time-index
+                   (type INTEGER)
+                   (default ?NONE))
+             (slot target-register
+                   (default ?NONE))
+             (slot parent
+                   (default ?NONE)))

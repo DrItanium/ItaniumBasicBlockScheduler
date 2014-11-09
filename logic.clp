@@ -23,15 +23,15 @@
 ;------------------------------------------------------------------------------
 ; stage rules
 ;------------------------------------------------------------------------------
-(deftemplate stage 
-             (slot current (type SYMBOL))
-             (multislot rest (type SYMBOL)))
 (defrule stages-init
          (declare (salience 10000))
          (initial-fact)
          =>
-         (assert (stage (current Imbue) (rest Analysis-Entry Analysis Schedule
-                                              Schedule-Update))))
+         (assert (stage (current Imbue) 
+                        (rest Analysis-Entry 
+                              Analysis 
+                              Schedule
+                              Schedule-Update))))
 
 (defrule end-stage-generation
          (declare (salience -9999))
@@ -99,7 +99,6 @@
            (send ?name decrement-producer-count)))
 
 (defrule initial-select-first-compare-instruction
-         (declare (salience 10000))
          (stage (current Analysis-Entry))
          (object (is-a Instruction) 
                  (TimeIndex 0)
@@ -107,34 +106,7 @@
          =>
          (assert (Instruction ?name)))
 
-(defrule skip-current-instruction-if-branch
-         (declare (salience 1000))
-         (stage (current Analysis))
-         ?f <- (Instruction ?name)
-         (object (is-a Instruction) 
-                 (name ?name) 
-                 (InstructionType B)
-                 (TimeIndex ?tc0))
-         (object (is-a Instruction) 
-                 (TimeIndex =(+ 1 ?tc0))
-                 (name ?nName))
-         =>
-         (retract ?f)
-         (assert (Instruction ?nName)))
-(deftemplate register-ref
-             (slot type
-                   (default ?NONE))
-             (slot time-index
-                   (type INTEGER)
-                   (default ?NONE))
-             (slot target-register
-                   (default ?NONE))
-             (slot parent
-                   (default ?NONE)))
-(defglobal MAIN 
-           ?*TemporaryList* = (create$))
 (defrule decompose-target-instruction-sections
-         (declare (salience 10))
          (stage (current Analysis-Entry))
          (object (is-a Instruction)
                  (InstructionType ~B)
@@ -165,6 +137,19 @@
                                          (time-index ?ti)
                                          (target-register ?d)
                                          (parent ?g0))))))
+
+
+(defrule skip-current-instruction-if-branch
+         (declare (salience 1000))
+         (stage (current Analysis))
+         ?f <- (Instruction ?name)
+         (object (is-a Instruction) 
+                 (name ?name) 
+                 (InstructionType B)
+                 (TimeIndex ?tc0))
+         =>
+         (retract ?f)
+         (assert (Attempt Instruction (+ ?tc0 1))))
 
 (defrule define-destination-dependency-WAW
          "Identifies a WAW dependency"
@@ -213,23 +198,20 @@
 
 ; This is a generic scheduler and doesn't take special cases into account
 (defrule start-analysis-restart-process
-         (declare (salience -1000))
+         (declare (salience -1))
          (stage (current Analysis))
          ?f <- (Instruction ?g0)
-         (object (is-a Instruction)
-                 (name ?g0)
-                 (TimeIndex ?ti))
          =>
          (retract ?f)
          ; commit the dependencies we have found
          (send ?g0 inject-consumers ?*TemporaryList*)
          (bind ?*TemporaryList* (create$))
-         (assert (Attempt Instruction (+ ?ti 1))))
+         (assert (Next (+ (send ?g0 get-TimeIndex) 1))))
 
 (defrule try-restart-analysis-process
-         (declare (salience -1000))
+         (declare (salience -2))
          (stage (current Analysis))
-         ?f2 <- (Attempt Instruction ?i)
+         ?f2 <- (Next ?i)
          (object (is-a Instruction)
                  (TimeIndex ?i)
                  (name ?name))
@@ -238,9 +220,9 @@
          (assert (Instruction ?name)))
 
 (defrule finish-analysis-process  
-         (declare (salience -1001))
+         (declare (salience -3))
          (stage (current Analysis))
-         ?f2 <- (Attempt Instruction ?i)
+         ?f2 <- (Next ?)
          =>
          (retract ?f2))
 
