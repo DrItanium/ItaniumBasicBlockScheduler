@@ -29,7 +29,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (deftemplate Dependency 
 				 "Represents a Data Dependency between two instructions"
-				 (slot firstInstructionID (type INSTANCE))
+				 ;(slot firstInstructionID (type INSTANCE))
 				 (slot secondInstructionID (type INSTANCE)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defclass Object (is-a USER)
@@ -49,8 +49,6 @@
   (multislot source-registers (type SYMBOL))
   (slot producer-count (type INTEGER))
   (multislot consumers (type SYMBOL))
-  (message-handler decrement-consumers)
-  (message-handler inject-producers-consumers)
   (message-handler increment-producer-count primary)
   (message-handler decrement-producer-count primary)
   (message-handler as-string primary))
@@ -61,21 +59,6 @@
 (defmessage-handler Instruction decrement-producer-count primary ()
               (bind ?self:producer-count (- ?self:producer-count 1)))
 
-(defmessage-handler Instruction decrement-consumers primary ()
-                    (progn$ (?c ?self:consumers) 
-                            (send ?c decrement-producer-count)))
-(defmessage-handler Instruction inject-producers-consumers primary ()
-         (bind ?contents (create$))
-         (bind ?name (instance-name ?self))
-         (delayed-do-for-all-facts ((?a Dependency)) 
-                                   (eq ?name ?a:firstInstructionID)
-                                   ;TRUE
-                                   ;reduce the number of messages by asserting facts instead
-                                   (send ?a:secondInstructionID increment-producer-count)
-                                   (bind ?contents (insert$ ?contents 1
-                                                    ?a:secondInstructionID))
-                                   (retract ?a))
-         (slot-direct-insert$ consumers 1 ?contents))
 (defmessage-handler Instruction as-string primary ()
 						  (format nil "(%s) %s %s %s" 
 									 ?self:Predicate 
