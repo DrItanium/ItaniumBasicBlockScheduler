@@ -1,4 +1,5 @@
-;Copyright (c) 2012, Joshua Scoggins 
+;------------------------------------------------------------------------------
+;Copyright (c) 2012-2014, Joshua Scoggins 
 ;All rights reserved.
 ;
 ;Redistribution and use in source and binary forms, with or without
@@ -22,11 +23,34 @@
 ;ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 ;(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Dependency.clp - related to Dependency analysis                           ;;
-;; By Joshua Scoggins                                                        ;; 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;------------------------------------------------------------------------------
+; stage rules
+;------------------------------------------------------------------------------
+(deftemplate stage 
+             (slot current (type SYMBOL))
+             (multislot rest (type SYMBOL)))
+(defrule stages-init
+         (declare (salience 10000))
+         (initial-fact)
+         =>
+         (assert (stage (current Imbue) (rest Analysis-Entry Analysis Schedule
+                                              Schedule-Update))))
 
+(defrule end-stage-generation
+         (declare (salience -9999))
+         ?f <- (stage (rest))
+         =>
+         (retract ?f))
+
+(defrule next-stage
+         (declare (salience -10000))
+         ?f <- (stage (rest ?now $?rest))
+         =>
+         (modify ?f (current ?now) 
+                 (rest $?rest)))
+;------------------------------------------------------------------------------
+; dependency analysis rules
+;------------------------------------------------------------------------------
 (defrule imbue-op 
          "Imbue's the operational type into the given instruction"
          (declare (salience 1))
@@ -124,26 +148,26 @@
                  (Predicate ?p))
          =>
          (if (neq ?p p0) then
-          (assert (register-ref (type predicate)
-                                (time-index ?ti)
-                                (target-register ?p)
-                                (parent ?g0))))
+           (assert (register-ref (type predicate)
+                                 (time-index ?ti)
+                                 (target-register ?p)
+                                 (parent ?g0))))
 
          (progn$ (?s $?src)
                  (if (and (neq ?s p0)
                           (symbolp ?s)) then
-                  (assert (register-ref (type source)
-                           (time-index ?ti)
-                           (target-register (if (eq (sub-string 1 1 ?s) "{") then
-                                      (sym-cat (sub-string 2 (- (str-length ?s)
-                                                              1) ?s)) else ?s))
-                           (parent ?g0)))))
+                   (assert (register-ref (type source)
+                                         (time-index ?ti)
+                                         (target-register (if (eq (sub-string 1 1 ?s) "{") then
+                                                            (sym-cat (sub-string 2 (- (str-length ?s)
+                                                                                      1) ?s)) else ?s))
+                                         (parent ?g0)))))
          (progn$ (?d $?dest)
-          (if (neq ?d p0) then
-           (assert (register-ref (type destination)
-                    (time-index ?ti)
-                    (target-register ?d)
-                    (parent ?g0))))))
+                 (if (neq ?d p0) then
+                   (assert (register-ref (type destination)
+                                         (time-index ?ti)
+                                         (target-register ?d)
+                                         (parent ?g0))))))
 
 (defrule define-destination-dependency-WAW
          "Identifies a WAW dependency"
@@ -222,3 +246,55 @@
          ?f2 <- (Attempt Instruction ?i)
          =>
          (retract ?f2))
+
+;------------------------------------------------------------------------------
+; Scheduling rules
+;------------------------------------------------------------------------------
+; The use of the producer-count slot instead of producers is because we don't
+; actually care what the producer was, only if we have no producers remaining
+; This allows us to just decrement the value instead of doing expensive pattern
+; matching
+;------------------------------------------------------------------------------
+(defrule determine-scheduability
+         "An object is able to be scheduled if it has no remaining producers"
+         (stage (current Schedule))
+         (object (is-a Instruction)
+                 (producer-count 0)
+                 (scheduled FALSE)
+                 (name ?id))
+         =>
+         (printout t (send ?id as-string) crlf)
+         (send ?id put-scheduled TRUE)
+         (assert (Scheduled ?id)
+                 (close block)))
+
+
+(defrule close-schedule-round
+         (declare (salience -1))
+         (stage (current Schedule))
+         ?f <- (close block)
+         =>
+         (retract ?f)
+         (printout t ";;" crlf))
+
+(defrule update-producer-set
+         (stage (current Schedule-Update))
+         ?f <- (Scheduled ?id)
+         (object (is-a Instruction)
+                 (name ?id)
+                 (consumers $?consumers))
+         =>
+         (retract ?f)
+         (progn$ (?c ?consumers)
+                 (send ?c decrement-producer-count))
+         (assert (Restart Scheduling)))
+
+(defrule restart-scheduling
+         (declare (salience -2))
+         ?f <- (Restart Scheduling)
+         ?stg <- (stage (current Schedule-Update) 
+                        (rest $?rest))
+         =>
+         (retract ?f)
+         (modify ?stg (current Schedule) 
+                 (rest Schedule-Update $?rest)))

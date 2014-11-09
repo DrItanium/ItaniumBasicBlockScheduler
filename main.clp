@@ -24,7 +24,7 @@
 ;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;Import
 (batch* "lib/Loader.clp")
-(batch* "logic/Loader.clp")
+(batch* "logic.clp")
 
 (printout t 
  "Welcome to the Code Scheduler!" crlf
