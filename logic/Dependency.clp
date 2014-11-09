@@ -101,15 +101,17 @@
          (retract ?f)
          (assert (Instruction ?nName)))
 (deftemplate register-ref
- (slot type
-  (default ?NONE))
- (slot time-index
-  (type INTEGER)
-  (default ?NONE))
- (slot target-register
-  (default ?NONE))
- (slot parent
-  (default ?NONE)))
+             (slot type
+                   (default ?NONE))
+             (slot time-index
+                   (type INTEGER)
+                   (default ?NONE))
+             (slot target-register
+                   (default ?NONE))
+             (slot parent
+                   (default ?NONE)))
+(defglobal MAIN 
+           ?*TemporaryList* = (create$))
 (defrule decompose-target-instruction-sections
          (declare (salience 10))
          (stage (current Analysis-Entry))
@@ -143,7 +145,7 @@
                     (target-register ?d)
                     (parent ?g0))))))
 
-(defrule define-WAW-dependency
+(defrule define-destination-dependency
          "Identifies a WAW dependency"
          (stage (current Analysis))
          (Instruction ?g0)
@@ -152,51 +154,13 @@
                        (time-index ?t0)
                        (target-register ?d))
          (register-ref (time-index ?t1&:(> ?t1 ?t0))
-                       (type destination)
                        (target-register ?d)
-                       (parent ?g1))
-
-         =>
-         (assert (Dependency ;(firstInstructionID ?g0)
-                             (secondInstructionID ?g1))
-                 (Inject)))
-
-(defrule define-RAW-dependency:predicate
-         "Finds a RAW dependency with a predicate"
-         (stage (current Analysis))
-         (Instruction ?g0)
-         (register-ref (parent ?g0)
-                       (type destination)
-                       (time-index ?t0)
-                       (target-register ?d))
-         (register-ref (time-index ?t1&:(> ?t1 ?t0))
-                       (type predicate)
-                       (target-register ?d)
+                       (type destination|source|predicate)
                        (parent ?g1))
          =>
-         (assert (Dependency ;(firstInstructionID ?g0)
-                             (secondInstructionID ?g1))
-                 (Inject)))
+         (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
 
-(defrule define-RAW-dependency
-         "Finds a RAW dependency"
-         (stage (current Analysis))
-         (Instruction ?g0)
-         (register-ref (parent ?g0)
-                       (type destination)
-                       (time-index ?t0)
-                       (target-register ?d))
-         (register-ref (time-index ?t1&:(> ?t1 ?t0))
-                       (type source)
-                       (target-register ?d)
-                       (parent ?g1))
-         =>
-         (assert (Dependency ;(firstInstructionID ?g0)
-                             (secondInstructionID ?g1))
-                 (Inject)))
-
-(defrule define-WAR-dependency:predicate
-         "Finds a WAR dependency with a predicate"
+(defrule define-source-dependency
          (stage (current Analysis))
          (Instruction ?g0)
          (register-ref (parent ?g0)
@@ -204,54 +168,27 @@
                        (time-index ?t0)
                        (target-register ?d))
          (register-ref (time-index ?t1&:(> ?t1 ?t0))
-                       (type predicate)
                        (target-register ?d)
+                       (type destination|predicate)
                        (parent ?g1))
-         =>
-         (assert (Dependency ;(firstInstructionID ?g0)
-                             (secondInstructionID ?g1))
-                 (Inject)))
 
-(defrule define-WAR-dependency
-         "Finds a WAR dependency"
-         (stage (current Analysis))
-         (Instruction ?g0)
-         (register-ref (parent ?g0)
-                       (type source)
-                       (time-index ?t0)
-                       (target-register ?d))
-         (register-ref (time-index ?t1&:(> ?t1 ?t0))
-                       (type destination)
-                       (target-register ?d)
-                       (parent ?g1))
          =>
-         (assert (Dependency ;(firstInstructionID ?g0)
-                             (secondInstructionID ?g1))
-                 (Inject)))
-(defrule inject-producers-consumers
-         (declare (salience -1))
-         (stage (current Analysis))
-         ?f <- (Inject)
-         (Instruction ?g0)
-         =>
-         (retract ?f)
-         (bind ?contents (create$))
-         (delayed-do-for-all-facts ((?a Dependency)) TRUE
-                                   ;reduce the number of messages by asserting facts instead
-                                   (send ?a:secondInstructionID increment-producer-count)
-                                   (bind ?contents (insert$ ?contents 1
-                                                            ?a:secondInstructionID))
-                                   (retract ?a))
-         (slot-insert$ ?g0 consumers 1 ?contents))
+         (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
 
 
 (defrule start-analysis-restart-process
          (declare (salience -1000))
          (stage (current Analysis))
          ?f <- (Instruction ?g0)
+         (object (is-a Instruction)
+                 (name ?g0)
+                 (TimeIndex ?ti))
          =>
          (retract ?f)
-         (assert (Attempt Instruction (+ (send ?g0 get-TimeIndex) 1))))
+         ; commit the dependencies we have found
+         (send ?g0 inject-consumers ?*TemporaryList*)
+         (bind ?*TemporaryList* (create$))
+         (assert (Attempt Instruction (+ ?ti 1))))
 
 (defrule try-restart-analysis-process
          (declare (salience -1000))
@@ -265,10 +202,8 @@
          (assert (Instruction ?name)))
 
 (defrule finish-analysis-process  
-         (declare (salience -1000))
+         (declare (salience -1001))
          (stage (current Analysis))
          ?f2 <- (Attempt Instruction ?i)
-         (not (exists (object (is-a Instruction)
-                              (TimeIndex ?i))))
          =>
          (retract ?f2))

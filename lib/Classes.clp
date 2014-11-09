@@ -49,6 +49,7 @@
   (multislot source-registers (type SYMBOL))
   (slot producer-count (type INTEGER))
   (multislot consumers (type SYMBOL))
+  (message-handler inject-consumers primary)
   (message-handler increment-producer-count primary)
   (message-handler decrement-producer-count primary)
   (message-handler as-string primary))
@@ -58,6 +59,11 @@
 
 (defmessage-handler Instruction decrement-producer-count primary ()
               (bind ?self:producer-count (- ?self:producer-count 1)))
+
+(defmessage-handler Instruction inject-consumers (?list)
+                    (progn$ (?a ?list)
+                            (send ?a increment-producer-count))
+                    (slot-direct-insert$ consumers 1 ?list))
 
 (defmessage-handler Instruction as-string primary ()
 						  (format nil "(%s) %s %s %s" 
