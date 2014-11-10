@@ -30,7 +30,7 @@
  "When it is finished the result will be printed out." crlf
  "Parallel sections of code are separated by ;;." crlf
  "The groups of instructions separated by ;; are known as Instruction Groups" crlf)
-(block "examples/BlockMega1.clp")
+(block "examples/BlockLarge.clp")
 (deffunction start (?a)
  (watch statistics)
  (profile-reset)
