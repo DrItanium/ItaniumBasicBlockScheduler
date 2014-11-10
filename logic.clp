@@ -128,8 +128,7 @@
                    (assert (register-ref (type source)
                                          (time-index ?ti)
                                          (target-register (if (eq (sub-string 1 1 ?s) "{") then
-                                                            (sym-cat (sub-string 2 (- (str-length ?s)
-                                                                                      1) ?s)) else ?s))
+                                                            (sym-cat (sub-string 2 (- (str-length ?s) 1) ?s)) else ?s))
                                          (parent ?g0)))))
          (progn$ (?d $?dest)
                  (if (neq ?d p0) then
@@ -145,11 +144,10 @@
          ?f <- (Instruction ?name)
          (object (is-a Instruction) 
                  (name ?name) 
-                 (InstructionType B)
-                 (TimeIndex ?tc0))
+                 (InstructionType B))
          =>
          (retract ?f)
-         (assert (Attempt Instruction (+ ?tc0 1))))
+         (assert (Attempt Instruction (+ (send ?name get-TimeIndex) 1))))
 
 (defrule define-destination-dependency-WAW
          "Identifies a WAW dependency"
@@ -205,6 +203,7 @@
          (retract ?f)
          ; commit the dependencies we have found
          (send ?g0 inject-consumers ?*TemporaryList*)
+
          (bind ?*TemporaryList* (create$))
          (assert (Next (+ (send ?g0 get-TimeIndex) 1))))
 

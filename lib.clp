@@ -119,15 +119,7 @@
   (is-a ExecutionObject)
   (multislot OtherNames 
              (type SYMBOL) 
-             (default ?DERIVE))
-  (message-handler register-equals primary))
-
-
-(defmessage-handler Register register-equals 
-                    "Checks to see if the register is equal to the given symbol.  It also checks to see if the symbol is the memory access version of the given register."
-                    (?sym) 
-                    (or (eq ?sym ?self:Name) 
-                        (member$ ?sym ?self:OtherNames)))
+             (default ?DERIVE)))
 
 
 ;------------------------------------------------------------------------------
