@@ -161,7 +161,7 @@
 					   (target-register ?d))
 		 (register-ref (time-index ?t1&:(> ?t1 ?t0))
 					   (target-register ?d)
-					   (type predicate)
+					   (type destination)
 					   (parent ?g1))
 		 =>
 		 (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
