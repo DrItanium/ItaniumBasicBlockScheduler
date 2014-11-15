@@ -105,100 +105,61 @@
 (defrule prime-first-instruction
 		 (stage (current Analysis-Entry))
 		 =>
-     (assert (Next (- (time-length) 1))))
+		 (assert (Next (- (time-length) 1))))
 
 
 (defrule decompose-target-instruction-sections
-         (declare (salience 1000))
-         (stage (current Analysis))
-         (Instruction ?g0)
-         (object (is-a Instruction)
-                 (name ?g0)
-                 (TimeIndex ?ti)
-                 (destination-registers $?dest)
-                 (source-registers $?src)
-                 (Predicate ?p))
-         =>
-         ; build up as we go
-         (progn$ (?s $?src)
-                 (if (and (neq ?s p0)
-                          (symbolp ?s)) then
-                   (bind ?datum (if (eq (sub-string 1 1 ?s) "{") then
-                                  (sym-cat (sub-string 2 (- (str-length ?s) 1) ?s)) else ?s))
-                   (assert (register-ref (type source)
-                                         (parent ?g0)
-                                         (time-index ?ti)
-                                         (target-register ?datum)))))
-         (progn$ (?d $?dest)
-                 (if (neq ?d p0) then
-                   (assert (register-ref (type destination)
-                                         (parent ?g0)
-                                         (time-index ?ti)
-                                         (target-register ?d)))))
-                           
-
-         (if (neq ?p p0) then
-           (assert (register-ref (type predicate)
-                                 (time-index ?ti)
-                                 (target-register ?p)
-                                 (parent ?g0)))))
-                   
-
-
-(defrule dependency:WAW
-		 "Identifies a WAW dependency"
+		 (declare (salience 1000))
 		 (stage (current Analysis))
 		 (Instruction ?g0)
-		 (register-ref (parent ?g0)
-                   (type destination)
-    ;               (time-index ?t0)
-                   (target-register ?d))
-      ; since we are identifying dependencies backwards we don't need the time
-      ; index check beyond not-equal now since all existing facts come after
-      ; the current one. In fact we can throw out the time index all together
-      (register-ref (parent ?g1&~?g0)
-                    (type destination)
-                    (target-register ?d))
+		 (object (is-a Instruction)
+				 (name ?g0)
+				 (destination-registers $?dest)
+				 (source-registers $?src)
+				 (Predicate ?p))
 		 =>
-		 (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
+		 ; build up as we go
+		 (progn$ (?s $?src)
+				 (if (and (neq ?s p0)
+						  (symbolp ?s)) then
+				   (bind ?datum (if (eq (sub-string 1 1 ?s) "{") then
+								  (sym-cat (sub-string 2 (- (str-length ?s) 1) ?s)) else ?s))
+				   (assert (register-ref (type source)
+										 (parent ?g0)
+										 (target-register ?datum)))))
+		 (progn$ (?d $?dest)
+				 (if (neq ?d p0) then
+				   (assert (register-ref (type destination)
+										 (parent ?g0)
+										 (target-register ?d)))))
+		 (if (neq ?p p0) then
+		   (assert (register-ref (type predicate)
+								 (target-register ?p)
+								 (parent ?g0)))))
 
 
-(defrule dependency:RAW-predicate
-		 "Identifies a RAW dependency with the predicate"
+
+(defrule dependency:identify-waw-and-raw
+		 "Identifies WAW and RAW dependencies"
 		 (stage (current Analysis))
 		 (Instruction ?g0)
 		 (register-ref (parent ?g0)
 					   (type destination)
-		;			   (time-index ?t0)
 					   (target-register ?d))
 		 (register-ref (parent ?g1&~?g0)
-                   (type predicate)
-                   (target-register ?d))
+					   (target-register ?d))
 		 =>
 		 (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
 
-(defrule dependency:RAW
-		 "Identifies a RAW dependency"
-		 (stage (current Analysis))
-		 (Instruction ?g0)
-		 (register-ref (parent ?g0)
-					   (type destination)
-					   ;(time-index ?t0)
-					   (target-register ?d))
-		 (register-ref (parent ?g1&~?g0)
-                   (type source)
-                   (target-register ?d))
-		 =>
-		 (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
 
 ; This is a generic scheduler and doesn't take special cases into account
 (defrule start-analysis-restart-process
 		 (declare (salience -1))
 		 (stage (current Analysis))
 		 ?f <- (Instruction ?g0)
-     (object (is-a Instruction)
-             (name ?g0)
-             (TimeIndex ?t0))
+		 (object (is-a Instruction)
+				 (name ?g0)
+				 (TimeIndex ?t0))
 		 =>
 		 (retract ?f)
 		 ; commit the dependencies we have found
@@ -211,9 +172,9 @@
 		 (stage (current Analysis))
 		 ?f2 <- (Next ?i)
 		 (object (is-a Instruction)
-             (TimeIndex ?i)
-             (InstructionType ~B)
-             (name ?name))
+				 (TimeIndex ?i)
+				 (InstructionType ~B)
+				 (name ?name))
 		 =>
 		 (retract ?f2)
 		 (assert (Instruction ?name)))
@@ -223,18 +184,20 @@
 		 (stage (current Analysis))
 		 ?f2 <- (Next ?i)
 		 (object (is-a Instruction)
-						  (TimeIndex ?i)
-              (InstructionType B))
+				 (TimeIndex ?i)
+				 (InstructionType B))
 		 =>
 		 (retract ?f2)
-     (assert (Next (- ?i 1))))
+		 (assert (Next (- ?i 1))))
 
 (defrule finish-analysis-process  
 		 (declare (salience -3))
 		 (stage (current Analysis))
 		 ?f2 <- (Next ?)
 		 =>
-		 (retract ?f2))
+		 (retract ?f2)
+		 ; make sure it is clean
+		 (bind ?*TemporaryList* (create$)))
 
 ;------------------------------------------------------------------------------
 ; Scheduling rules
@@ -252,8 +215,8 @@
 					   (scheduled FALSE))
 		 =>
 		 (send ?q mark-scheduled) ; this will updated scheduled
-		 (assert (Scheduled ?q)
-				 (close block)))
+		 (bind ?*TemporaryList* (create$ ?*TemporaryList* ?q))
+		 (assert (close block)))
 
 
 (defrule close-schedule-round
@@ -262,14 +225,17 @@
 		 ?f <- (close block)
 		 =>
 		 (retract ?f)
-		 (printout t ";;" crlf))
+		 (printout t ";;" crlf)
+		 (assert (update-entries)))
 
 (defrule update-producer-set
 		 (stage (current Schedule-Update))
-		 ?f <- (Scheduled ?q)
+		 ?f <- (update-entries)
 		 =>
 		 (retract ?f)
-		 (send ?q notify-scheduling)
+		 (progn$ (?q ?*TemporaryList*)
+				 (send ?q notify-scheduling))
+		 (bind ?*TemporaryList* (create$))
 		 (assert (Restart Scheduling)))
 
 (defrule restart-scheduling

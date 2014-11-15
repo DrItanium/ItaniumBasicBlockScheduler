@@ -466,9 +466,6 @@
 (deftemplate register-ref
 			 (slot type
 				   (default ?NONE))
-			 (slot time-index
-				   (type INTEGER)
-				   (default ?NONE))
 			 (slot target-register
 				   (default ?NONE))
 			 (slot parent
