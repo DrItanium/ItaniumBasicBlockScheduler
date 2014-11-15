@@ -104,65 +104,61 @@
 
 (defrule prime-first-instruction
 		 (stage (current Analysis-Entry))
-		 ?name <- (object (is-a Instruction) 
-						  (TimeIndex 0))
 		 =>
-		 (assert (Instruction ?name)))
+     (assert (Next (- (time-length) 1))))
+
 
 (defrule decompose-target-instruction-sections
-		 (stage (current Analysis-Entry))
-		 ?g0 <- (object (is-a Instruction)
-						(InstructionType ~B)
-						(TimeIndex ?ti)
-						(destination-registers $?dest)
-						(source-registers $?src)
-						(Predicate ?p))
-		 =>
-		 (if (neq ?p p0) then
-		   (assert (register-ref (type predicate)
-								 (time-index ?ti)
-								 (target-register ?p)
-								 (parent ?g0))))
+         (declare (salience 1000))
+         (stage (current Analysis))
+         (Instruction ?g0)
+         (object (is-a Instruction)
+                 (name ?g0)
+                 (TimeIndex ?ti)
+                 (destination-registers $?dest)
+                 (source-registers $?src)
+                 (Predicate ?p))
+         =>
+         ; build up as we go
+         (progn$ (?s $?src)
+                 (if (and (neq ?s p0)
+                          (symbolp ?s)) then
+                   (bind ?datum (if (eq (sub-string 1 1 ?s) "{") then
+                                  (sym-cat (sub-string 2 (- (str-length ?s) 1) ?s)) else ?s))
+                   (assert (register-ref (type source)
+                                         (parent ?g0)
+                                         (time-index ?ti)
+                                         (target-register ?datum)))))
+         (progn$ (?d $?dest)
+                 (if (neq ?d p0) then
+                   (assert (register-ref (type destination)
+                                         (parent ?g0)
+                                         (time-index ?ti)
+                                         (target-register ?d)))))
+                           
 
-		 (progn$ (?s $?src)
-				 (if (and (neq ?s p0)
-						  (symbolp ?s)) then
-				   (assert (register-ref (type source)
-										 (time-index ?ti)
-										 (target-register (if (eq (sub-string 1 1 ?s) "{") then
-															(sym-cat (sub-string 2 (- (str-length ?s) 1) ?s)) else ?s))
-										 (parent ?g0)))))
-		 (progn$ (?d $?dest)
-				 (if (neq ?d p0) then
-				   (assert (register-ref (type destination)
-										 (time-index ?ti)
-										 (target-register ?d)
-										 (parent ?g0))))))
+         (if (neq ?p p0) then
+           (assert (register-ref (type predicate)
+                                 (time-index ?ti)
+                                 (target-register ?p)
+                                 (parent ?g0)))))
+                   
 
-
-(defrule skip-current-instruction-if-branch
-		 (declare (salience 1000))
-		 (stage (current Analysis))
-		 ?f <- (Instruction ?name)
-		 ?q <- (object (is-a Instruction) 
-					   (name ?name) 
-					   (InstructionType B))
-		 =>
-		 (retract ?f)
-		 (assert (Next (+ (send ?q get-TimeIndex) 1))))
 
 (defrule dependency:WAW
 		 "Identifies a WAW dependency"
 		 (stage (current Analysis))
 		 (Instruction ?g0)
 		 (register-ref (parent ?g0)
-					   (type destination)
-					   (time-index ?t0)
-					   (target-register ?d))
-		 (register-ref (time-index ?t1&:(> ?t1 ?t0))
-					   (target-register ?d)
-					   (type destination)
-					   (parent ?g1))
+                   (type destination)
+    ;               (time-index ?t0)
+                   (target-register ?d))
+      ; since we are identifying dependencies backwards we don't need the time
+      ; index check beyond not-equal now since all existing facts come after
+      ; the current one. In fact we can throw out the time index all together
+      (register-ref (parent ?g1&~?g0)
+                    (type destination)
+                    (target-register ?d))
 		 =>
 		 (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
 
@@ -173,12 +169,11 @@
 		 (Instruction ?g0)
 		 (register-ref (parent ?g0)
 					   (type destination)
-					   (time-index ?t0)
+		;			   (time-index ?t0)
 					   (target-register ?d))
-		 (register-ref (time-index ?t1&:(> ?t1 ?t0))
-					   (target-register ?d)
-					   (type predicate)
-					   (parent ?g1))
+		 (register-ref (parent ?g1&~?g0)
+                   (type predicate)
+                   (target-register ?d))
 		 =>
 		 (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
 
@@ -188,12 +183,11 @@
 		 (Instruction ?g0)
 		 (register-ref (parent ?g0)
 					   (type destination)
-					   (time-index ?t0)
+					   ;(time-index ?t0)
 					   (target-register ?d))
-		 (register-ref (time-index ?t1&:(> ?t1 ?t0))
-					   (target-register ?d)
-					   (type source)
-					   (parent ?g1))
+		 (register-ref (parent ?g1&~?g0)
+                   (type source)
+                   (target-register ?d))
 		 =>
 		 (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
 
@@ -202,23 +196,38 @@
 		 (declare (salience -1))
 		 (stage (current Analysis))
 		 ?f <- (Instruction ?g0)
+     (object (is-a Instruction)
+             (name ?g0)
+             (TimeIndex ?t0))
 		 =>
 		 (retract ?f)
 		 ; commit the dependencies we have found
 		 (send ?g0 inject-consumers ?*TemporaryList*)
-
 		 (bind ?*TemporaryList* (create$))
-		 (assert (Next (+ (send ?g0 get-TimeIndex) 1))))
+		 (assert (Next (- ?t0 1))))
 
 (defrule try-restart-analysis-process
 		 (declare (salience -2))
 		 (stage (current Analysis))
 		 ?f2 <- (Next ?i)
-		 ?name <- (object (is-a Instruction)
-						  (TimeIndex ?i))
+		 (object (is-a Instruction)
+             (TimeIndex ?i)
+             (InstructionType ~B)
+             (name ?name))
 		 =>
 		 (retract ?f2)
 		 (assert (Instruction ?name)))
+
+(defrule try-restart-analysis-process:branch
+		 (declare (salience -2))
+		 (stage (current Analysis))
+		 ?f2 <- (Next ?i)
+		 (object (is-a Instruction)
+						  (TimeIndex ?i)
+              (InstructionType B))
+		 =>
+		 (retract ?f2)
+     (assert (Next (- ?i 1))))
 
 (defrule finish-analysis-process  
 		 (declare (salience -3))

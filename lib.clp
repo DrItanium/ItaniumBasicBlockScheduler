@@ -40,8 +40,6 @@
 		(type SYMBOL))
   (slot TimeIndex 
 		(type NUMBER))
-  (slot ExecutionLength 
-		(type NUMBER))
   (slot scheduled 
 		(type SYMBOL) 
 		(allowed-symbols FALSE TRUE))
@@ -95,7 +93,7 @@
 					(bind ?self:scheduled TRUE))
 
 
-(defclass ExecutionObject 
+(defclass Operation 
   (is-a USER)
   (slot Name   
 		(visibility public) 
@@ -105,22 +103,6 @@
 		(visibility public) 
 		(type SYMBOL) 
 		(default ?DERIVE)))
-
-
-(defclass Operation 
-  (is-a ExecutionObject))
-
-
-(defclass Register 
-  (is-a ExecutionObject)
-  (slot Size
-		(visibility public)
-		(type NUMBER)
-		(range 0 ?VARIABLE)
-		(default 64))
-  (multislot OtherNames 
-			 (type SYMBOL) 
-			 (default ?DERIVE)))
 
 
 ;------------------------------------------------------------------------------
@@ -230,28 +212,6 @@
 				 (Name ?Op)
 				 (Class ?Type)))
 
-(defmethod defregister 
-  "Defines a register for a given class"
-  ((?Name LEXEME)
-   (?Class LEXEME)
-   (?Size INTEGER (>= ?Size 0)))
-  (make-instance of Register
-				 (Name ?Name)
-				 (Class ?Class)
-				 (Size ?Size)))
-(defmethod defregister-range
-  ((?Prefix LEXEME)
-   (?Start INTEGER (>= ?Start 0))
-   (?Stop INTEGER (and (>= ?Stop ?Start)
-					   (>= ?Stop 0)))
-   (?Class LEXEME)
-   (?Size INTEGER (>= ?Size 0)))
-  (bind ?i ?Start)
-  (while (< ?i ?Stop) do
-		 (defregister (sym-cat ?Prefix ?i)
-					  ?Class
-					  ?Size)
-		 (bind ?i (+ ?i 1))))
 
 (defmethod defop-range
   ((?Type LEXEME)
@@ -269,61 +229,14 @@
    (?Op LEXEME))
   (defop ?Op ?Type))
 
-(defmethod registers 
-  "Defines a list of registers of a given type"
-  ((?Class LEXEME)
-   (?Size INTEGER (>= ?Size 0))
-   (?registers MULTIFIELD LEXEME (> (length$ ?registers) 1)))
-  (progn$ (?register $?registers)
-		  (defregister ?register ?Class ?Size)))
-
-(defmethod registers
-  ((?Class LEXEME)
-   (?Size INTEGER (>= ?Size 0))
-   (?registers MULTIFIELD LEXEME (= (length$ ?registers) 1)))
-  (defregister (nth$ 1 ?registers) ?Class ?Size))
-
-(defmethod registers
-  ((?Class LEXEME)
-   (?Size INTEGER (>= ?Size 0))
-   ($?registers LEXEME (> (length$ ?registers) 1)))
-  (registers ?Class ?Size ?registers))
-
-(defmethod registers
-  ((?Class LEXEME)
-   (?Size INTEGER (>= ?Size 0))
-   (?register LEXEME))
-  (defregister ?register ?Class ?Size))
-
 ;------------------------------------------------------------------------------
 ; Itanium specific types and classes
 ;------------------------------------------------------------------------------
 
-(deffunction special-registers 
-			 "Defines a list of special registers"
-			 (?Size $?Registers)
-			 (registers Special ?Size $?Registers))
-
-(deffunction application-registers 
-			 "Defines a list of application registers"
-			 (?Size $?Registers)
-			 (registers Application ?Size $?Registers))
-
-(deffunction float-registers 
-			 "Defines a list of floating point registers"
-			 (?Size $?Registers)
-			 (registers Float ?Size $?Registers))
 
 
-(deffunction predicate-registers 
-			 "Defines a list of floating point registers"
-			 (?Size $?Registers)
-			 (registers Predicate ?Size $?Registers))
 
-(deffunction gpr-registers 
-			 "Defines a list of floating point registers"
-			 (?Size $?Registers)
-			 (registers GPR ?Size $?Registers))
+
 
 (deffunction br 
 			 (?Predicate ?Target)
@@ -517,23 +430,9 @@
 						  br.ret.dptk.few br.call.sptk.many br.call.sptk.few 
 						  br.cond.dptk.few br.call.dptk.many br.call.dptk.few nop.b)
 			 (defop-range F ldfs fma nop.f)
-			 (defop-range X none nop.x)
+			 (defop-range X none nop.x))
 
 
-			 ;;Define registers
-			 (registers Special 64 pr um um.be um.up um.ac um.mfl um.mfh cfm ip
-						gp)
-			 (registers Application 64 ar.pfs rsc bsp bspstore rnat fcr eflag 
-						csd ssd cflg fsr fir fdr ccv unat fpsr itc pfs lc ec)
-			 (defregister-range cpuid 0 5 Special 64)
-
-			 (defregister-range pm 0 8 Special 64) 
-			 (defregister-range kr 0 8 Application 64)
-			 (defregister-range a 0 128 Application 64)
-			 (defregister-range r 0 128 GPR 64)
-			 (defregister-range p 0 64 Predicate 1)
-			 (defregister-range f 0 128 Float 82)
-			 (defregister-range b 0 8 Branch 64))
 
 
 ;------------------------------------------------------------------------------
