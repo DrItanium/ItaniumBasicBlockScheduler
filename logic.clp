@@ -159,7 +159,7 @@
 		 (retract ?f)
 		 ; commit the dependencies we have found
 		 (send ?g0 inject-consumers ?*TemporaryList*)
-		 (bind ?*TemporaryList* (create$))
+		 (bind ?*TemporaryList*)
 		 (assert (Next (- (send ?g0 get-TimeIndex) 1))))
 
 (defrule try-restart-analysis-process
@@ -192,7 +192,7 @@
 		 =>
 		 (retract ?f2)
 		 ; make sure it is clean
-		 (bind ?*TemporaryList* (create$)))
+		 (bind ?*TemporaryList*))
 
 ;------------------------------------------------------------------------------
 ; Scheduling rules
@@ -230,7 +230,7 @@
 		 (retract ?f)
 		 (progn$ (?q ?*TemporaryList*)
 				 (send ?q notify-scheduling))
-		 (bind ?*TemporaryList* (create$))
+		 (bind ?*TemporaryList*)
 		 (assert (Restart Scheduling)))
 
 (defrule restart-scheduling
