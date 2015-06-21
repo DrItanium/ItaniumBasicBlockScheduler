@@ -112,12 +112,10 @@
 		 (declare (salience 1000))
 		 (stage (current Analysis))
 		 (Instruction ?g0)
-		 (object (is-a Instruction)
-				 (name ?g0)
-				 (destination-registers $?dest)
-				 (source-registers $?src)
-				 (Predicate ?p))
 		 =>
+         (bind ?dest (send ?g0 get-destination-registers))
+         (bind ?src (send ?g0 get-source-registers))
+         (bind ?p (send ?g0 get-Predicate))
 		 ; build up as we go
 		 (progn$ (?s $?src)
 				 (if (and (neq ?s p0)
@@ -157,15 +155,12 @@
 		 (declare (salience -1))
 		 (stage (current Analysis))
 		 ?f <- (Instruction ?g0)
-		 (object (is-a Instruction)
-				 (name ?g0)
-				 (TimeIndex ?t0))
 		 =>
 		 (retract ?f)
 		 ; commit the dependencies we have found
 		 (send ?g0 inject-consumers ?*TemporaryList*)
 		 (bind ?*TemporaryList* (create$))
-		 (assert (Next (- ?t0 1))))
+		 (assert (Next (- (send ?g0 get-TimeIndex) 1))))
 
 (defrule try-restart-analysis-process
 		 (declare (salience -2))
