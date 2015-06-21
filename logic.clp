@@ -149,7 +149,7 @@
 		 (register-ref (parent ?g1&~?g0)
 					   (target-register ?d))
 		 =>
-		 (bind ?*TemporaryList* (create$ ?*TemporaryList* ?g1)))
+		 (bind ?*TemporaryList* ?*TemporaryList* ?g1))
 
 
 ; This is a generic scheduler and doesn't take special cases into account
@@ -215,7 +215,7 @@
 					   (scheduled FALSE))
 		 =>
 		 (send ?q mark-scheduled) ; this will updated scheduled
-		 (bind ?*TemporaryList* (create$ ?*TemporaryList* ?q))
+		 (bind ?*TemporaryList* ?*TemporaryList* ?q)
 		 (assert (close block)))
 
 
