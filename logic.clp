@@ -107,33 +107,36 @@
 		 =>
 		 (assert (Next (- (time-length) 1))))
 
+(defrule decompose-target-instruction-sections:predicates
+	 (stage (current Analysis))
+	 (Instruction ?g0)
+	 (object (is-a Instruction)
+		 (name ?g0)
+		 (Predicate ?p&~p0))
+	 =>
+	 (assert (register-ref (type predicate)
+			       (target-register ?p)
+			       (parent ?g0))))
 
 (defrule decompose-target-instruction-sections
-		 (declare (salience 1000))
-		 (stage (current Analysis))
-		 (Instruction ?g0)
-		 =>
-         (bind ?dest (send ?g0 get-destination-registers))
-         (bind ?src (send ?g0 get-source-registers))
-         (bind ?p (send ?g0 get-Predicate))
-		 ; build up as we go
-		 (progn$ (?s $?src)
-				 (if (and (neq ?s p0)
-						  (symbolp ?s)) then
-				   (bind ?datum (if (eq (sub-string 1 1 ?s) "{") then
-								  (sym-cat (sub-string 2 (- (str-length ?s) 1) ?s)) else ?s))
-				   (assert (register-ref (type source)
-										 (parent ?g0)
-										 (target-register ?datum)))))
-		 (progn$ (?d $?dest)
-				 (if (neq ?d p0) then
-				   (assert (register-ref (type destination)
-										 (parent ?g0)
-										 (target-register ?d)))))
-		 (if (neq ?p p0) then
-		   (assert (register-ref (type predicate)
-								 (target-register ?p)
-								 (parent ?g0)))))
+	 (stage (current Analysis))
+	 (Instruction ?g0)
+	 =>
+	 ; build up as we go
+	 (progn$ (?s (send ?g0 get-source-registers))
+		 (if (and (neq ?s p0)
+			  (symbolp ?s)) then
+		   (assert (register-ref (type source)
+					 (parent ?g0)
+					 (target-register (if (str-index "{" ?s) then
+							    (string-to-field (sub-string 2 (- (str-length ?s) 1) ?s))
+							    else
+							    ?s))))))
+	 (progn$ (?d (send ?g0 get-destination-registers))
+		 (if (neq ?d p0) then
+		   (assert (register-ref (type destination)
+					 (parent ?g0)
+					 (target-register ?d))))))
 
 
 
@@ -229,7 +232,7 @@
 		 =>
 		 (retract ?f)
 		 (progn$ (?q ?*TemporaryList*)
-				 (send ?q notify-scheduling))
+			 (send ?q notify-scheduling))
 		 (bind ?*TemporaryList*)
 		 (assert (Restart Scheduling)))
 

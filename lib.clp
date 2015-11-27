@@ -24,10 +24,10 @@
 ; Globals
 ;------------------------------------------------------------------------------
 (defglobal MAIN 
-		   ; Temporary storage for dependency resolution
-		   ?*TemporaryList* = (create$)
-		   ; TIME Index generator
-		   ?*TIME* = 0)
+	   ; Temporary storage for dependency resolution
+	   ?*TemporaryList* = (create$)
+	   ; TIME Index generator
+	   ?*TIME* = 0)
 ;------------------------------------------------------------------------------
 ; Classes
 ;------------------------------------------------------------------------------
@@ -35,74 +35,83 @@
 (defclass Instruction 
   (is-a USER)
   (slot Predicate 
-		(type SYMBOL))
+	(type SYMBOL))
   (slot Name 
-		(type SYMBOL))
+	(type SYMBOL))
   (slot TimeIndex 
-		(type NUMBER))
+	(type NUMBER))
   (slot scheduled 
-		(type SYMBOL) 
-		(allowed-symbols FALSE TRUE))
+	(type SYMBOL) 
+	(allowed-symbols FALSE TRUE))
   (slot InstructionType 
-		(type SYMBOL) 
-		(default-dynamic nil))
+	(type SYMBOL) 
+	(default-dynamic nil))
   (multislot destination-registers 
-			 (type SYMBOL))
+	     (type SYMBOL))
   (multislot source-registers 
-			 (type SYMBOL))
+	     (type SYMBOL))
   (slot producer-count 
-		(type INTEGER))
+	(type INTEGER))
   (multislot consumers 
-			 (type SYMBOL))
+	     (type SYMBOL))
+  (slot print-string)
+  (message-handler init after)
   (message-handler inject-consumers primary)
   (message-handler notify-scheduling primary)
   (message-handler mark-scheduled primary)
   (message-handler increment-producer-count primary)
   (message-handler decrement-producer-count primary))
+(defmessage-handler Instruction init after 
+		    ()
+		    (bind ?self:print-string
+			  (format nil "(%s) %s %s %s" 
+				  ?self:Predicate 
+				  ?self:Name 
+				  (implode$ ?self:destination-registers)
+				  (if (= (length$ ?self:source-registers) 0) then
+				    ""
+				    else
+				    (implode$ (create$ =
+						       ?self:source-registers))))))
+
 
 (defmessage-handler Instruction increment-producer-count primary 
-					()
-					(bind ?self:producer-count (+ ?self:producer-count 1)))
+		    (?i)
+		    (bind ?self:producer-count 
+			  (+ ?self:producer-count ?i)))
 
 (defmessage-handler Instruction decrement-producer-count primary 
-					()
-					(bind ?self:producer-count (- ?self:producer-count 1)))
+		    (?i)
+		    (bind ?self:producer-count 
+			  (- ?self:producer-count ?i)))
 
-(defmessage-handler Instruction inject-consumers 
-					(?list)
-					(progn$ (?a ?list)
-							(send ?a increment-producer-count))
-					(slot-direct-insert$ consumers 1 ?list))
+(defmessage-handler Instruction inject-consumers primary
+		    (?list)
+		    (progn$ (?a ?list)
+			    (send ?a increment-producer-count 1))
+		    (slot-direct-insert$ consumers 1 ?list))
 
 (defmessage-handler Instruction notify-scheduling primary
-					()
-					(progn$ (?c ?self:consumers)
-							(send ?c decrement-producer-count)))
+		    ()
+		    (progn$ (?c ?self:consumers)
+			    (send ?c decrement-producer-count 1)))
 
 (defmessage-handler Instruction mark-scheduled primary
-					()
-					(format t "(%s) %s %s %s%n" 
-							?self:Predicate 
-							?self:Name 
-							(implode$ ?self:destination-registers)
-							(if (= (length$ ?self:source-registers) 0) then
-							  ""
-							  else
-							  (implode$ (create$ =
-												 ?self:source-registers))))
-					(bind ?self:scheduled TRUE))
+		    ()
+		    (printout t ?self:print-string crlf)
+		    (bind ?self:scheduled TRUE))
 
 
 (defclass Operation 
   (is-a USER)
   (slot Name   
-		(visibility public) 
-		(type SYMBOL) 
-		(default ?DERIVE))
+	(visibility public) 
+	(type SYMBOL) 
+	(default ?DERIVE))
   (slot Class  
-		(visibility public) 
-		(type SYMBOL) 
-		(default ?DERIVE)))
+	(visibility public) 
+	(type SYMBOL) 
+	(default ?DERIVE)))
 
 
 ;------------------------------------------------------------------------------
@@ -110,20 +119,20 @@
 ;------------------------------------------------------------------------------
 
 (deffunction time-length 
-			 "Gets the time count of the program" 
-			 ()
-			 (return ?*TIME*))
+	     "Gets the time count of the program" 
+	     ()
+	     (return ?*TIME*))
 
 (deffunction new-time-index 
-			 "Returns the current time index and increments the time by one" 
-			 ()
-			 (bind ?result ?*TIME*)
-			 (bind ?*TIME* (+ ?*TIME* 1))
-			 (return ?result))
+	     "Returns the current time index and increments the time by one" 
+	     ()
+	     (bind ?result ?*TIME*)
+	     (bind ?*TIME* (+ ?*TIME* 1))
+	     (return ?result))
 
 (deffunction reset-time-index 
-			 () 
-			 (bind ?*TIME* 0))
+	     () 
+	     (bind ?*TIME* 0))
 
 ;------------------------------------------------------------------------------
 ; Instruction construction functions and methods
@@ -138,11 +147,11 @@
    (?destination-registers MULTIFIELD)
    (?source-registers MULTIFIELD))
   (make-instance of Instruction
-				 (Predicate ?predicate)
-				 (TimeIndex ?time-index)
-				 (Name ?name)
-				 (destination-registers ?destination-registers)
-				 (source-registers ?source-registers)))
+		 (Predicate ?predicate)
+		 (TimeIndex ?time-index)
+		 (Name ?name)
+		 (destination-registers ?destination-registers)
+		 (source-registers ?source-registers)))
 
 (defmethod make-instruction
   ((?predicate SYMBOL)
@@ -150,10 +159,10 @@
    (?destination-registers MULTIFIELD)
    (?source-registers MULTIFIELD))
   (make-instruction (new-time-index)
-					?predicate 
-					?operation 
-					?destination-registers
-					?source-registers))
+		    ?predicate 
+		    ?operation 
+		    ?destination-registers
+		    ?source-registers))
 (defmethod make-instruction 
   ((?predicate SYMBOL)
    (?operation SYMBOL)
@@ -162,9 +171,9 @@
    (?s0 NUMBER LEXEME INSTANCE)
    (?s1 NUMBER LEXEME INSTANCE))
   (make-instruction ?predicate
-					?operation
-					(create$ ?d0 ?d1)
-					(create$ ?s0 ?s1)))
+		    ?operation
+		    (create$ ?d0 ?d1)
+		    (create$ ?s0 ?s1)))
 
 
 (defmethod make-instruction
@@ -174,9 +183,9 @@
    (?s0 NUMBER LEXEME INSTANCE)
    (?s1 NUMBER LEXEME INSTANCE))
   (make-instruction ?predicate 
-					?operation 
-					(create$ ?destination) 
-					(create$ ?s0 ?s1)))
+		    ?operation 
+		    (create$ ?destination) 
+		    (create$ ?s0 ?s1)))
 
 (defmethod make-instruction
   ((?predicate SYMBOL)
@@ -184,40 +193,40 @@
    (?destination NUMBER LEXEME INSTANCE)
    (?source NUMBER LEXEME INSTANCE))
   (make-instruction ?predicate 
-					?operation
-					(create$ ?destination)
-					(create$ ?source)))
+		    ?operation
+		    (create$ ?destination)
+		    (create$ ?source)))
 
 (defmethod make-instruction 
   ((?predicate SYMBOL)
    (?operation SYMBOL)
    (?destination MULTIFIELD))
   (make-instruction ?predicate
-					?operation
-					?destination
-					(create$)))
+		    ?operation
+		    ?destination
+		    (create$)))
 (defmethod make-instruction
   ((?predicate SYMBOL)
    (?operation SYMBOL)
    (?destination LEXEME NUMBER))
   (make-instruction ?predicate
-					?operation
-					(create$ ?destination)))
+		    ?operation
+		    (create$ ?destination)))
 
 (defmethod defop 
   "Defines an operation"
   ((?Op LEXEME)
    (?Type LEXEME))
   (make-instance of Operation
-				 (Name ?Op)
-				 (Class ?Type)))
+		 (Name ?Op)
+		 (Class ?Type)))
 
 
 (defmethod defop-range
   ((?Type LEXEME)
    (?Ops MULTIFIELD LEXEME))
   (progn$ (?op ?Ops)
-		  (defop ?op ?Type)))
+	  (defop ?op ?Type)))
 
 (defmethod defop-range
   ((?Type LEXEME)
@@ -239,198 +248,198 @@
 
 
 (deffunction br 
-			 (?Predicate ?Target)
-			 (make-instruction ?Predicate br ?Target))
+	     (?Predicate ?Target)
+	     (make-instruction ?Predicate br ?Target))
 
 (deffunction br.cond 
-			 (?Predicate ?Target)
-			 (make-instruction ?Predicate br.cond ?Target))
+	     (?Predicate ?Target)
+	     (make-instruction ?Predicate br.cond ?Target))
 
 (deffunction br.few 
-			 (?Predicate ?Target)
-			 (make-instruction ?Predicate br.few ?Target))
+	     (?Predicate ?Target)
+	     (make-instruction ?Predicate br.few ?Target))
 
 (deffunction br.many 
-			 (?Predicate ?Target)
-			 (make-instruction ?Predicate br.many ?Target))
+	     (?Predicate ?Target)
+	     (make-instruction ?Predicate br.many ?Target))
 
 (deffunction br.cond.dptk.few 
-			 (?Predicate ?Target)
-			 (make-instruction ?Predicate br.cond.dptk.few ?Target))
+	     (?Predicate ?Target)
+	     (make-instruction ?Predicate br.cond.dptk.few ?Target))
 
 (deffunction br.cond.dptk.many 
-			 (?Predicate ?Target)
-			 (make-instruction ?Predicate br.cond.dptk.many ?Target))
+	     (?Predicate ?Target)
+	     (make-instruction ?Predicate br.cond.dptk.many ?Target))
 
 (deffunction br.cond.sptk.few 
-			 (?Predicate ?Target)
-			 (make-instruction ?Predicate br.cond.sptk.few ?Target))
+	     (?Predicate ?Target)
+	     (make-instruction ?Predicate br.cond.sptk.few ?Target))
 
 (deffunction br.cond.sptk.many 
-			 (?Predicate ?Target)
-			 (make-instruction ?Predicate br.cond.sptk.many ?Target))
+	     (?Predicate ?Target)
+	     (make-instruction ?Predicate br.cond.sptk.many ?Target))
 
 (deffunction br.ret.dptk.few 
-			 (?Predicate ?Target)
-			 (make-instruction ?Predicate br.ret.dptk.few ?Target))
+	     (?Predicate ?Target)
+	     (make-instruction ?Predicate br.ret.dptk.few ?Target))
 
 (deffunction br.ret.dptk.many 
-			 (?Predicate ?Target)
-			 (make-instruction ?Predicate br.ret.dptk.many ?Target))
+	     (?Predicate ?Target)
+	     (make-instruction ?Predicate br.ret.dptk.many ?Target))
 
 
 (deffunction br.ret.sptk.few 
-			 (?Predicate ?Target)
-			 (make-instruction ?Predicate br.ret.sptk.few ?Target))
+	     (?Predicate ?Target)
+	     (make-instruction ?Predicate br.ret.sptk.few ?Target))
 
 (deffunction br.ret.sptk.many 
-			 (?Predicate ?Target)
-			 (make-instruction ?Predicate br.ret.sptk.many ?Target))
+	     (?Predicate ?Target)
+	     (make-instruction ?Predicate br.ret.sptk.many ?Target))
 
 (deffunction br.call.dptk.few 
-			 (?Predicate ?Target ?Source)
-			 (make-instruction ?Predicate br.call.dptk.few ?Target ?Source))
+	     (?Predicate ?Target ?Source)
+	     (make-instruction ?Predicate br.call.dptk.few ?Target ?Source))
 
 (deffunction br.call.dptk.many 
-			 (?Predicate ?Target ?Source)
-			 (make-instruction ?Predicate br.call.dptk.many ?Target ?Source))
+	     (?Predicate ?Target ?Source)
+	     (make-instruction ?Predicate br.call.dptk.many ?Target ?Source))
 
 (deffunction br.call.sptk.few 
-			 (?Predicate ?Target ?Source)
-			 (make-instruction ?Predicate br.call.sptk.few ?Target ?Source))
+	     (?Predicate ?Target ?Source)
+	     (make-instruction ?Predicate br.call.sptk.few ?Target ?Source))
 
 (deffunction br.call.sptk.many 
-			 (?Predicate ?Target ?Source)
-			 (make-instruction ?Predicate br.call.sptk.many ?Target ?Source))
+	     (?Predicate ?Target ?Source)
+	     (make-instruction ?Predicate br.call.sptk.many ?Target ?Source))
 
 (deffunction adds 
-			 (?Pred ?Dest ?Source0 ?Source1)
-			 (make-instruction ?Pred adds ?Dest ?Source0 ?Source1))
+	     (?Pred ?Dest ?Source0 ?Source1)
+	     (make-instruction ?Pred adds ?Dest ?Source0 ?Source1))
 
 (deffunction addl 
-			 (?Pred ?Dest ?Source0 ?Source1)
-			 (make-instruction ?Pred adds ?Dest ?Source0 ?Source1))
+	     (?Pred ?Dest ?Source0 ?Source1)
+	     (make-instruction ?Pred adds ?Dest ?Source0 ?Source1))
 
 (deffunction add 
-			 (?Pred ?Dest ?Source0 ?Source1)
-			 (make-instruction ?Pred add ?Dest ?Source0 ?Source1))
+	     (?Pred ?Dest ?Source0 ?Source1)
+	     (make-instruction ?Pred add ?Dest ?Source0 ?Source1))
 
 (deffunction sub 
-			 (?P ?D ?S0 ?S1)
-			 (make-instruction ?P sub ?D ?S0 ?S1))
+	     (?P ?D ?S0 ?S1)
+	     (make-instruction ?P sub ?D ?S0 ?S1))
 
 (deffunction and-inst 
-			 (?Pred ?Dest ?Source0 ?Source1)
-			 (make-instruction ?Pred adds ?Dest ?Source0 ?Source1))
+	     (?Pred ?Dest ?Source0 ?Source1)
+	     (make-instruction ?Pred adds ?Dest ?Source0 ?Source1))
 
 (deffunction xmpy.l 
-			 (?Pred ?Dest ?Source0 ?Source1)
-			 (make-instruction ?Pred xmpy.l ?Dest ?Source0 ?Source1))
+	     (?Pred ?Dest ?Source0 ?Source1)
+	     (make-instruction ?Pred xmpy.l ?Dest ?Source0 ?Source1))
 
 (deffunction mov 
-			 (?Pred ?Dest ?Source0)
-			 (make-instruction ?Pred mov ?Dest ?Source0))
+	     (?Pred ?Dest ?Source0)
+	     (make-instruction ?Pred mov ?Dest ?Source0))
 
 (deffunction mov.i 
-			 (?Pred ?Dest ?Source0)
-			 (make-instruction ?Pred mov.i ?Dest ?Source0))
+	     (?Pred ?Dest ?Source0)
+	     (make-instruction ?Pred mov.i ?Dest ?Source0))
 
 (deffunction sxt4 
-			 (?Pred ?Dest ?Source0)
-			 (make-instruction ?Pred sxt4 ?Dest ?Source0))
+	     (?Pred ?Dest ?Source0)
+	     (make-instruction ?Pred sxt4 ?Dest ?Source0))
 
 (deffunction stf.spill 
-			 (?Pred ?Dest ?Source0)
-			 (make-instruction ?Pred stf.spill ?Dest ?Source0))
+	     (?Pred ?Dest ?Source0)
+	     (make-instruction ?Pred stf.spill ?Dest ?Source0))
 
 (deffunction ldfs 
-			 (?P ?D ?S)
-			 (make-instruction ?P ldfs ?D ?S))
+	     (?P ?D ?S)
+	     (make-instruction ?P ldfs ?D ?S))
 
 (deffunction nop.b 
-			 (?P)
-			 (make-instruction ?P nop.b 0x0))
+	     (?P)
+	     (make-instruction ?P nop.b 0x0))
 
 (deffunction nop.i 
-			 (?P)
-			 (make-instruction ?P nop.i 0x0))
+	     (?P)
+	     (make-instruction ?P nop.i 0x0))
 
 (deffunction nop.f 
-			 (?P)
-			 (make-instruction ?P nop.f 0x0))
+	     (?P)
+	     (make-instruction ?P nop.f 0x0))
 
 (deffunction nop.m 
-			 (?P)
-			 (make-instruction ?P nop.m 0x0))
+	     (?P)
+	     (make-instruction ?P nop.m 0x0))
 
 (deffunction nop.x 
-			 (?P)
-			 (make-instruction ?P nop.x 0x0))
+	     (?P)
+	     (make-instruction ?P nop.x 0x0))
 
 (deffunction cmp.eq 
-			 (?Predicate ?D0 ?D1 ?S0 ?S1)
-			 (make-instruction ?Predicate cmp.eq ?D0 ?D1 ?S0 ?S1))
+	     (?Predicate ?D0 ?D1 ?S0 ?S1)
+	     (make-instruction ?Predicate cmp.eq ?D0 ?D1 ?S0 ?S1))
 (deffunction cmp.lt 
-			 (?Predicate ?D0 ?D1 ?S0 ?S1)
-			 (make-instruction ?Predicate cmp.lt ?D0 ?D1 ?S0 ?S1))
+	     (?Predicate ?D0 ?D1 ?S0 ?S1)
+	     (make-instruction ?Predicate cmp.lt ?D0 ?D1 ?S0 ?S1))
 (deffunction cmp.gt 
-			 (?Predicate ?D0 ?D1 ?S0 ?S1)
-			 (make-instruction ?Predicate cmp.gt ?D0 ?D1 ?S0 ?S1))
+	     (?Predicate ?D0 ?D1 ?S0 ?S1)
+	     (make-instruction ?Predicate cmp.gt ?D0 ?D1 ?S0 ?S1))
 
 (deffunction cmp4.eq 
-			 (?Predicate ?D0 ?D1 ?S0 ?S1)
-			 (make-instruction ?Predicate cmp4.eq ?D0 ?D1 ?S0 ?S1))
+	     (?Predicate ?D0 ?D1 ?S0 ?S1)
+	     (make-instruction ?Predicate cmp4.eq ?D0 ?D1 ?S0 ?S1))
 
 (deffunction cmp4.lt 
-			 (?Predicate ?D0 ?D1 ?S0 ?S1)
-			 (make-instruction ?Predicate cmp4.lt ?D0 ?D1 ?S0 ?S1))
+	     (?Predicate ?D0 ?D1 ?S0 ?S1)
+	     (make-instruction ?Predicate cmp4.lt ?D0 ?D1 ?S0 ?S1))
 (deffunction cmp4.gt 
-			 (?Predicate ?D0 ?D1 ?S0 ?S1)
-			 (make-instruction ?Predicate cmp4.gt ?D0 ?D1 ?S0 ?S1))
+	     (?Predicate ?D0 ?D1 ?S0 ?S1)
+	     (make-instruction ?Predicate cmp4.gt ?D0 ?D1 ?S0 ?S1))
 
 (deffunction setf.sig 
-			 (?P ?D ?S)
-			 (make-instruction ?P setf.sig ?D ?S))
+	     (?P ?D ?S)
+	     (make-instruction ?P setf.sig ?D ?S))
 
 (deffunction getf.sig 
-			 (?P ?D ?S)
-			 (make-instruction ?P getf.sig ?D ?S))
+	     (?P ?D ?S)
+	     (make-instruction ?P getf.sig ?D ?S))
 
 (deffunction ld8 
-			 (?P ?D ?S)
-			 (make-instruction ?P ld8 ?D ?S))
+	     (?P ?D ?S)
+	     (make-instruction ?P ld8 ?D ?S))
 
 (deffunction ld4 
-			 (?P ?D ?S)
-			 (make-instruction ?P ld4 ?D ?S))
+	     (?P ?D ?S)
+	     (make-instruction ?P ld4 ?D ?S))
 
 (deffunction st8 
-			 (?P ?D ?S)
-			 (make-instruction ?P st8 ?D ?S))
+	     (?P ?D ?S)
+	     (make-instruction ?P st8 ?D ?S))
 
 (deffunction st4 
-			 (?P ?D ?S)
-			 (make-instruction ?P st4 ?D ?S))
+	     (?P ?D ?S)
+	     (make-instruction ?P st4 ?D ?S))
 
 (deffunction alloc 
-			 (?P ?D ?I ?L ?O ?R)
-			 (make-instruction ?P alloc ?D (create$ ar.pfs ?I ?L ?O ?R)))
+	     (?P ?D ?I ?L ?O ?R)
+	     (make-instruction ?P alloc ?D (create$ ar.pfs ?I ?L ?O ?R)))
 
 (deffunction init-ia64-machine 
-			 ()
-			 (defop-range A and or nop.a add)
+	     ()
+	     (defop-range A and or nop.a add)
 
-			 (defop-range I mul sub cmp cmp.eq cmp.gt cmp.lt cmp.neq div shl 
-						  shr sxt4 adds nop.i)
+	     (defop-range I mul sub cmp cmp.eq cmp.gt cmp.lt cmp.neq div shl 
+			  shr sxt4 adds nop.i)
 
-			 (defop-range M st8 ld8 ld4 st4 mov stf.spill nop.m alloc)
+	     (defop-range M st8 ld8 ld4 st4 mov stf.spill nop.m alloc)
 
-			 (defop-range B br br.ret br.call br.few br.many 
-						  br.ret.sptk.many br.ret.sptk.few br.ret.dptk.many 
-						  br.ret.dptk.few br.call.sptk.many br.call.sptk.few 
-						  br.cond.dptk.few br.call.dptk.many br.call.dptk.few nop.b)
-			 (defop-range F ldfs fma nop.f)
-			 (defop-range X none nop.x))
+	     (defop-range B br br.ret br.call br.few br.many 
+			  br.ret.sptk.many br.ret.sptk.few br.ret.dptk.many 
+			  br.ret.dptk.few br.call.sptk.many br.call.sptk.few 
+			  br.cond.dptk.few br.call.dptk.many br.call.dptk.few nop.b)
+	     (defop-range F ldfs fma nop.f)
+	     (defop-range X none nop.x))
 
 
 
@@ -439,34 +448,34 @@
 ; REPL Interaction functions
 ;------------------------------------------------------------------------------
 (deffunction reload-environment 
-			 () 
-			 (reset) 
-			 (reset-time-index) 
-			 (init-ia64-machine))
+	     () 
+	     (reset) 
+	     (reset-time-index) 
+	     (init-ia64-machine))
 
 (deffunction block 
-			 "Loads a new block from a file" 
-			 (?B) 
-			 (reload-environment)
-			 (batch ?B))
+	     "Loads a new block from a file" 
+	     (?B) 
+	     (reload-environment)
+	     (batch* ?B))
 
 
 (deffunction analyze 
-			 "Use this function instead of run becase it asserts a specific rule that has to be initiated so that the objects don't start automatically running!"
-			 ()
-			 (run))
+	     "Use this function instead of run becase it asserts a specific rule that has to be initiated so that the objects don't start automatically running!"
+	     ()
+	     (run))
 
 ;------------------------------------------------------------------------------
 ; Templates
 ;------------------------------------------------------------------------------
 (deftemplate stage 
-			 (slot current (type SYMBOL))
-			 (multislot rest (type SYMBOL)))
+	     (slot current (type SYMBOL))
+	     (multislot rest (type SYMBOL)))
 
 (deftemplate register-ref
-			 (slot type
-				   (default ?NONE))
-			 (slot target-register
-				   (default ?NONE))
-			 (slot parent
-				   (default ?NONE)))
+	     (slot type
+		   (default ?NONE))
+	     (slot target-register
+		   (default ?NONE))
+	     (slot parent
+		   (default ?NONE)))
