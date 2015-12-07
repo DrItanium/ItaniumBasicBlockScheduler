@@ -23,15 +23,12 @@
 ;------------------------------------------------------------------------------
 ; stage rules
 ;------------------------------------------------------------------------------
-(defrule stages-init
-	 (declare (salience 10000))
-	 (initial-fact)
-	 =>
-	 (assert (stage (current Imbue) 
-			(rest Analysis-Entry 
-			      Analysis 
-			      Schedule
-			      Schedule-Update))))
+(deffacts startup
+	  (stage (current Imbue)
+		 (rest Analysis-Entry
+		       Analysis
+		       Schedule
+		       Schedule-Update)))
 
 (defrule end-stage-generation
 	 (declare (salience -10000))
@@ -59,48 +56,8 @@
 		 (Name ?oName) 
 		 (Class ?Class))
 	 =>
-	 (modify-instance ?gid (InstructionType ?Class))
-	 (if (eq ?Class B) then 
-	   (assert (Check ?gid))))
-
-(defrule generate-branch-dependencies 
-	 (stage (current Imbue))
-	 ?chk <- (Check ?gid)
-	 ?obj <- (object (is-a Instruction) 
-			 (name ?gid) 
-			 (InstructionType B)
-			 (TimeIndex ?ti))
-	 =>
-	 (retract ?chk)
-	 (send ?obj put-producer-count ?ti)
-	 (loop-for-count (?i 0 (- ?ti 1)) do
-			 (assert (BranchImbue ?obj ?i))))
-
-(defrule imbue-branch-dependencies
-	 (stage (current Imbue))
-	 ?bd <- (BranchImbue ?name ?i)
-	 ?inst <- (object (is-a Instruction) 
-			  (TimeIndex ?i) 
-			  (InstructionType ~B))
-	 =>
-	 (retract ?bd)
-	 ;Register the branch in the consumer set
-	 (slot-insert$ ?inst consumers 1 ?name))
-
-(defrule imbue-branch-dependencies:is-branch
-	 (stage (current Imbue))
-	 ?bd <- (BranchImbue ?name ?i)
-	 ?inst <- (object (is-a Instruction)
-			  (TimeIndex ?i)
-			  (InstructionType B))
-	 =>
-	 (retract ?bd)
-	 ;Register the branch in the consumer set
-	 (slot-insert$ ?inst consumers 1 ?name)
-	 ; If we found another branch in this block (highly unlikely but could
-	 ; happen in the case of region scheduling) so decrement the producer
-	 ; count of the other branch since branches will be correctly fixed
-	 (send ?name decrement-producer-count))
+	 (modify-instance ?gid 
+			  (InstructionType ?Class)))
 
 (defrule prime-first-instruction
 	 (stage (current Analysis-Entry))
@@ -172,7 +129,7 @@
 		 (queue ?q $?))
 	 (test (send ?q ready-to-schedule))
 	 =>
-	 (assert (schedule ?q)))
+	 (assert (schedule (instance-address ?q))))
 
 
 
@@ -195,3 +152,13 @@
 	 (modify ?stg 
 		 (current Schedule) 
 		 (rest Schedule-Update $?rest)))
+(defrule insert-branch
+	 (declare (salience -3))
+	 (stage (current Schedule-Update))
+	 (object (is-a Instruction)
+		 (InstructionType B)
+		 (name ?branch))
+	 =>
+	 (send ?branch notify-scheduling)
+	 (printout t ";;" crlf))
+
