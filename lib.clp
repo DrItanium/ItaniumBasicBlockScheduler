@@ -33,7 +33,7 @@
 ;------------------------------------------------------------------------------
 (defclass register
   (is-a USER)
-  (multislot queue))
+  (multislot stack))
 (defgeneric translate-register)
 (defmethod translate-register
   (?val)
@@ -381,25 +381,17 @@
 
 (defmessage-handler register push primary
 		    (?target)
-		    (bind ?self:queue
-			  ?target
-			  ?self:queue))
+		    (slot-direct-insert$ stack 1 ?target))
 (defmessage-handler register top primary
 		    ()
-		    (if (= (length$ ?self:queue) 0) then 
-		      FALSE
-		      else
-		      (nth$ 1 (first$ ?self:queue))))
+		    (nth$ 1 ?self:stack))
 (defmessage-handler register pop primary
 		    ()
-		    (if (> (length$ ?self:queue) 0) then
+		    (if (> (length$ ?self:stack) 0) then
 		        (bind ?ret 
-			      (expand$ (first$ ?self:queue)))
-			(bind ?self:queue
-			      (rest$ ?self:queue))
-			?ret
-			else
-			FALSE))
+			      (nth$ 1 ?self:stack))
+			(slot-direct-delete$ stack 1 1)
+			?ret))
 
 (defclass Instruction 
   (is-a USER)
@@ -430,10 +422,7 @@
   (multislot ok)
   (message-handler init after)
   (message-handler ready-to-schedule primary)
-  (message-handler inject-consumers primary)
-  (message-handler notify-scheduling primary)
-  (message-handler increment-producer-count primary)
-  (message-handler decrement-producer-count primary))
+  (message-handler notify-scheduling primary))
 (defmessage-handler Instruction ready-to-schedule primary
 		    ()
 		    (progn$ (?a ?self:ok)
@@ -464,21 +453,6 @@
 						       ?self:source-registers))))))
 
 
-(defmessage-handler Instruction increment-producer-count primary 
-		    ()
-		    (bind ?self:producer-count 
-			  (+ ?self:producer-count 1)))
-
-(defmessage-handler Instruction decrement-producer-count primary 
-		    ()
-		    (bind ?self:producer-count 
-			  (- ?self:producer-count 1)))
-
-(defmessage-handler Instruction inject-consumers primary
-		    (?list)
-		    (progn$ (?a ?list)
-			    (send ?a increment-producer-count))
-		    (slot-direct-insert$ consumers 1 ?list))
 
 (defmessage-handler Instruction notify-scheduling primary
 		    ()

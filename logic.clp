@@ -126,7 +126,7 @@
 	 "An object is able to be scheduled if it has no remaining producers"
 	 (stage (current Schedule))
 	 (object (is-a register)
-		 (queue ?q $?))
+		 (stack ?q $?))
 	 (test (send ?q ready-to-schedule))
 	 =>
 	 (assert (schedule (instance-address ?q))))
