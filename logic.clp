@@ -107,48 +107,6 @@
 	 =>
 	 (assert (Next (- (time-length) 1))))
 
-(defrule decompose-target-instruction-sections:predicates
-	 (stage (current Analysis))
-	 (Instruction ?g0)
-	 (object (is-a Instruction)
-		 (name ?g0)
-		 (Predicate ?p&~p0))
-	 =>
-	 (assert (register-ref (type predicate)
-			       (target-register ?p)
-			       (parent ?g0))))
-(defgeneric translation-table)
-(defmethod translation-table
-  (?s)
-  (if (str-index "{" ?s) then
-    (string-to-field (sub-string 2 (- (str-length ?s) 1) ?s))
-    else
-    ?s))
-(defmethod generate-translation-table-entry
-  ((?register SYMBOL))
-  (build (format nil 
-		 "(defmethod translation-table
-		    ((?q STRING (eq ?current-argument
-				    \"{%s}\")))
-		    %s)"
-		 ?register
-		 ?register)))
-(loop-for-count (?i 127)
-		(generate-translation-table-entry (sym-cat r ?i))
-		(generate-translation-table-entry (sym-cat f ?i)))
-
-(defrule decompose-target-instruction-sections
-	 (declare (salience 1000))
-	 (stage (current Analysis))
-	 (Instruction ?g0)
-	 =>
-	 ; build up as we go
-	 (progn$ (?d (send ?g0 get-destination-registers))
-		 (if (neq ?d p0) then
-		   (assert (register-ref (type destination)
-					 (parent ?g0)
-					 (target-register ?d))))))
-
 (defrule add-to-queues:destination
 	 (stage (current Analysis))
 	 (Instruction ?g0)
@@ -174,21 +132,6 @@
 		 (predicate-queue ?reg&~[p0]))
 	 =>
 	 (send ?reg enqueue ?g0))
-(defrule dependency:identify-waw-and-raw
-	 "Identifies WAW and RAW dependencies"
-	 (declare (salience 1))
-	 (stage (current Analysis))
-	 (Instruction ?g0)
-	 (register-ref (parent ?g0)
-		       (type destination)
-		       (target-register ?d))
-	 (register-ref (parent ?g1&~?g0)
-		       (target-register ?d))
-	 =>
-	 (bind ?*TemporaryList*
-	       ?*TemporaryList*
-	       ?g1))
-
 ; This is a generic scheduler and doesn't take special cases into account
 (defrule start-analysis-restart-process
 	 (declare (salience -2))
@@ -196,21 +139,10 @@
 	 ?f <- (Instruction ?g0)
 	 (object (is-a Instruction)
 		 (name ?g0)
-		 (TimeIndex ?ti)
-		 (source-registers $?sr))
+		 (TimeIndex ?ti))
 	 =>
-	 (progn$ (?s ?sr)
-		 (if (and (neq ?s p0)
-			  (symbolp ?s)) then
-		   (assert (register-ref (type source)
-					 (parent ?g0)
-					 (target-register (translation-table ?s))))))
 	 (retract ?f)
 	 ; commit the dependencies we have found
-	 (send ?g0 
-	       inject-consumers 
-	       ?*TemporaryList*)
-	 (bind ?*TemporaryList*)
 	 (assert (Next (- ?ti 1))))
 
 (defrule try-restart-analysis-process
@@ -257,12 +189,12 @@
 	 "An object is able to be scheduled if it has no remaining producers"
 	 (stage (current Schedule))
 	 ?q <- (object (is-a Instruction)
-		       (producer-count 0)
 		       (scheduled FALSE)
 		       (print-string ?ps))
 	 =>
-	 (printout t ?ps crlf)
-	 (assert (schedule ?q)))
+	 (if (send ?q ready-to-schedule) then
+	     (printout t ?ps crlf)
+	     (assert (schedule ?q))))
 
 
 

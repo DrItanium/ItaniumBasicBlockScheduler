@@ -384,6 +384,23 @@
 		    (bind ?self:queue
 			  ?target
 			  ?self:queue))
+(defmessage-handler register top primary
+		    ()
+		    (if (= (length$ ?self:queue) 0) then 
+		      FALSE
+		      else
+		      (nth$ 1 (first$ ?self:queue))))
+(defmessage-handler register dequeue primary
+		    ()
+		    (if (> (length$ ?self:queue) 0) then
+		        (bind ?ret 
+			      (expand$ (first$ ?self:queue)))
+			(bind ?self:queue
+			      (rest$ ?self:queue))
+			?ret
+			else
+			FALSE))
+
 (defclass Instruction 
   (is-a USER)
   (slot Predicate 
@@ -411,10 +428,28 @@
 	     (type SYMBOL))
   (slot print-string)
   (message-handler init after)
+  (message-handler ready-to-schedule primary)
   (message-handler inject-consumers primary)
   (message-handler notify-scheduling primary)
   (message-handler increment-producer-count primary)
   (message-handler decrement-producer-count primary))
+(defmessage-handler Instruction ready-to-schedule primary
+		    ()
+		    (progn$ (?a ?self:destination-queues)
+			    (if (neq (send ?a top)
+				     (instance-name ?self)) then
+			      (return FALSE)))
+		    (progn$ (?a ?self:source-queues)
+			    (if (neq (send ?a top)
+				     (instance-name ?self)) then
+			      (return FALSE)))
+		    (if (and (neq ?self:predicate-queue
+				  [p0]) 
+			     (neq (send ?self:predicate-queue top)
+				  (instance-name ?self))) then
+		      (return FALSE))
+		    TRUE)
+
 (defmessage-handler Instruction init after 
 		    ()
 		    (bind ?self:print-string
@@ -448,9 +483,14 @@
 (defmessage-handler Instruction notify-scheduling primary
 		    ()
 		    (bind ?self:scheduled TRUE)
-		    (progn$ (?c ?self:consumers)
-			    (send ?c decrement-producer-count)))
-
+		    (progn$ (?c (create$ ?self:destination-queues
+					 ?self:source-queues
+					 (if (neq ?self:predicate-queue
+						  [p0]) then
+					   ?self:predicate-queue
+					   else
+					   (create$))))
+			    (send ?c dequeue)))
 
 (defclass Operation 
   (is-a USER)
@@ -522,7 +562,10 @@
   (filter$ ?func
 	   ?args))
 	      
-
+(deffunction instance-and-not-p0
+	     (?a)
+	     (and (instance-namep ?a)
+		  (neq ?a [p0])))
 (defmethod make-instruction
   ((?time-index INTEGER)
    (?predicate SYMBOL)
@@ -536,10 +579,10 @@
 		 (destination-registers ?destination-registers)
 		 (source-registers ?source-registers)
 		 (predicate-queue (translate-register ?predicate))
-		 (destination-queues (filter$ instancep 
+		 (destination-queues (filter$ instance-and-not-p0
 					      (apply$ translate-register
 						      ?destination-registers)))
-		 (source-queues (filter$ instancep
+		 (source-queues (filter$ instance-and-not-p0
 					 (apply$ translate-register
 						 ?source-registers)))))
 
