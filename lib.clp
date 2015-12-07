@@ -58,7 +58,6 @@
   (message-handler init after)
   (message-handler inject-consumers primary)
   (message-handler notify-scheduling primary)
-  (message-handler mark-scheduled primary)
   (message-handler increment-producer-count primary)
   (message-handler decrement-producer-count primary))
 (defmessage-handler Instruction init after 
@@ -76,30 +75,26 @@
 
 
 (defmessage-handler Instruction increment-producer-count primary 
-		    (?i)
+		    ()
 		    (bind ?self:producer-count 
-			  (+ ?self:producer-count ?i)))
+			  (+ ?self:producer-count 1)))
 
 (defmessage-handler Instruction decrement-producer-count primary 
-		    (?i)
+		    ()
 		    (bind ?self:producer-count 
-			  (- ?self:producer-count ?i)))
+			  (- ?self:producer-count 1)))
 
 (defmessage-handler Instruction inject-consumers primary
 		    (?list)
 		    (progn$ (?a ?list)
-			    (send ?a increment-producer-count 1))
+			    (send ?a increment-producer-count))
 		    (slot-direct-insert$ consumers 1 ?list))
 
 (defmessage-handler Instruction notify-scheduling primary
 		    ()
+		    (bind ?self:scheduled TRUE)
 		    (progn$ (?c ?self:consumers)
-			    (send ?c decrement-producer-count 1)))
-
-(defmessage-handler Instruction mark-scheduled primary
-		    ()
-		    (printout t ?self:print-string crlf)
-		    (bind ?self:scheduled TRUE))
+			    (send ?c decrement-producer-count)))
 
 
 (defclass Operation 

@@ -24,88 +24,88 @@
 ; stage rules
 ;------------------------------------------------------------------------------
 (defrule stages-init
-		 (declare (salience 10000))
-		 (initial-fact)
-		 =>
-		 (assert (stage (current Imbue) 
-						(rest Analysis-Entry 
-							  Analysis 
-							  Schedule
-							  Schedule-Update))))
+	 (declare (salience 10000))
+	 (initial-fact)
+	 =>
+	 (assert (stage (current Imbue) 
+			(rest Analysis-Entry 
+			      Analysis 
+			      Schedule
+			      Schedule-Update))))
 
 (defrule end-stage-generation
-		 (declare (salience -10000))
-		 ?f <- (stage (rest))
-		 =>
-		 (retract ?f))
+	 (declare (salience -10000))
+	 ?f <- (stage (rest))
+	 =>
+	 (retract ?f))
 
 (defrule next-stage
-		 (declare (salience -10000))
-		 ?f <- (stage (rest ?now $?rest))
-		 =>
-		 (modify ?f (current ?now) 
-				 (rest $?rest)))
+	 (declare (salience -10000))
+	 ?f <- (stage (rest ?now $?rest))
+	 =>
+	 (modify ?f (current ?now) 
+		 (rest $?rest)))
 ;------------------------------------------------------------------------------
 ; dependency analysis rules
 ;------------------------------------------------------------------------------
 (defrule imbue-op 
-		 "Imbue's the operational type into the given instruction"
-		 (declare (salience 1))
-		 (stage (current Imbue))
-		 (object (is-a Instruction) 
-				 (Name ?oName) 
-				 (name ?gid))
-		 (object (is-a Operation) 
-				 (Name ?oName) 
-				 (Class ?Class))
-		 =>
-		 (modify-instance ?gid (InstructionType ?Class))
-		 (if (eq ?Class B) then 
-		   (assert (Check ?gid))))
+	 "Imbue's the operational type into the given instruction"
+	 (declare (salience 1))
+	 (stage (current Imbue))
+	 (object (is-a Instruction) 
+		 (Name ?oName) 
+		 (name ?gid))
+	 (object (is-a Operation) 
+		 (Name ?oName) 
+		 (Class ?Class))
+	 =>
+	 (modify-instance ?gid (InstructionType ?Class))
+	 (if (eq ?Class B) then 
+	   (assert (Check ?gid))))
 
 (defrule generate-branch-dependencies 
-		 (stage (current Imbue))
-		 ?chk <- (Check ?gid)
-		 ?obj <- (object (is-a Instruction) 
-						 (name ?gid) 
-						 (InstructionType B)
-						 (TimeIndex ?ti))
-		 =>
-		 (retract ?chk)
-		 (send ?obj put-producer-count ?ti)
-		 (loop-for-count (?i 0 (- ?ti 1)) do
-						 (assert (BranchImbue ?obj ?i))))
+	 (stage (current Imbue))
+	 ?chk <- (Check ?gid)
+	 ?obj <- (object (is-a Instruction) 
+			 (name ?gid) 
+			 (InstructionType B)
+			 (TimeIndex ?ti))
+	 =>
+	 (retract ?chk)
+	 (send ?obj put-producer-count ?ti)
+	 (loop-for-count (?i 0 (- ?ti 1)) do
+			 (assert (BranchImbue ?obj ?i))))
 
 (defrule imbue-branch-dependencies
-		 (stage (current Imbue))
-		 ?bd <- (BranchImbue ?name ?i)
-		 ?inst <- (object (is-a Instruction) 
-						  (TimeIndex ?i) 
-						  (InstructionType ~B))
-		 =>
-		 (retract ?bd)
-		 ;Register the branch in the consumer set
-		 (slot-insert$ ?inst consumers 1 ?name))
+	 (stage (current Imbue))
+	 ?bd <- (BranchImbue ?name ?i)
+	 ?inst <- (object (is-a Instruction) 
+			  (TimeIndex ?i) 
+			  (InstructionType ~B))
+	 =>
+	 (retract ?bd)
+	 ;Register the branch in the consumer set
+	 (slot-insert$ ?inst consumers 1 ?name))
 
 (defrule imbue-branch-dependencies:is-branch
-		 (stage (current Imbue))
-		 ?bd <- (BranchImbue ?name ?i)
-		 ?inst <- (object (is-a Instruction)
-						  (TimeIndex ?i)
-						  (InstructionType B))
-		 =>
-		 (retract ?bd)
-		 ;Register the branch in the consumer set
-		 (slot-insert$ ?inst consumers 1 ?name)
-		 ; If we found another branch in this block (highly unlikely but could
-		 ; happen in the case of region scheduling) so decrement the producer
-		 ; count of the other branch since branches will be correctly fixed
-		 (send ?name decrement-producer-count))
+	 (stage (current Imbue))
+	 ?bd <- (BranchImbue ?name ?i)
+	 ?inst <- (object (is-a Instruction)
+			  (TimeIndex ?i)
+			  (InstructionType B))
+	 =>
+	 (retract ?bd)
+	 ;Register the branch in the consumer set
+	 (slot-insert$ ?inst consumers 1 ?name)
+	 ; If we found another branch in this block (highly unlikely but could
+	 ; happen in the case of region scheduling) so decrement the producer
+	 ; count of the other branch since branches will be correctly fixed
+	 (send ?name decrement-producer-count))
 
 (defrule prime-first-instruction
-		 (stage (current Analysis-Entry))
-		 =>
-		 (assert (Next (- (time-length) 1))))
+	 (stage (current Analysis-Entry))
+	 =>
+	 (assert (Next (- (time-length) 1))))
 
 (defrule decompose-target-instruction-sections:predicates
 	 (stage (current Analysis))
@@ -117,21 +117,32 @@
 	 (assert (register-ref (type predicate)
 			       (target-register ?p)
 			       (parent ?g0))))
+(defgeneric translation-table)
+(defmethod translation-table
+  (?s)
+  (if (str-index "{" ?s) then
+    (string-to-field (sub-string 2 (- (str-length ?s) 1) ?s))
+    else
+    ?s))
+(defmethod generate-translation-table-entry
+  ((?register SYMBOL))
+  (build (format nil 
+		 "(defmethod translation-table
+		    ((?q STRING (eq ?current-argument
+				    \"{%s}\")))
+		    %s)"
+		 ?register
+		 ?register)))
+(loop-for-count (?i 127)
+		(generate-translation-table-entry (sym-cat r ?i))
+		(generate-translation-table-entry (sym-cat f ?i)))
 
 (defrule decompose-target-instruction-sections
+	 (declare (salience 1000))
 	 (stage (current Analysis))
 	 (Instruction ?g0)
 	 =>
 	 ; build up as we go
-	 (progn$ (?s (send ?g0 get-source-registers))
-		 (if (and (neq ?s p0)
-			  (symbolp ?s)) then
-		   (assert (register-ref (type source)
-					 (parent ?g0)
-					 (target-register (if (str-index "{" ?s) then
-							    (string-to-field (sub-string 2 (- (str-length ?s) 1) ?s))
-							    else
-							    ?s))))))
 	 (progn$ (?d (send ?g0 get-destination-registers))
 		 (if (neq ?d p0) then
 		   (assert (register-ref (type destination)
@@ -139,63 +150,76 @@
 					 (target-register ?d))))))
 
 
-
 (defrule dependency:identify-waw-and-raw
-		 "Identifies WAW and RAW dependencies"
-		 (stage (current Analysis))
-		 (Instruction ?g0)
-		 (register-ref (parent ?g0)
-					   (type destination)
-					   (target-register ?d))
-		 (register-ref (parent ?g1&~?g0)
-					   (target-register ?d))
-		 =>
-		 (bind ?*TemporaryList* ?*TemporaryList* ?g1))
-
+	 "Identifies WAW and RAW dependencies"
+	 (declare (salience 1))
+	 (stage (current Analysis))
+	 (Instruction ?g0)
+	 (register-ref (parent ?g0)
+		       (type destination)
+		       (target-register ?d))
+	 (register-ref (parent ?g1&~?g0)
+		       (target-register ?d))
+	 =>
+	 (bind ?*TemporaryList*
+	       ?*TemporaryList*
+	       ?g1))
 
 ; This is a generic scheduler and doesn't take special cases into account
 (defrule start-analysis-restart-process
-		 (declare (salience -1))
-		 (stage (current Analysis))
-		 ?f <- (Instruction ?g0)
-		 =>
-		 (retract ?f)
-		 ; commit the dependencies we have found
-		 (send ?g0 inject-consumers ?*TemporaryList*)
-		 (bind ?*TemporaryList*)
-		 (assert (Next (- (send ?g0 get-TimeIndex) 1))))
+	 (declare (salience -2))
+	 (stage (current Analysis))
+	 ?f <- (Instruction ?g0)
+	 (object (is-a Instruction)
+		 (name ?g0)
+		 (TimeIndex ?ti)
+		 (source-registers $?sr))
+	 =>
+	 (progn$ (?s ?sr)
+		 (if (and (neq ?s p0)
+			  (symbolp ?s)) then
+		   (assert (register-ref (type source)
+					 (parent ?g0)
+					 (target-register (translation-table ?s))))))
+	 (retract ?f)
+	 ; commit the dependencies we have found
+	 (send ?g0 
+	       inject-consumers 
+	       ?*TemporaryList*)
+	 (bind ?*TemporaryList*)
+	 (assert (Next (- ?ti 1))))
 
 (defrule try-restart-analysis-process
-		 (declare (salience -2))
-		 (stage (current Analysis))
-		 ?f2 <- (Next ?i)
-		 (object (is-a Instruction)
-				 (TimeIndex ?i)
-				 (InstructionType ~B)
-				 (name ?name))
-		 =>
-		 (retract ?f2)
-		 (assert (Instruction ?name)))
+	 (declare (salience -2))
+	 (stage (current Analysis))
+	 ?f2 <- (Next ?i)
+	 (object (is-a Instruction)
+		 (TimeIndex ?i)
+		 (InstructionType ~B)
+		 (name ?name))
+	 =>
+	 (retract ?f2)
+	 (assert (Instruction ?name)))
 
 (defrule try-restart-analysis-process:branch
-		 (declare (salience -2))
-		 (stage (current Analysis))
-		 ?f2 <- (Next ?i)
-		 (object (is-a Instruction)
-				 (TimeIndex ?i)
-				 (InstructionType B))
-		 =>
-		 (retract ?f2)
-		 (assert (Next (- ?i 1))))
+	 (declare (salience -2))
+	 (stage (current Analysis))
+	 ?f2 <- (Next ?i)
+	 (object (is-a Instruction)
+		 (TimeIndex ?i)
+		 (InstructionType B))
+	 =>
+	 (retract ?f2)
+	 (assert (Next (- ?i 1))))
 
 (defrule finish-analysis-process  
-		 (declare (salience -3))
-		 (stage (current Analysis))
-		 ?f2 <- (Next ?)
-		 =>
-		 (retract ?f2)
-		 ; make sure it is clean
-		 (bind ?*TemporaryList*))
+	 (declare (salience -3))
+	 (stage (current Analysis))
+	 ?f2 <- (Next ?)
+	 =>
+	 (retract ?f2)
+	 ; make sure it is clean
+	 (bind ?*TemporaryList*))
 
 ;------------------------------------------------------------------------------
 ; Scheduling rules
@@ -206,42 +230,34 @@
 ; matching
 ;------------------------------------------------------------------------------
 (defrule determine-scheduability
-		 "An object is able to be scheduled if it has no remaining producers"
-		 (stage (current Schedule))
-		 ?q <- (object (is-a Instruction)
-					   (producer-count 0)
-					   (scheduled FALSE))
-		 =>
-		 (send ?q mark-scheduled) ; this will updated scheduled
-		 (bind ?*TemporaryList* ?*TemporaryList* ?q)
-		 (assert (close block)))
+	 "An object is able to be scheduled if it has no remaining producers"
+	 (stage (current Schedule))
+	 ?q <- (object (is-a Instruction)
+		       (producer-count 0)
+		       (scheduled FALSE)
+		       (print-string ?ps))
+	 =>
+	 (printout t ?ps crlf)
+	 (assert (schedule ?q)))
 
 
-(defrule close-schedule-round
-		 (declare (salience -1))
-		 (stage (current Schedule))
-		 ?f <- (close block)
-		 =>
-		 (retract ?f)
-		 (printout t ";;" crlf)
-		 (assert (update-entries)))
 
 (defrule update-producer-set
-		 (stage (current Schedule-Update))
-		 ?f <- (update-entries)
-		 =>
-		 (retract ?f)
-		 (progn$ (?q ?*TemporaryList*)
-			 (send ?q notify-scheduling))
-		 (bind ?*TemporaryList*)
-		 (assert (Restart Scheduling)))
+	 (stage (current Schedule-Update))
+	 ?f <- (schedule ?q)
+	 =>
+	 (retract ?f)
+	 (send ?q notify-scheduling)
+	 (assert (Restart Scheduling)))
 
 (defrule restart-scheduling
-		 (declare (salience -1))
-		 ?f <- (Restart Scheduling)
-		 ?stg <- (stage (current Schedule-Update) 
-						(rest $?rest))
-		 =>
-		 (retract ?f)
-		 (modify ?stg (current Schedule) 
-				 (rest Schedule-Update $?rest)))
+	 (declare (salience -2))
+	 ?f <- (Restart Scheduling)
+	 ?stg <- (stage (current Schedule-Update) 
+			(rest $?rest))
+	 =>
+	 (printout t ";;" crlf)
+	 (retract ?f)
+	 (modify ?stg 
+		 (current Schedule) 
+		 (rest Schedule-Update $?rest)))
