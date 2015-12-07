@@ -188,13 +188,14 @@
 (defrule determine-scheduability
 	 "An object is able to be scheduled if it has no remaining producers"
 	 (stage (current Schedule))
-	 ?q <- (object (is-a Instruction)
-		       (scheduled FALSE)
-		       (print-string ?ps))
+	 (object (is-a Instruction)
+		 (scheduled FALSE)
+		 (name ?q))
+	 (exists (object (is-a register)
+			 (queue ?q $?)))
+	 (test (send ?q ready-to-schedule))
 	 =>
-	 (if (send ?q ready-to-schedule) then
-	     (printout t ?ps crlf)
-	     (assert (schedule ?q))))
+	 (assert (schedule ?q)))
 
 
 
@@ -204,6 +205,7 @@
 	 =>
 	 (retract ?f)
 	 (send ?q notify-scheduling)
+	 ;(unmake-instance ?q)
 	 (assert (Restart Scheduling)))
 
 (defrule restart-scheduling

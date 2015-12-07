@@ -427,6 +427,7 @@
   (multislot consumers 
 	     (type SYMBOL))
   (slot print-string)
+  (multislot ok)
   (message-handler init after)
   (message-handler ready-to-schedule primary)
   (message-handler inject-consumers primary)
@@ -435,23 +436,23 @@
   (message-handler decrement-producer-count primary))
 (defmessage-handler Instruction ready-to-schedule primary
 		    ()
-		    (progn$ (?a ?self:destination-queues)
+		    (bind ?ia (instance-name ?self))
+		    (progn$ (?a ?self:ok)
 			    (if (neq (send ?a top)
-				     (instance-name ?self)) then
+				     ?ia) then
 			      (return FALSE)))
-		    (progn$ (?a ?self:source-queues)
-			    (if (neq (send ?a top)
-				     (instance-name ?self)) then
-			      (return FALSE)))
-		    (if (and (neq ?self:predicate-queue
-				  [p0]) 
-			     (neq (send ?self:predicate-queue top)
-				  (instance-name ?self))) then
-		      (return FALSE))
 		    TRUE)
 
 (defmessage-handler Instruction init after 
 		    ()
+		    (bind ?self:ok 
+			  ?self:destination-queues
+			  ?self:source-queues
+			  (if (neq ?self:predicate-queue
+				   [p0]) then
+			    ?self:predicate-queue
+			    else
+			    (create$)))
 		    (bind ?self:print-string
 			  (format nil "(%s) %s %s %s" 
 				  ?self:Predicate 
@@ -483,13 +484,8 @@
 (defmessage-handler Instruction notify-scheduling primary
 		    ()
 		    (bind ?self:scheduled TRUE)
-		    (progn$ (?c (create$ ?self:destination-queues
-					 ?self:source-queues
-					 (if (neq ?self:predicate-queue
-						  [p0]) then
-					   ?self:predicate-queue
-					   else
-					   (create$))))
+	     	    (printout t ?self:print-string crlf)
+		    (progn$ (?c ?self:ok)
 			    (send ?c dequeue)))
 
 (defclass Operation 
