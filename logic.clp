@@ -106,32 +106,14 @@
 	 (stage (current Analysis-Entry))
 	 =>
 	 (assert (Next (- (time-length) 1))))
-
-(defrule add-to-queues:destination
+(defrule add-to-queues
 	 (stage (current Analysis))
 	 (Instruction ?g0)
 	 (object (is-a Instruction)
 		 (name ?g0)
-		 (destination-queues $? ?reg&~[p0] $?))
+		 (ok $? ?j $?))
 	 =>
-	 (send ?reg enqueue ?g0))
-
-(defrule add-to-queues:source
-	 (stage (current Analysis))
-	 (Instruction ?g0)
-	 (object (is-a Instruction)
-		 (name ?g0)
-		 (source-queues $? ?reg&~[p0] $?))
-	 =>
-	 (send ?reg enqueue ?g0))
-(defrule add-to-queue:predicate
-	 (stage (current Analysis))
-	 (Instruction ?g0)
-	 (object (is-a Instruction)
-		 (name ?g0)
-		 (predicate-queue ?reg&~[p0]))
-	 =>
-	 (send ?reg enqueue ?g0))
+	 (send ?j push ?g0))
 ; This is a generic scheduler and doesn't take special cases into account
 (defrule start-analysis-restart-process
 	 (declare (salience -2))
@@ -186,11 +168,8 @@
 (defrule determine-scheduability
 	 "An object is able to be scheduled if it has no remaining producers"
 	 (stage (current Schedule))
-	 (object (is-a Instruction)
-		 (scheduled FALSE)
-		 (name ?q))
-	 (exists (object (is-a register)
-			 (queue ?q $?)))
+	 (object (is-a register)
+		 (queue ?q $?))
 	 (test (send ?q ready-to-schedule))
 	 =>
 	 (assert (schedule ?q)))

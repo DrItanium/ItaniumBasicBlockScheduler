@@ -379,7 +379,7 @@
 	      (r127 of register)
 	      (f127 of register))
 
-(defmessage-handler register enqueue primary
+(defmessage-handler register push primary
 		    (?target)
 		    (bind ?self:queue
 			  ?target
@@ -390,7 +390,7 @@
 		      FALSE
 		      else
 		      (nth$ 1 (first$ ?self:queue))))
-(defmessage-handler register dequeue primary
+(defmessage-handler register pop primary
 		    ()
 		    (if (> (length$ ?self:queue) 0) then
 		        (bind ?ret 
@@ -436,10 +436,9 @@
   (message-handler decrement-producer-count primary))
 (defmessage-handler Instruction ready-to-schedule primary
 		    ()
-		    (bind ?ia (instance-name ?self))
 		    (progn$ (?a ?self:ok)
 			    (if (neq (send ?a top)
-				     ?ia) then
+				     (instance-name ?self)) then
 			      (return FALSE)))
 		    TRUE)
 
@@ -486,7 +485,7 @@
 		    (bind ?self:scheduled TRUE)
 	     	    (printout t ?self:print-string crlf)
 		    (progn$ (?c ?self:ok)
-			    (send ?c dequeue)))
+			    (send ?c pop)))
 
 (defclass Operation 
   (is-a USER)
