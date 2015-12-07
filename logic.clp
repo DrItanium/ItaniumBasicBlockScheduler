@@ -173,9 +173,7 @@
 	 (stage (current Analysis))
 	 ?f2 <- (Next ?)
 	 =>
-	 (retract ?f2)
-	 ; make sure it is clean
-	 (bind ?*TemporaryList*))
+	 (retract ?f2))
 
 ;------------------------------------------------------------------------------
 ; Scheduling rules
@@ -205,7 +203,6 @@
 	 =>
 	 (retract ?f)
 	 (send ?q notify-scheduling)
-	 ;(unmake-instance ?q)
 	 (assert (Restart Scheduling)))
 
 (defrule restart-scheduling
