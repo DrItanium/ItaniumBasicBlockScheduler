@@ -149,7 +149,31 @@
 					 (parent ?g0)
 					 (target-register ?d))))))
 
+(defrule add-to-queues:destination
+	 (stage (current Analysis))
+	 (Instruction ?g0)
+	 (object (is-a Instruction)
+		 (name ?g0)
+		 (destination-queues $? ?reg&~[p0] $?))
+	 =>
+	 (send ?reg enqueue ?g0))
 
+(defrule add-to-queues:source
+	 (stage (current Analysis))
+	 (Instruction ?g0)
+	 (object (is-a Instruction)
+		 (name ?g0)
+		 (source-queues $? ?reg&~[p0] $?))
+	 =>
+	 (send ?reg enqueue ?g0))
+(defrule add-to-queue:predicate
+	 (stage (current Analysis))
+	 (Instruction ?g0)
+	 (object (is-a Instruction)
+		 (name ?g0)
+		 (predicate-queue ?reg&~[p0]))
+	 =>
+	 (send ?reg enqueue ?g0))
 (defrule dependency:identify-waw-and-raw
 	 "Identifies WAW and RAW dependencies"
 	 (declare (salience 1))
