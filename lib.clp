@@ -24,8 +24,6 @@
 ; Globals
 ;------------------------------------------------------------------------------
 (defglobal MAIN 
-	   ; Temporary storage for dependency resolution
-	   ?*TemporaryList* = (create$)
 	   ; TIME Index generator
 	   ?*TIME* = 0)
 ;------------------------------------------------------------------------------
@@ -33,8 +31,12 @@
 ;------------------------------------------------------------------------------
 (defclass register
   (is-a USER)
-  (multislot stack))
+  (multislot queue))
 (defgeneric translate-register)
+(defgeneric translate-operation)
+(defmethod translate-operation
+  (?i)
+  UNKNOWN)
 (defmethod translate-register
   (?val)
   ?val)
@@ -379,18 +381,18 @@
 	      (r127 of register)
 	      (f127 of register))
 
-(defmessage-handler register push primary
+(defmessage-handler register enqueue primary
 		    (?target)
-		    (slot-direct-insert$ stack 1 ?target))
-(defmessage-handler register top primary
+		    (slot-direct-insert$ queue (+ (length$ ?self:queue) 1) ?target))
+(defmessage-handler register front primary
 		    ()
-		    (nth$ 1 ?self:stack))
-(defmessage-handler register pop primary
+		    (nth$ 1 ?self:queue))
+(defmessage-handler register dequeue primary
 		    ()
-		    (if (> (length$ ?self:stack) 0) then
+		    (if (> (length$ ?self:queue) 0) then
 		        (bind ?ret 
-			      (nth$ 1 ?self:stack))
-			(slot-direct-delete$ stack 1 1)
+			      (nth$ 1 ?self:queue))
+			(slot-direct-delete$ queue 1 1)
 			?ret))
 
 (defclass Instruction 
@@ -426,13 +428,15 @@
 (defmessage-handler Instruction ready-to-schedule primary
 		    ()
 		    (progn$ (?a ?self:ok)
-			    (if (neq (send ?a top)
+			    (if (neq (send ?a front)
 				     (instance-name ?self)) then
 			      (return FALSE)))
 		    TRUE)
 
 (defmessage-handler Instruction init after 
 		    ()
+		    (bind ?self:InstructionType
+			  (translate-operation ?self:Name))
 		    (bind ?self:ok 
 			  ?self:destination-queues
 			  ?self:source-queues
@@ -441,6 +445,11 @@
 			    ?self:predicate-queue
 			    else
 			    (create$)))
+		    (if (neq ?self:InstructionType B) then
+		      (progn$ (?a ?self:ok)
+			      (send ?a 
+				    enqueue 
+				    (instance-name ?self))))
 		    (bind ?self:print-string
 			  (format nil "(%s) %s %s %s" 
 				  ?self:Predicate 
@@ -459,18 +468,7 @@
 		    (bind ?self:scheduled TRUE)
 	     	    (printout t ?self:print-string crlf)
 		    (progn$ (?c ?self:ok)
-			    (send ?c pop)))
-
-(defclass Operation 
-  (is-a USER)
-  (slot Name   
-	(visibility public) 
-	(type SYMBOL) 
-	(default ?DERIVE))
-  (slot Class  
-	(visibility public) 
-	(type SYMBOL) 
-	(default ?DERIVE)))
+			    (send ?c dequeue)))
 
 
 ;------------------------------------------------------------------------------
@@ -618,25 +616,31 @@
 (defmethod defop 
   "Defines an operation"
   ((?Op LEXEME)
-   (?Type LEXEME))
-  (make-instance of Operation
-		 (Name ?Op)
-		 (Class ?Type)))
-
+   (?Type SYMBOL))
+  (build (format nil 
+		 "(defmethod translate-operation 
+		    ((?op LEXEME (not (neq ?current-argument
+					   %s
+					   \"%s\"))))
+		    %s)"
+		 ?Op
+		 ?Op
+		 ?Type)))
+		     
 
 (defmethod defop-range
-  ((?Type LEXEME)
+  ((?Type SYMBOL)
    (?Ops MULTIFIELD LEXEME))
   (progn$ (?op ?Ops)
 	  (defop ?op ?Type)))
 
 (defmethod defop-range
-  ((?Type LEXEME)
+  ((?Type SYMBOL)
    ($?Ops LEXEME (> (length$ $?Ops) 1)))
   (defop-range ?Type $?Ops))
 
 (defmethod defop-range
-  ((?Type LEXEME)
+  ((?Type SYMBOL)
    (?Op LEXEME))
   (defop ?Op ?Type))
 

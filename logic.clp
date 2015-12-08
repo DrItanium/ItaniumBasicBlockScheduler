@@ -24,9 +24,8 @@
 ; stage rules
 ;------------------------------------------------------------------------------
 (deffacts startup
-	  (stage (current Imbue)
-		 (rest Analysis-Entry
-		       Analysis
+	  (stage (current Analysis-Entry)
+		 (rest Analysis
 		       Schedule
 		       Schedule-Update)))
 
@@ -45,32 +44,10 @@
 ;------------------------------------------------------------------------------
 ; dependency analysis rules
 ;------------------------------------------------------------------------------
-(defrule imbue-op 
-	 "Imbue's the operational type into the given instruction"
-	 (declare (salience 1))
-	 (stage (current Imbue))
-	 (object (is-a Instruction) 
-		 (Name ?oName) 
-		 (name ?gid))
-	 (object (is-a Operation) 
-		 (Name ?oName) 
-		 (Class ?Class))
-	 =>
-	 (modify-instance ?gid 
-			  (InstructionType ?Class)))
-
 (defrule prime-first-instruction
 	 (stage (current Analysis-Entry))
 	 =>
 	 (assert (Next (- (time-length) 1))))
-(defrule add-to-queues
-	 (stage (current Analysis))
-	 (Instruction ?g0)
-	 (object (is-a Instruction)
-		 (name ?g0)
-		 (ok $? ?j $?))
-	 =>
-	 (send ?j push ?g0))
 ; This is a generic scheduler and doesn't take special cases into account
 (defrule start-analysis-restart-process
 	 (declare (salience -2))
@@ -126,7 +103,7 @@
 	 "An object is able to be scheduled if it has no remaining producers"
 	 (stage (current Schedule))
 	 (object (is-a register)
-		 (stack ?q $?))
+		 (queue ?q $?))
 	 (test (send ?q ready-to-schedule))
 	 =>
 	 (assert (schedule (instance-address ?q))))
