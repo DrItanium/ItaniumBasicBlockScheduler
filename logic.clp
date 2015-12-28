@@ -28,7 +28,6 @@
 		 (rest Analysis
 		       Schedule
 		       Schedule-Update)))
-
 (defrule end-stage-generation
 	 (declare (salience -10000))
 	 ?f <- (stage (rest))
@@ -124,7 +123,7 @@
 	 ?stg <- (stage (current Schedule-Update) 
 			(rest $?rest))
 	 =>
-	 (printout t ";;" crlf)
+	 (printout ?*output-router* ";;" crlf)
 	 (retract ?f)
 	 (modify ?stg 
 		 (current Schedule) 
@@ -137,5 +136,5 @@
 		 (name ?branch))
 	 =>
 	 (send ?branch notify-scheduling)
-	 (printout t ";;" crlf))
+	 (printout ?*output-router* ";;" crlf))
 

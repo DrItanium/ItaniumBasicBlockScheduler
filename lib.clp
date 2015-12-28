@@ -25,7 +25,8 @@
 ;------------------------------------------------------------------------------
 (defglobal MAIN 
 	   ; TIME Index generator
-	   ?*TIME* = 0)
+	   ?*TIME* = 0
+	   ?*output-router* = t)
 ;------------------------------------------------------------------------------
 ; Classes
 ;------------------------------------------------------------------------------
@@ -452,7 +453,7 @@
 				    (instance-name ?self))))
 		    (bind ?self:print-string
 			  (format nil "(%s) %s %s %s" 
-				  ?self:Predicate 
+				  ?self:Predicate
 				  ?self:Name 
 				  (implode$ ?self:destination-registers)
 				  (if (= (length$ ?self:source-registers) 0) then
@@ -466,7 +467,7 @@
 (defmessage-handler Instruction notify-scheduling primary
 		    ()
 		    (bind ?self:scheduled TRUE)
-	     	    (printout t ?self:print-string crlf)
+	     	    (printout ?*output-router* ?self:print-string crlf)
 		    (progn$ (?c ?self:ok)
 			    (send ?c dequeue)))
 
@@ -654,109 +655,109 @@
 
 
 (deffunction br 
-	     (?Predicate ?Target)
-	     (make-instruction ?Predicate br ?Target))
+	     (?pred ?target)
+	     (make-instruction ?pred br ?target))
 
 (deffunction br.cond 
-	     (?Predicate ?Target)
-	     (make-instruction ?Predicate br.cond ?Target))
+	     (?pred ?target)
+	     (make-instruction ?pred br.cond ?target))
 
 (deffunction br.few 
-	     (?Predicate ?Target)
-	     (make-instruction ?Predicate br.few ?Target))
+	     (?pred ?target)
+	     (make-instruction ?pred br.few ?target))
 
 (deffunction br.many 
-	     (?Predicate ?Target)
-	     (make-instruction ?Predicate br.many ?Target))
+	     (?pred ?target)
+	     (make-instruction ?pred br.many ?target))
 
 (deffunction br.cond.dptk.few 
-	     (?Predicate ?Target)
-	     (make-instruction ?Predicate br.cond.dptk.few ?Target))
+	     (?pred ?target)
+	     (make-instruction ?pred br.cond.dptk.few ?target))
 
 (deffunction br.cond.dptk.many 
-	     (?Predicate ?Target)
-	     (make-instruction ?Predicate br.cond.dptk.many ?Target))
+	     (?pred ?target)
+	     (make-instruction ?pred br.cond.dptk.many ?target))
 
 (deffunction br.cond.sptk.few 
-	     (?Predicate ?Target)
-	     (make-instruction ?Predicate br.cond.sptk.few ?Target))
+	     (?pred ?target)
+	     (make-instruction ?pred br.cond.sptk.few ?target))
 
 (deffunction br.cond.sptk.many 
-	     (?Predicate ?Target)
-	     (make-instruction ?Predicate br.cond.sptk.many ?Target))
+	     (?pred ?target)
+	     (make-instruction ?pred br.cond.sptk.many ?target))
 
 (deffunction br.ret.dptk.few 
-	     (?Predicate ?Target)
-	     (make-instruction ?Predicate br.ret.dptk.few ?Target))
+	     (?pred ?target)
+	     (make-instruction ?pred br.ret.dptk.few ?target))
 
 (deffunction br.ret.dptk.many 
-	     (?Predicate ?Target)
-	     (make-instruction ?Predicate br.ret.dptk.many ?Target))
+	     (?pred ?target)
+	     (make-instruction ?pred br.ret.dptk.many ?target))
 
 
 (deffunction br.ret.sptk.few 
-	     (?Predicate ?Target)
-	     (make-instruction ?Predicate br.ret.sptk.few ?Target))
+	     (?pred ?target)
+	     (make-instruction ?pred br.ret.sptk.few ?target))
 
 (deffunction br.ret.sptk.many 
-	     (?Predicate ?Target)
-	     (make-instruction ?Predicate br.ret.sptk.many ?Target))
+	     (?pred ?target)
+	     (make-instruction ?pred br.ret.sptk.many ?target))
 
 (deffunction br.call.dptk.few 
-	     (?Predicate ?Target ?Source)
-	     (make-instruction ?Predicate br.call.dptk.few ?Target ?Source))
+	     (?pred ?target ?src)
+	     (make-instruction ?pred br.call.dptk.few ?target ?src))
 
 (deffunction br.call.dptk.many 
-	     (?Predicate ?Target ?Source)
-	     (make-instruction ?Predicate br.call.dptk.many ?Target ?Source))
+	     (?pred ?target ?src)
+	     (make-instruction ?pred br.call.dptk.many ?target ?src))
 
 (deffunction br.call.sptk.few 
-	     (?Predicate ?Target ?Source)
-	     (make-instruction ?Predicate br.call.sptk.few ?Target ?Source))
+	     (?pred ?target ?src)
+	     (make-instruction ?pred br.call.sptk.few ?target ?src))
 
 (deffunction br.call.sptk.many 
-	     (?Predicate ?Target ?Source)
-	     (make-instruction ?Predicate br.call.sptk.many ?Target ?Source))
+	     (?pred ?target ?src)
+	     (make-instruction ?pred br.call.sptk.many ?target ?src))
 
 (deffunction adds 
-	     (?Pred ?Dest ?Source0 ?Source1)
-	     (make-instruction ?Pred adds ?Dest ?Source0 ?Source1))
+	     (?pred ?dest ?src0 ?src1)
+	     (make-instruction ?pred adds ?dest ?src0 ?src1))
 
 (deffunction addl 
-	     (?Pred ?Dest ?Source0 ?Source1)
-	     (make-instruction ?Pred adds ?Dest ?Source0 ?Source1))
+	     (?pred ?dest ?src0 ?src1)
+	     (make-instruction ?pred adds ?dest ?src0 ?src1))
 
 (deffunction add 
-	     (?Pred ?Dest ?Source0 ?Source1)
-	     (make-instruction ?Pred add ?Dest ?Source0 ?Source1))
+	     (?pred ?dest ?src0 ?src1)
+	     (make-instruction ?pred add ?dest ?src0 ?src1))
 
 (deffunction sub 
 	     (?P ?D ?S0 ?S1)
 	     (make-instruction ?P sub ?D ?S0 ?S1))
 
 (deffunction and-inst 
-	     (?Pred ?Dest ?Source0 ?Source1)
-	     (make-instruction ?Pred adds ?Dest ?Source0 ?Source1))
+	     (?pred ?dest ?src0 ?src1)
+	     (make-instruction ?pred adds ?dest ?src0 ?src1))
 
 (deffunction xmpy.l 
-	     (?Pred ?Dest ?Source0 ?Source1)
-	     (make-instruction ?Pred xmpy.l ?Dest ?Source0 ?Source1))
+	     (?pred ?dest ?src0 ?src1)
+	     (make-instruction ?pred xmpy.l ?dest ?src0 ?src1))
 
 (deffunction mov 
-	     (?Pred ?Dest ?Source0)
-	     (make-instruction ?Pred mov ?Dest ?Source0))
+	     (?pred ?dest ?src0)
+	     (make-instruction ?pred mov ?dest ?src0))
 
 (deffunction mov.i 
-	     (?Pred ?Dest ?Source0)
-	     (make-instruction ?Pred mov.i ?Dest ?Source0))
+	     (?pred ?dest ?src0)
+	     (make-instruction ?pred mov.i ?dest ?src0))
 
 (deffunction sxt4 
-	     (?Pred ?Dest ?Source0)
-	     (make-instruction ?Pred sxt4 ?Dest ?Source0))
+	     (?pred ?dest ?src0)
+	     (make-instruction ?pred sxt4 ?dest ?src0))
 
 (deffunction stf.spill 
-	     (?Pred ?Dest ?Source0)
-	     (make-instruction ?Pred stf.spill ?Dest ?Source0))
+	     (?pred ?dest ?src0)
+	     (make-instruction ?pred stf.spill ?dest ?src0))
 
 (deffunction ldfs 
 	     (?P ?D ?S)
@@ -783,25 +784,25 @@
 	     (make-instruction ?P nop.x 0x0))
 
 (deffunction cmp.eq 
-	     (?Predicate ?D0 ?D1 ?S0 ?S1)
-	     (make-instruction ?Predicate cmp.eq ?D0 ?D1 ?S0 ?S1))
+	     (?pred ?D0 ?D1 ?S0 ?S1)
+	     (make-instruction ?pred cmp.eq ?D0 ?D1 ?S0 ?S1))
 (deffunction cmp.lt 
-	     (?Predicate ?D0 ?D1 ?S0 ?S1)
-	     (make-instruction ?Predicate cmp.lt ?D0 ?D1 ?S0 ?S1))
+	     (?pred ?D0 ?D1 ?S0 ?S1)
+	     (make-instruction ?pred cmp.lt ?D0 ?D1 ?S0 ?S1))
 (deffunction cmp.gt 
-	     (?Predicate ?D0 ?D1 ?S0 ?S1)
-	     (make-instruction ?Predicate cmp.gt ?D0 ?D1 ?S0 ?S1))
+	     (?pred ?D0 ?D1 ?S0 ?S1)
+	     (make-instruction ?pred cmp.gt ?D0 ?D1 ?S0 ?S1))
 
 (deffunction cmp4.eq 
-	     (?Predicate ?D0 ?D1 ?S0 ?S1)
-	     (make-instruction ?Predicate cmp4.eq ?D0 ?D1 ?S0 ?S1))
+	     (?pred ?D0 ?D1 ?S0 ?S1)
+	     (make-instruction ?pred cmp4.eq ?D0 ?D1 ?S0 ?S1))
 
 (deffunction cmp4.lt 
-	     (?Predicate ?D0 ?D1 ?S0 ?S1)
-	     (make-instruction ?Predicate cmp4.lt ?D0 ?D1 ?S0 ?S1))
+	     (?pred ?D0 ?D1 ?S0 ?S1)
+	     (make-instruction ?pred cmp4.lt ?D0 ?D1 ?S0 ?S1))
 (deffunction cmp4.gt 
-	     (?Predicate ?D0 ?D1 ?S0 ?S1)
-	     (make-instruction ?Predicate cmp4.gt ?D0 ?D1 ?S0 ?S1))
+	     (?pred ?D0 ?D1 ?S0 ?S1)
+	     (make-instruction ?pred cmp4.gt ?D0 ?D1 ?S0 ?S1))
 
 (deffunction setf.sig 
 	     (?P ?D ?S)
@@ -866,22 +867,9 @@
 	     (batch* ?B))
 
 
-(deffunction analyze 
-	     "Use this function instead of run becase it asserts a specific rule that has to be initiated so that the objects don't start automatically running!"
-	     ()
-	     (run))
-
 ;------------------------------------------------------------------------------
 ; Templates
 ;------------------------------------------------------------------------------
 (deftemplate stage 
 	     (slot current (type SYMBOL))
 	     (multislot rest (type SYMBOL)))
-
-(deftemplate register-ref
-	     (slot type
-		   (default ?NONE))
-	     (slot target-register
-		   (default ?NONE))
-	     (slot parent
-		   (default ?NONE)))
