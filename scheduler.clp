@@ -539,10 +539,10 @@
                  (predicate-queue (translate-register ?predicate))
                  (destination-queues (filter$ instance-and-not-p0
                                               (apply$ translate-register
-                                                    ?destination-registers)))
+                                                      ?destination-registers)))
                  (source-queues (filter$ instance-and-not-p0
                                          (apply$ translate-register
-                                               ?source-registers)))))
+                                                 ?source-registers)))))
 
 (defmethod make-instruction
   ((?predicate SYMBOL)
@@ -803,7 +803,7 @@
              () 
              (reset) 
              (reset-time-index) 
-)
+             )
 
 (deffunction block 
              "Loads a new block from a file" 
@@ -815,2790 +815,2790 @@
 ; Autogen methods
 ;------------------------------------------------------------------------------
 (defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p0
-		 {p0}
-		 "p0"
-		 "{p0}"))))
- [p0])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p1
-		 {p1}
-		 "p1"
-		 "{p1}"))))
- [p1])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p2
-		 {p2}
-		 "p2"
-		 "{p2}"))))
- [p2])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p3
-		 {p3}
-		 "p3"
-		 "{p3}"))))
- [p3])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p4
-		 {p4}
-		 "p4"
-		 "{p4}"))))
- [p4])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p5
-		 {p5}
-		 "p5"
-		 "{p5}"))))
- [p5])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p6
-		 {p6}
-		 "p6"
-		 "{p6}"))))
- [p6])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p7
-		 {p7}
-		 "p7"
-		 "{p7}"))))
- [p7])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p8
-		 {p8}
-		 "p8"
-		 "{p8}"))))
- [p8])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p9
-		 {p9}
-		 "p9"
-		 "{p9}"))))
- [p9])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p10
-		 {p10}
-		 "p10"
-		 "{p10}"))))
- [p10])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p11
-		 {p11}
-		 "p11"
-		 "{p11}"))))
- [p11])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p12
-		 {p12}
-		 "p12"
-		 "{p12}"))))
- [p12])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p13
-		 {p13}
-		 "p13"
-		 "{p13}"))))
- [p13])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p14
-		 {p14}
-		 "p14"
-		 "{p14}"))))
- [p14])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p15
-		 {p15}
-		 "p15"
-		 "{p15}"))))
- [p15])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p16
-		 {p16}
-		 "p16"
-		 "{p16}"))))
- [p16])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p17
-		 {p17}
-		 "p17"
-		 "{p17}"))))
- [p17])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p18
-		 {p18}
-		 "p18"
-		 "{p18}"))))
- [p18])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p19
-		 {p19}
-		 "p19"
-		 "{p19}"))))
- [p19])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p20
-		 {p20}
-		 "p20"
-		 "{p20}"))))
- [p20])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p21
-		 {p21}
-		 "p21"
-		 "{p21}"))))
- [p21])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p22
-		 {p22}
-		 "p22"
-		 "{p22}"))))
- [p22])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p23
-		 {p23}
-		 "p23"
-		 "{p23}"))))
- [p23])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p24
-		 {p24}
-		 "p24"
-		 "{p24}"))))
- [p24])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p25
-		 {p25}
-		 "p25"
-		 "{p25}"))))
- [p25])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p26
-		 {p26}
-		 "p26"
-		 "{p26}"))))
- [p26])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p27
-		 {p27}
-		 "p27"
-		 "{p27}"))))
- [p27])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p28
-		 {p28}
-		 "p28"
-		 "{p28}"))))
- [p28])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p29
-		 {p29}
-		 "p29"
-		 "{p29}"))))
- [p29])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p30
-		 {p30}
-		 "p30"
-		 "{p30}"))))
- [p30])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p31
-		 {p31}
-		 "p31"
-		 "{p31}"))))
- [p31])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p32
-		 {p32}
-		 "p32"
-		 "{p32}"))))
- [p32])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p33
-		 {p33}
-		 "p33"
-		 "{p33}"))))
- [p33])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p34
-		 {p34}
-		 "p34"
-		 "{p34}"))))
- [p34])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p35
-		 {p35}
-		 "p35"
-		 "{p35}"))))
- [p35])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p36
-		 {p36}
-		 "p36"
-		 "{p36}"))))
- [p36])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p37
-		 {p37}
-		 "p37"
-		 "{p37}"))))
- [p37])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p38
-		 {p38}
-		 "p38"
-		 "{p38}"))))
- [p38])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p39
-		 {p39}
-		 "p39"
-		 "{p39}"))))
- [p39])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p40
-		 {p40}
-		 "p40"
-		 "{p40}"))))
- [p40])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p41
-		 {p41}
-		 "p41"
-		 "{p41}"))))
- [p41])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p42
-		 {p42}
-		 "p42"
-		 "{p42}"))))
- [p42])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p43
-		 {p43}
-		 "p43"
-		 "{p43}"))))
- [p43])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p44
-		 {p44}
-		 "p44"
-		 "{p44}"))))
- [p44])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p45
-		 {p45}
-		 "p45"
-		 "{p45}"))))
- [p45])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p46
-		 {p46}
-		 "p46"
-		 "{p46}"))))
- [p46])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p47
-		 {p47}
-		 "p47"
-		 "{p47}"))))
- [p47])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p48
-		 {p48}
-		 "p48"
-		 "{p48}"))))
- [p48])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p49
-		 {p49}
-		 "p49"
-		 "{p49}"))))
- [p49])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p50
-		 {p50}
-		 "p50"
-		 "{p50}"))))
- [p50])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p51
-		 {p51}
-		 "p51"
-		 "{p51}"))))
- [p51])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p52
-		 {p52}
-		 "p52"
-		 "{p52}"))))
- [p52])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p53
-		 {p53}
-		 "p53"
-		 "{p53}"))))
- [p53])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p54
-		 {p54}
-		 "p54"
-		 "{p54}"))))
- [p54])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p55
-		 {p55}
-		 "p55"
-		 "{p55}"))))
- [p55])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p56
-		 {p56}
-		 "p56"
-		 "{p56}"))))
- [p56])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p57
-		 {p57}
-		 "p57"
-		 "{p57}"))))
- [p57])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p58
-		 {p58}
-		 "p58"
-		 "{p58}"))))
- [p58])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p59
-		 {p59}
-		 "p59"
-		 "{p59}"))))
- [p59])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p60
-		 {p60}
-		 "p60"
-		 "{p60}"))))
- [p60])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p61
-		 {p61}
-		 "p61"
-		 "{p61}"))))
- [p61])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p62
-		 {p62}
-		 "p62"
-		 "{p62}"))))
- [p62])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 p63
-		 {p63}
-		 "p63"
-		 "{p63}"))))
- [p63])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r0
-		 {r0}
-		 "r0"
-		 "{r0}"))))
- [r0])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f0
-		 {f0}
-		 "f0"
-		 "{f0}"))))
- [f0])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r1
-		 {r1}
-		 "r1"
-		 "{r1}"))))
- [r1])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f1
-		 {f1}
-		 "f1"
-		 "{f1}"))))
- [f1])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r2
-		 {r2}
-		 "r2"
-		 "{r2}"))))
- [r2])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f2
-		 {f2}
-		 "f2"
-		 "{f2}"))))
- [f2])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r3
-		 {r3}
-		 "r3"
-		 "{r3}"))))
- [r3])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f3
-		 {f3}
-		 "f3"
-		 "{f3}"))))
- [f3])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r4
-		 {r4}
-		 "r4"
-		 "{r4}"))))
- [r4])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f4
-		 {f4}
-		 "f4"
-		 "{f4}"))))
- [f4])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r5
-		 {r5}
-		 "r5"
-		 "{r5}"))))
- [r5])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f5
-		 {f5}
-		 "f5"
-		 "{f5}"))))
- [f5])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r6
-		 {r6}
-		 "r6"
-		 "{r6}"))))
- [r6])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f6
-		 {f6}
-		 "f6"
-		 "{f6}"))))
- [f6])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r7
-		 {r7}
-		 "r7"
-		 "{r7}"))))
- [r7])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f7
-		 {f7}
-		 "f7"
-		 "{f7}"))))
- [f7])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r8
-		 {r8}
-		 "r8"
-		 "{r8}"))))
- [r8])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f8
-		 {f8}
-		 "f8"
-		 "{f8}"))))
- [f8])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r9
-		 {r9}
-		 "r9"
-		 "{r9}"))))
- [r9])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f9
-		 {f9}
-		 "f9"
-		 "{f9}"))))
- [f9])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r10
-		 {r10}
-		 "r10"
-		 "{r10}"))))
- [r10])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f10
-		 {f10}
-		 "f10"
-		 "{f10}"))))
- [f10])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r11
-		 {r11}
-		 "r11"
-		 "{r11}"))))
- [r11])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f11
-		 {f11}
-		 "f11"
-		 "{f11}"))))
- [f11])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r12
-		 {r12}
-		 "r12"
-		 "{r12}"))))
- [r12])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f12
-		 {f12}
-		 "f12"
-		 "{f12}"))))
- [f12])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r13
-		 {r13}
-		 "r13"
-		 "{r13}"))))
- [r13])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f13
-		 {f13}
-		 "f13"
-		 "{f13}"))))
- [f13])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r14
-		 {r14}
-		 "r14"
-		 "{r14}"))))
- [r14])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f14
-		 {f14}
-		 "f14"
-		 "{f14}"))))
- [f14])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r15
-		 {r15}
-		 "r15"
-		 "{r15}"))))
- [r15])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f15
-		 {f15}
-		 "f15"
-		 "{f15}"))))
- [f15])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r16
-		 {r16}
-		 "r16"
-		 "{r16}"))))
- [r16])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f16
-		 {f16}
-		 "f16"
-		 "{f16}"))))
- [f16])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r17
-		 {r17}
-		 "r17"
-		 "{r17}"))))
- [r17])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f17
-		 {f17}
-		 "f17"
-		 "{f17}"))))
- [f17])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r18
-		 {r18}
-		 "r18"
-		 "{r18}"))))
- [r18])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f18
-		 {f18}
-		 "f18"
-		 "{f18}"))))
- [f18])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r19
-		 {r19}
-		 "r19"
-		 "{r19}"))))
- [r19])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f19
-		 {f19}
-		 "f19"
-		 "{f19}"))))
- [f19])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r20
-		 {r20}
-		 "r20"
-		 "{r20}"))))
- [r20])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f20
-		 {f20}
-		 "f20"
-		 "{f20}"))))
- [f20])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r21
-		 {r21}
-		 "r21"
-		 "{r21}"))))
- [r21])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f21
-		 {f21}
-		 "f21"
-		 "{f21}"))))
- [f21])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r22
-		 {r22}
-		 "r22"
-		 "{r22}"))))
- [r22])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f22
-		 {f22}
-		 "f22"
-		 "{f22}"))))
- [f22])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r23
-		 {r23}
-		 "r23"
-		 "{r23}"))))
- [r23])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f23
-		 {f23}
-		 "f23"
-		 "{f23}"))))
- [f23])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r24
-		 {r24}
-		 "r24"
-		 "{r24}"))))
- [r24])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f24
-		 {f24}
-		 "f24"
-		 "{f24}"))))
- [f24])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r25
-		 {r25}
-		 "r25"
-		 "{r25}"))))
- [r25])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f25
-		 {f25}
-		 "f25"
-		 "{f25}"))))
- [f25])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r26
-		 {r26}
-		 "r26"
-		 "{r26}"))))
- [r26])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f26
-		 {f26}
-		 "f26"
-		 "{f26}"))))
- [f26])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r27
-		 {r27}
-		 "r27"
-		 "{r27}"))))
- [r27])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f27
-		 {f27}
-		 "f27"
-		 "{f27}"))))
- [f27])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r28
-		 {r28}
-		 "r28"
-		 "{r28}"))))
- [r28])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f28
-		 {f28}
-		 "f28"
-		 "{f28}"))))
- [f28])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r29
-		 {r29}
-		 "r29"
-		 "{r29}"))))
- [r29])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f29
-		 {f29}
-		 "f29"
-		 "{f29}"))))
- [f29])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r30
-		 {r30}
-		 "r30"
-		 "{r30}"))))
- [r30])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f30
-		 {f30}
-		 "f30"
-		 "{f30}"))))
- [f30])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r31
-		 {r31}
-		 "r31"
-		 "{r31}"))))
- [r31])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f31
-		 {f31}
-		 "f31"
-		 "{f31}"))))
- [f31])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r32
-		 {r32}
-		 "r32"
-		 "{r32}"))))
- [r32])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f32
-		 {f32}
-		 "f32"
-		 "{f32}"))))
- [f32])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r33
-		 {r33}
-		 "r33"
-		 "{r33}"))))
- [r33])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f33
-		 {f33}
-		 "f33"
-		 "{f33}"))))
- [f33])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r34
-		 {r34}
-		 "r34"
-		 "{r34}"))))
- [r34])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f34
-		 {f34}
-		 "f34"
-		 "{f34}"))))
- [f34])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r35
-		 {r35}
-		 "r35"
-		 "{r35}"))))
- [r35])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f35
-		 {f35}
-		 "f35"
-		 "{f35}"))))
- [f35])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r36
-		 {r36}
-		 "r36"
-		 "{r36}"))))
- [r36])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f36
-		 {f36}
-		 "f36"
-		 "{f36}"))))
- [f36])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r37
-		 {r37}
-		 "r37"
-		 "{r37}"))))
- [r37])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f37
-		 {f37}
-		 "f37"
-		 "{f37}"))))
- [f37])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r38
-		 {r38}
-		 "r38"
-		 "{r38}"))))
- [r38])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f38
-		 {f38}
-		 "f38"
-		 "{f38}"))))
- [f38])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r39
-		 {r39}
-		 "r39"
-		 "{r39}"))))
- [r39])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f39
-		 {f39}
-		 "f39"
-		 "{f39}"))))
- [f39])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r40
-		 {r40}
-		 "r40"
-		 "{r40}"))))
- [r40])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f40
-		 {f40}
-		 "f40"
-		 "{f40}"))))
- [f40])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r41
-		 {r41}
-		 "r41"
-		 "{r41}"))))
- [r41])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f41
-		 {f41}
-		 "f41"
-		 "{f41}"))))
- [f41])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r42
-		 {r42}
-		 "r42"
-		 "{r42}"))))
- [r42])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f42
-		 {f42}
-		 "f42"
-		 "{f42}"))))
- [f42])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r43
-		 {r43}
-		 "r43"
-		 "{r43}"))))
- [r43])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f43
-		 {f43}
-		 "f43"
-		 "{f43}"))))
- [f43])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r44
-		 {r44}
-		 "r44"
-		 "{r44}"))))
- [r44])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f44
-		 {f44}
-		 "f44"
-		 "{f44}"))))
- [f44])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r45
-		 {r45}
-		 "r45"
-		 "{r45}"))))
- [r45])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f45
-		 {f45}
-		 "f45"
-		 "{f45}"))))
- [f45])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r46
-		 {r46}
-		 "r46"
-		 "{r46}"))))
- [r46])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f46
-		 {f46}
-		 "f46"
-		 "{f46}"))))
- [f46])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r47
-		 {r47}
-		 "r47"
-		 "{r47}"))))
- [r47])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f47
-		 {f47}
-		 "f47"
-		 "{f47}"))))
- [f47])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r48
-		 {r48}
-		 "r48"
-		 "{r48}"))))
- [r48])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f48
-		 {f48}
-		 "f48"
-		 "{f48}"))))
- [f48])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r49
-		 {r49}
-		 "r49"
-		 "{r49}"))))
- [r49])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f49
-		 {f49}
-		 "f49"
-		 "{f49}"))))
- [f49])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r50
-		 {r50}
-		 "r50"
-		 "{r50}"))))
- [r50])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f50
-		 {f50}
-		 "f50"
-		 "{f50}"))))
- [f50])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r51
-		 {r51}
-		 "r51"
-		 "{r51}"))))
- [r51])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f51
-		 {f51}
-		 "f51"
-		 "{f51}"))))
- [f51])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r52
-		 {r52}
-		 "r52"
-		 "{r52}"))))
- [r52])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f52
-		 {f52}
-		 "f52"
-		 "{f52}"))))
- [f52])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r53
-		 {r53}
-		 "r53"
-		 "{r53}"))))
- [r53])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f53
-		 {f53}
-		 "f53"
-		 "{f53}"))))
- [f53])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r54
-		 {r54}
-		 "r54"
-		 "{r54}"))))
- [r54])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f54
-		 {f54}
-		 "f54"
-		 "{f54}"))))
- [f54])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r55
-		 {r55}
-		 "r55"
-		 "{r55}"))))
- [r55])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f55
-		 {f55}
-		 "f55"
-		 "{f55}"))))
- [f55])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r56
-		 {r56}
-		 "r56"
-		 "{r56}"))))
- [r56])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f56
-		 {f56}
-		 "f56"
-		 "{f56}"))))
- [f56])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r57
-		 {r57}
-		 "r57"
-		 "{r57}"))))
- [r57])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f57
-		 {f57}
-		 "f57"
-		 "{f57}"))))
- [f57])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r58
-		 {r58}
-		 "r58"
-		 "{r58}"))))
- [r58])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f58
-		 {f58}
-		 "f58"
-		 "{f58}"))))
- [f58])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r59
-		 {r59}
-		 "r59"
-		 "{r59}"))))
- [r59])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f59
-		 {f59}
-		 "f59"
-		 "{f59}"))))
- [f59])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r60
-		 {r60}
-		 "r60"
-		 "{r60}"))))
- [r60])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f60
-		 {f60}
-		 "f60"
-		 "{f60}"))))
- [f60])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r61
-		 {r61}
-		 "r61"
-		 "{r61}"))))
- [r61])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f61
-		 {f61}
-		 "f61"
-		 "{f61}"))))
- [f61])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r62
-		 {r62}
-		 "r62"
-		 "{r62}"))))
- [r62])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f62
-		 {f62}
-		 "f62"
-		 "{f62}"))))
- [f62])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r63
-		 {r63}
-		 "r63"
-		 "{r63}"))))
- [r63])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f63
-		 {f63}
-		 "f63"
-		 "{f63}"))))
- [f63])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r64
-		 {r64}
-		 "r64"
-		 "{r64}"))))
- [r64])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f64
-		 {f64}
-		 "f64"
-		 "{f64}"))))
- [f64])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r65
-		 {r65}
-		 "r65"
-		 "{r65}"))))
- [r65])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f65
-		 {f65}
-		 "f65"
-		 "{f65}"))))
- [f65])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r66
-		 {r66}
-		 "r66"
-		 "{r66}"))))
- [r66])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f66
-		 {f66}
-		 "f66"
-		 "{f66}"))))
- [f66])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r67
-		 {r67}
-		 "r67"
-		 "{r67}"))))
- [r67])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f67
-		 {f67}
-		 "f67"
-		 "{f67}"))))
- [f67])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r68
-		 {r68}
-		 "r68"
-		 "{r68}"))))
- [r68])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f68
-		 {f68}
-		 "f68"
-		 "{f68}"))))
- [f68])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r69
-		 {r69}
-		 "r69"
-		 "{r69}"))))
- [r69])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f69
-		 {f69}
-		 "f69"
-		 "{f69}"))))
- [f69])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r70
-		 {r70}
-		 "r70"
-		 "{r70}"))))
- [r70])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f70
-		 {f70}
-		 "f70"
-		 "{f70}"))))
- [f70])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r71
-		 {r71}
-		 "r71"
-		 "{r71}"))))
- [r71])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f71
-		 {f71}
-		 "f71"
-		 "{f71}"))))
- [f71])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r72
-		 {r72}
-		 "r72"
-		 "{r72}"))))
- [r72])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f72
-		 {f72}
-		 "f72"
-		 "{f72}"))))
- [f72])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r73
-		 {r73}
-		 "r73"
-		 "{r73}"))))
- [r73])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f73
-		 {f73}
-		 "f73"
-		 "{f73}"))))
- [f73])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r74
-		 {r74}
-		 "r74"
-		 "{r74}"))))
- [r74])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f74
-		 {f74}
-		 "f74"
-		 "{f74}"))))
- [f74])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r75
-		 {r75}
-		 "r75"
-		 "{r75}"))))
- [r75])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f75
-		 {f75}
-		 "f75"
-		 "{f75}"))))
- [f75])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r76
-		 {r76}
-		 "r76"
-		 "{r76}"))))
- [r76])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f76
-		 {f76}
-		 "f76"
-		 "{f76}"))))
- [f76])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r77
-		 {r77}
-		 "r77"
-		 "{r77}"))))
- [r77])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f77
-		 {f77}
-		 "f77"
-		 "{f77}"))))
- [f77])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r78
-		 {r78}
-		 "r78"
-		 "{r78}"))))
- [r78])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f78
-		 {f78}
-		 "f78"
-		 "{f78}"))))
- [f78])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r79
-		 {r79}
-		 "r79"
-		 "{r79}"))))
- [r79])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f79
-		 {f79}
-		 "f79"
-		 "{f79}"))))
- [f79])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r80
-		 {r80}
-		 "r80"
-		 "{r80}"))))
- [r80])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f80
-		 {f80}
-		 "f80"
-		 "{f80}"))))
- [f80])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r81
-		 {r81}
-		 "r81"
-		 "{r81}"))))
- [r81])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f81
-		 {f81}
-		 "f81"
-		 "{f81}"))))
- [f81])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r82
-		 {r82}
-		 "r82"
-		 "{r82}"))))
- [r82])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f82
-		 {f82}
-		 "f82"
-		 "{f82}"))))
- [f82])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r83
-		 {r83}
-		 "r83"
-		 "{r83}"))))
- [r83])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f83
-		 {f83}
-		 "f83"
-		 "{f83}"))))
- [f83])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r84
-		 {r84}
-		 "r84"
-		 "{r84}"))))
- [r84])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f84
-		 {f84}
-		 "f84"
-		 "{f84}"))))
- [f84])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r85
-		 {r85}
-		 "r85"
-		 "{r85}"))))
- [r85])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f85
-		 {f85}
-		 "f85"
-		 "{f85}"))))
- [f85])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r86
-		 {r86}
-		 "r86"
-		 "{r86}"))))
- [r86])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f86
-		 {f86}
-		 "f86"
-		 "{f86}"))))
- [f86])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r87
-		 {r87}
-		 "r87"
-		 "{r87}"))))
- [r87])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f87
-		 {f87}
-		 "f87"
-		 "{f87}"))))
- [f87])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r88
-		 {r88}
-		 "r88"
-		 "{r88}"))))
- [r88])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f88
-		 {f88}
-		 "f88"
-		 "{f88}"))))
- [f88])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r89
-		 {r89}
-		 "r89"
-		 "{r89}"))))
- [r89])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f89
-		 {f89}
-		 "f89"
-		 "{f89}"))))
- [f89])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r90
-		 {r90}
-		 "r90"
-		 "{r90}"))))
- [r90])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f90
-		 {f90}
-		 "f90"
-		 "{f90}"))))
- [f90])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r91
-		 {r91}
-		 "r91"
-		 "{r91}"))))
- [r91])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f91
-		 {f91}
-		 "f91"
-		 "{f91}"))))
- [f91])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r92
-		 {r92}
-		 "r92"
-		 "{r92}"))))
- [r92])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f92
-		 {f92}
-		 "f92"
-		 "{f92}"))))
- [f92])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r93
-		 {r93}
-		 "r93"
-		 "{r93}"))))
- [r93])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f93
-		 {f93}
-		 "f93"
-		 "{f93}"))))
- [f93])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r94
-		 {r94}
-		 "r94"
-		 "{r94}"))))
- [r94])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f94
-		 {f94}
-		 "f94"
-		 "{f94}"))))
- [f94])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r95
-		 {r95}
-		 "r95"
-		 "{r95}"))))
- [r95])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f95
-		 {f95}
-		 "f95"
-		 "{f95}"))))
- [f95])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r96
-		 {r96}
-		 "r96"
-		 "{r96}"))))
- [r96])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f96
-		 {f96}
-		 "f96"
-		 "{f96}"))))
- [f96])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r97
-		 {r97}
-		 "r97"
-		 "{r97}"))))
- [r97])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f97
-		 {f97}
-		 "f97"
-		 "{f97}"))))
- [f97])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r98
-		 {r98}
-		 "r98"
-		 "{r98}"))))
- [r98])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f98
-		 {f98}
-		 "f98"
-		 "{f98}"))))
- [f98])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r99
-		 {r99}
-		 "r99"
-		 "{r99}"))))
- [r99])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f99
-		 {f99}
-		 "f99"
-		 "{f99}"))))
- [f99])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r100
-		 {r100}
-		 "r100"
-		 "{r100}"))))
- [r100])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f100
-		 {f100}
-		 "f100"
-		 "{f100}"))))
- [f100])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r101
-		 {r101}
-		 "r101"
-		 "{r101}"))))
- [r101])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f101
-		 {f101}
-		 "f101"
-		 "{f101}"))))
- [f101])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r102
-		 {r102}
-		 "r102"
-		 "{r102}"))))
- [r102])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f102
-		 {f102}
-		 "f102"
-		 "{f102}"))))
- [f102])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r103
-		 {r103}
-		 "r103"
-		 "{r103}"))))
- [r103])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f103
-		 {f103}
-		 "f103"
-		 "{f103}"))))
- [f103])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r104
-		 {r104}
-		 "r104"
-		 "{r104}"))))
- [r104])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f104
-		 {f104}
-		 "f104"
-		 "{f104}"))))
- [f104])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r105
-		 {r105}
-		 "r105"
-		 "{r105}"))))
- [r105])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f105
-		 {f105}
-		 "f105"
-		 "{f105}"))))
- [f105])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r106
-		 {r106}
-		 "r106"
-		 "{r106}"))))
- [r106])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f106
-		 {f106}
-		 "f106"
-		 "{f106}"))))
- [f106])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r107
-		 {r107}
-		 "r107"
-		 "{r107}"))))
- [r107])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f107
-		 {f107}
-		 "f107"
-		 "{f107}"))))
- [f107])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r108
-		 {r108}
-		 "r108"
-		 "{r108}"))))
- [r108])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f108
-		 {f108}
-		 "f108"
-		 "{f108}"))))
- [f108])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r109
-		 {r109}
-		 "r109"
-		 "{r109}"))))
- [r109])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f109
-		 {f109}
-		 "f109"
-		 "{f109}"))))
- [f109])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r110
-		 {r110}
-		 "r110"
-		 "{r110}"))))
- [r110])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f110
-		 {f110}
-		 "f110"
-		 "{f110}"))))
- [f110])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r111
-		 {r111}
-		 "r111"
-		 "{r111}"))))
- [r111])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f111
-		 {f111}
-		 "f111"
-		 "{f111}"))))
- [f111])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r112
-		 {r112}
-		 "r112"
-		 "{r112}"))))
- [r112])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f112
-		 {f112}
-		 "f112"
-		 "{f112}"))))
- [f112])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r113
-		 {r113}
-		 "r113"
-		 "{r113}"))))
- [r113])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f113
-		 {f113}
-		 "f113"
-		 "{f113}"))))
- [f113])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r114
-		 {r114}
-		 "r114"
-		 "{r114}"))))
- [r114])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f114
-		 {f114}
-		 "f114"
-		 "{f114}"))))
- [f114])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r115
-		 {r115}
-		 "r115"
-		 "{r115}"))))
- [r115])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f115
-		 {f115}
-		 "f115"
-		 "{f115}"))))
- [f115])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r116
-		 {r116}
-		 "r116"
-		 "{r116}"))))
- [r116])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f116
-		 {f116}
-		 "f116"
-		 "{f116}"))))
- [f116])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r117
-		 {r117}
-		 "r117"
-		 "{r117}"))))
- [r117])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f117
-		 {f117}
-		 "f117"
-		 "{f117}"))))
- [f117])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r118
-		 {r118}
-		 "r118"
-		 "{r118}"))))
- [r118])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f118
-		 {f118}
-		 "f118"
-		 "{f118}"))))
- [f118])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r119
-		 {r119}
-		 "r119"
-		 "{r119}"))))
- [r119])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f119
-		 {f119}
-		 "f119"
-		 "{f119}"))))
- [f119])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r120
-		 {r120}
-		 "r120"
-		 "{r120}"))))
- [r120])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f120
-		 {f120}
-		 "f120"
-		 "{f120}"))))
- [f120])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r121
-		 {r121}
-		 "r121"
-		 "{r121}"))))
- [r121])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f121
-		 {f121}
-		 "f121"
-		 "{f121}"))))
- [f121])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r122
-		 {r122}
-		 "r122"
-		 "{r122}"))))
- [r122])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f122
-		 {f122}
-		 "f122"
-		 "{f122}"))))
- [f122])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r123
-		 {r123}
-		 "r123"
-		 "{r123}"))))
- [r123])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f123
-		 {f123}
-		 "f123"
-		 "{f123}"))))
- [f123])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r124
-		 {r124}
-		 "r124"
-		 "{r124}"))))
- [r124])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f124
-		 {f124}
-		 "f124"
-		 "{f124}"))))
- [f124])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r125
-		 {r125}
-		 "r125"
-		 "{r125}"))))
- [r125])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f125
-		 {f125}
-		 "f125"
-		 "{f125}"))))
- [f125])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r126
-		 {r126}
-		 "r126"
-		 "{r126}"))))
- [r126])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f126
-		 {f126}
-		 "f126"
-		 "{f126}"))))
- [f126])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 r127
-		 {r127}
-		 "r127"
-		 "{r127}"))))
- [r127])
-(defmethod translate-register
- ((?in LEXEME 
-   (not (neq ?current-argument
-		 f127
-		 {f127}
-		 "f127"
-		 "{f127}"))))
- [f127])
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p0
+                  {p0}
+                  "p0"
+                  "{p0}"))))
+  [p0])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p1
+                  {p1}
+                  "p1"
+                  "{p1}"))))
+  [p1])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p2
+                  {p2}
+                  "p2"
+                  "{p2}"))))
+  [p2])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p3
+                  {p3}
+                  "p3"
+                  "{p3}"))))
+  [p3])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p4
+                  {p4}
+                  "p4"
+                  "{p4}"))))
+  [p4])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p5
+                  {p5}
+                  "p5"
+                  "{p5}"))))
+  [p5])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p6
+                  {p6}
+                  "p6"
+                  "{p6}"))))
+  [p6])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p7
+                  {p7}
+                  "p7"
+                  "{p7}"))))
+  [p7])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p8
+                  {p8}
+                  "p8"
+                  "{p8}"))))
+  [p8])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p9
+                  {p9}
+                  "p9"
+                  "{p9}"))))
+  [p9])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p10
+                  {p10}
+                  "p10"
+                  "{p10}"))))
+  [p10])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p11
+                  {p11}
+                  "p11"
+                  "{p11}"))))
+  [p11])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p12
+                  {p12}
+                  "p12"
+                  "{p12}"))))
+  [p12])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p13
+                  {p13}
+                  "p13"
+                  "{p13}"))))
+  [p13])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p14
+                  {p14}
+                  "p14"
+                  "{p14}"))))
+  [p14])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p15
+                  {p15}
+                  "p15"
+                  "{p15}"))))
+  [p15])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p16
+                  {p16}
+                  "p16"
+                  "{p16}"))))
+  [p16])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p17
+                  {p17}
+                  "p17"
+                  "{p17}"))))
+  [p17])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p18
+                  {p18}
+                  "p18"
+                  "{p18}"))))
+  [p18])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p19
+                  {p19}
+                  "p19"
+                  "{p19}"))))
+  [p19])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p20
+                  {p20}
+                  "p20"
+                  "{p20}"))))
+  [p20])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p21
+                  {p21}
+                  "p21"
+                  "{p21}"))))
+  [p21])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p22
+                  {p22}
+                  "p22"
+                  "{p22}"))))
+  [p22])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p23
+                  {p23}
+                  "p23"
+                  "{p23}"))))
+  [p23])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p24
+                  {p24}
+                  "p24"
+                  "{p24}"))))
+  [p24])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p25
+                  {p25}
+                  "p25"
+                  "{p25}"))))
+  [p25])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p26
+                  {p26}
+                  "p26"
+                  "{p26}"))))
+  [p26])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p27
+                  {p27}
+                  "p27"
+                  "{p27}"))))
+  [p27])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p28
+                  {p28}
+                  "p28"
+                  "{p28}"))))
+  [p28])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p29
+                  {p29}
+                  "p29"
+                  "{p29}"))))
+  [p29])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p30
+                  {p30}
+                  "p30"
+                  "{p30}"))))
+  [p30])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p31
+                  {p31}
+                  "p31"
+                  "{p31}"))))
+  [p31])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p32
+                  {p32}
+                  "p32"
+                  "{p32}"))))
+  [p32])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p33
+                  {p33}
+                  "p33"
+                  "{p33}"))))
+  [p33])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p34
+                  {p34}
+                  "p34"
+                  "{p34}"))))
+  [p34])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p35
+                  {p35}
+                  "p35"
+                  "{p35}"))))
+  [p35])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p36
+                  {p36}
+                  "p36"
+                  "{p36}"))))
+  [p36])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p37
+                  {p37}
+                  "p37"
+                  "{p37}"))))
+  [p37])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p38
+                  {p38}
+                  "p38"
+                  "{p38}"))))
+  [p38])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p39
+                  {p39}
+                  "p39"
+                  "{p39}"))))
+  [p39])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p40
+                  {p40}
+                  "p40"
+                  "{p40}"))))
+  [p40])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p41
+                  {p41}
+                  "p41"
+                  "{p41}"))))
+  [p41])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p42
+                  {p42}
+                  "p42"
+                  "{p42}"))))
+  [p42])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p43
+                  {p43}
+                  "p43"
+                  "{p43}"))))
+  [p43])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p44
+                  {p44}
+                  "p44"
+                  "{p44}"))))
+  [p44])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p45
+                  {p45}
+                  "p45"
+                  "{p45}"))))
+  [p45])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p46
+                  {p46}
+                  "p46"
+                  "{p46}"))))
+  [p46])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p47
+                  {p47}
+                  "p47"
+                  "{p47}"))))
+  [p47])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p48
+                  {p48}
+                  "p48"
+                  "{p48}"))))
+  [p48])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p49
+                  {p49}
+                  "p49"
+                  "{p49}"))))
+  [p49])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p50
+                  {p50}
+                  "p50"
+                  "{p50}"))))
+  [p50])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p51
+                  {p51}
+                  "p51"
+                  "{p51}"))))
+  [p51])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p52
+                  {p52}
+                  "p52"
+                  "{p52}"))))
+  [p52])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p53
+                  {p53}
+                  "p53"
+                  "{p53}"))))
+  [p53])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p54
+                  {p54}
+                  "p54"
+                  "{p54}"))))
+  [p54])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p55
+                  {p55}
+                  "p55"
+                  "{p55}"))))
+  [p55])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p56
+                  {p56}
+                  "p56"
+                  "{p56}"))))
+  [p56])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p57
+                  {p57}
+                  "p57"
+                  "{p57}"))))
+  [p57])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p58
+                  {p58}
+                  "p58"
+                  "{p58}"))))
+  [p58])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p59
+                  {p59}
+                  "p59"
+                  "{p59}"))))
+  [p59])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p60
+                  {p60}
+                  "p60"
+                  "{p60}"))))
+  [p60])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p61
+                  {p61}
+                  "p61"
+                  "{p61}"))))
+  [p61])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p62
+                  {p62}
+                  "p62"
+                  "{p62}"))))
+  [p62])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  p63
+                  {p63}
+                  "p63"
+                  "{p63}"))))
+  [p63])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r0
+                  {r0}
+                  "r0"
+                  "{r0}"))))
+  [r0])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f0
+                  {f0}
+                  "f0"
+                  "{f0}"))))
+  [f0])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r1
+                  {r1}
+                  "r1"
+                  "{r1}"))))
+  [r1])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f1
+                  {f1}
+                  "f1"
+                  "{f1}"))))
+  [f1])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r2
+                  {r2}
+                  "r2"
+                  "{r2}"))))
+  [r2])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f2
+                  {f2}
+                  "f2"
+                  "{f2}"))))
+  [f2])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r3
+                  {r3}
+                  "r3"
+                  "{r3}"))))
+  [r3])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f3
+                  {f3}
+                  "f3"
+                  "{f3}"))))
+  [f3])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r4
+                  {r4}
+                  "r4"
+                  "{r4}"))))
+  [r4])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f4
+                  {f4}
+                  "f4"
+                  "{f4}"))))
+  [f4])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r5
+                  {r5}
+                  "r5"
+                  "{r5}"))))
+  [r5])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f5
+                  {f5}
+                  "f5"
+                  "{f5}"))))
+  [f5])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r6
+                  {r6}
+                  "r6"
+                  "{r6}"))))
+  [r6])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f6
+                  {f6}
+                  "f6"
+                  "{f6}"))))
+  [f6])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r7
+                  {r7}
+                  "r7"
+                  "{r7}"))))
+  [r7])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f7
+                  {f7}
+                  "f7"
+                  "{f7}"))))
+  [f7])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r8
+                  {r8}
+                  "r8"
+                  "{r8}"))))
+  [r8])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f8
+                  {f8}
+                  "f8"
+                  "{f8}"))))
+  [f8])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r9
+                  {r9}
+                  "r9"
+                  "{r9}"))))
+  [r9])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f9
+                  {f9}
+                  "f9"
+                  "{f9}"))))
+  [f9])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r10
+                  {r10}
+                  "r10"
+                  "{r10}"))))
+  [r10])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f10
+                  {f10}
+                  "f10"
+                  "{f10}"))))
+  [f10])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r11
+                  {r11}
+                  "r11"
+                  "{r11}"))))
+  [r11])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f11
+                  {f11}
+                  "f11"
+                  "{f11}"))))
+  [f11])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r12
+                  {r12}
+                  "r12"
+                  "{r12}"))))
+  [r12])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f12
+                  {f12}
+                  "f12"
+                  "{f12}"))))
+  [f12])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r13
+                  {r13}
+                  "r13"
+                  "{r13}"))))
+  [r13])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f13
+                  {f13}
+                  "f13"
+                  "{f13}"))))
+  [f13])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r14
+                  {r14}
+                  "r14"
+                  "{r14}"))))
+  [r14])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f14
+                  {f14}
+                  "f14"
+                  "{f14}"))))
+  [f14])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r15
+                  {r15}
+                  "r15"
+                  "{r15}"))))
+  [r15])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f15
+                  {f15}
+                  "f15"
+                  "{f15}"))))
+  [f15])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r16
+                  {r16}
+                  "r16"
+                  "{r16}"))))
+  [r16])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f16
+                  {f16}
+                  "f16"
+                  "{f16}"))))
+  [f16])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r17
+                  {r17}
+                  "r17"
+                  "{r17}"))))
+  [r17])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f17
+                  {f17}
+                  "f17"
+                  "{f17}"))))
+  [f17])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r18
+                  {r18}
+                  "r18"
+                  "{r18}"))))
+  [r18])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f18
+                  {f18}
+                  "f18"
+                  "{f18}"))))
+  [f18])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r19
+                  {r19}
+                  "r19"
+                  "{r19}"))))
+  [r19])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f19
+                  {f19}
+                  "f19"
+                  "{f19}"))))
+  [f19])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r20
+                  {r20}
+                  "r20"
+                  "{r20}"))))
+  [r20])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f20
+                  {f20}
+                  "f20"
+                  "{f20}"))))
+  [f20])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r21
+                  {r21}
+                  "r21"
+                  "{r21}"))))
+  [r21])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f21
+                  {f21}
+                  "f21"
+                  "{f21}"))))
+  [f21])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r22
+                  {r22}
+                  "r22"
+                  "{r22}"))))
+  [r22])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f22
+                  {f22}
+                  "f22"
+                  "{f22}"))))
+  [f22])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r23
+                  {r23}
+                  "r23"
+                  "{r23}"))))
+  [r23])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f23
+                  {f23}
+                  "f23"
+                  "{f23}"))))
+  [f23])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r24
+                  {r24}
+                  "r24"
+                  "{r24}"))))
+  [r24])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f24
+                  {f24}
+                  "f24"
+                  "{f24}"))))
+  [f24])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r25
+                  {r25}
+                  "r25"
+                  "{r25}"))))
+  [r25])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f25
+                  {f25}
+                  "f25"
+                  "{f25}"))))
+  [f25])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r26
+                  {r26}
+                  "r26"
+                  "{r26}"))))
+  [r26])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f26
+                  {f26}
+                  "f26"
+                  "{f26}"))))
+  [f26])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r27
+                  {r27}
+                  "r27"
+                  "{r27}"))))
+  [r27])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f27
+                  {f27}
+                  "f27"
+                  "{f27}"))))
+  [f27])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r28
+                  {r28}
+                  "r28"
+                  "{r28}"))))
+  [r28])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f28
+                  {f28}
+                  "f28"
+                  "{f28}"))))
+  [f28])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r29
+                  {r29}
+                  "r29"
+                  "{r29}"))))
+  [r29])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f29
+                  {f29}
+                  "f29"
+                  "{f29}"))))
+  [f29])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r30
+                  {r30}
+                  "r30"
+                  "{r30}"))))
+  [r30])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f30
+                  {f30}
+                  "f30"
+                  "{f30}"))))
+  [f30])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r31
+                  {r31}
+                  "r31"
+                  "{r31}"))))
+  [r31])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f31
+                  {f31}
+                  "f31"
+                  "{f31}"))))
+  [f31])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r32
+                  {r32}
+                  "r32"
+                  "{r32}"))))
+  [r32])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f32
+                  {f32}
+                  "f32"
+                  "{f32}"))))
+  [f32])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r33
+                  {r33}
+                  "r33"
+                  "{r33}"))))
+  [r33])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f33
+                  {f33}
+                  "f33"
+                  "{f33}"))))
+  [f33])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r34
+                  {r34}
+                  "r34"
+                  "{r34}"))))
+  [r34])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f34
+                  {f34}
+                  "f34"
+                  "{f34}"))))
+  [f34])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r35
+                  {r35}
+                  "r35"
+                  "{r35}"))))
+  [r35])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f35
+                  {f35}
+                  "f35"
+                  "{f35}"))))
+  [f35])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r36
+                  {r36}
+                  "r36"
+                  "{r36}"))))
+  [r36])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f36
+                  {f36}
+                  "f36"
+                  "{f36}"))))
+  [f36])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r37
+                  {r37}
+                  "r37"
+                  "{r37}"))))
+  [r37])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f37
+                  {f37}
+                  "f37"
+                  "{f37}"))))
+  [f37])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r38
+                  {r38}
+                  "r38"
+                  "{r38}"))))
+  [r38])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f38
+                  {f38}
+                  "f38"
+                  "{f38}"))))
+  [f38])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r39
+                  {r39}
+                  "r39"
+                  "{r39}"))))
+  [r39])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f39
+                  {f39}
+                  "f39"
+                  "{f39}"))))
+  [f39])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r40
+                  {r40}
+                  "r40"
+                  "{r40}"))))
+  [r40])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f40
+                  {f40}
+                  "f40"
+                  "{f40}"))))
+  [f40])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r41
+                  {r41}
+                  "r41"
+                  "{r41}"))))
+  [r41])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f41
+                  {f41}
+                  "f41"
+                  "{f41}"))))
+  [f41])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r42
+                  {r42}
+                  "r42"
+                  "{r42}"))))
+  [r42])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f42
+                  {f42}
+                  "f42"
+                  "{f42}"))))
+  [f42])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r43
+                  {r43}
+                  "r43"
+                  "{r43}"))))
+  [r43])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f43
+                  {f43}
+                  "f43"
+                  "{f43}"))))
+  [f43])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r44
+                  {r44}
+                  "r44"
+                  "{r44}"))))
+  [r44])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f44
+                  {f44}
+                  "f44"
+                  "{f44}"))))
+  [f44])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r45
+                  {r45}
+                  "r45"
+                  "{r45}"))))
+  [r45])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f45
+                  {f45}
+                  "f45"
+                  "{f45}"))))
+  [f45])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r46
+                  {r46}
+                  "r46"
+                  "{r46}"))))
+  [r46])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f46
+                  {f46}
+                  "f46"
+                  "{f46}"))))
+  [f46])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r47
+                  {r47}
+                  "r47"
+                  "{r47}"))))
+  [r47])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f47
+                  {f47}
+                  "f47"
+                  "{f47}"))))
+  [f47])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r48
+                  {r48}
+                  "r48"
+                  "{r48}"))))
+  [r48])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f48
+                  {f48}
+                  "f48"
+                  "{f48}"))))
+  [f48])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r49
+                  {r49}
+                  "r49"
+                  "{r49}"))))
+  [r49])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f49
+                  {f49}
+                  "f49"
+                  "{f49}"))))
+  [f49])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r50
+                  {r50}
+                  "r50"
+                  "{r50}"))))
+  [r50])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f50
+                  {f50}
+                  "f50"
+                  "{f50}"))))
+  [f50])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r51
+                  {r51}
+                  "r51"
+                  "{r51}"))))
+  [r51])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f51
+                  {f51}
+                  "f51"
+                  "{f51}"))))
+  [f51])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r52
+                  {r52}
+                  "r52"
+                  "{r52}"))))
+  [r52])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f52
+                  {f52}
+                  "f52"
+                  "{f52}"))))
+  [f52])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r53
+                  {r53}
+                  "r53"
+                  "{r53}"))))
+  [r53])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f53
+                  {f53}
+                  "f53"
+                  "{f53}"))))
+  [f53])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r54
+                  {r54}
+                  "r54"
+                  "{r54}"))))
+  [r54])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f54
+                  {f54}
+                  "f54"
+                  "{f54}"))))
+  [f54])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r55
+                  {r55}
+                  "r55"
+                  "{r55}"))))
+  [r55])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f55
+                  {f55}
+                  "f55"
+                  "{f55}"))))
+  [f55])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r56
+                  {r56}
+                  "r56"
+                  "{r56}"))))
+  [r56])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f56
+                  {f56}
+                  "f56"
+                  "{f56}"))))
+  [f56])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r57
+                  {r57}
+                  "r57"
+                  "{r57}"))))
+  [r57])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f57
+                  {f57}
+                  "f57"
+                  "{f57}"))))
+  [f57])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r58
+                  {r58}
+                  "r58"
+                  "{r58}"))))
+  [r58])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f58
+                  {f58}
+                  "f58"
+                  "{f58}"))))
+  [f58])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r59
+                  {r59}
+                  "r59"
+                  "{r59}"))))
+  [r59])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f59
+                  {f59}
+                  "f59"
+                  "{f59}"))))
+  [f59])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r60
+                  {r60}
+                  "r60"
+                  "{r60}"))))
+  [r60])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f60
+                  {f60}
+                  "f60"
+                  "{f60}"))))
+  [f60])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r61
+                  {r61}
+                  "r61"
+                  "{r61}"))))
+  [r61])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f61
+                  {f61}
+                  "f61"
+                  "{f61}"))))
+  [f61])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r62
+                  {r62}
+                  "r62"
+                  "{r62}"))))
+  [r62])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f62
+                  {f62}
+                  "f62"
+                  "{f62}"))))
+  [f62])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r63
+                  {r63}
+                  "r63"
+                  "{r63}"))))
+  [r63])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f63
+                  {f63}
+                  "f63"
+                  "{f63}"))))
+  [f63])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r64
+                  {r64}
+                  "r64"
+                  "{r64}"))))
+  [r64])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f64
+                  {f64}
+                  "f64"
+                  "{f64}"))))
+  [f64])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r65
+                  {r65}
+                  "r65"
+                  "{r65}"))))
+  [r65])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f65
+                  {f65}
+                  "f65"
+                  "{f65}"))))
+  [f65])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r66
+                  {r66}
+                  "r66"
+                  "{r66}"))))
+  [r66])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f66
+                  {f66}
+                  "f66"
+                  "{f66}"))))
+  [f66])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r67
+                  {r67}
+                  "r67"
+                  "{r67}"))))
+  [r67])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f67
+                  {f67}
+                  "f67"
+                  "{f67}"))))
+  [f67])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r68
+                  {r68}
+                  "r68"
+                  "{r68}"))))
+  [r68])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f68
+                  {f68}
+                  "f68"
+                  "{f68}"))))
+  [f68])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r69
+                  {r69}
+                  "r69"
+                  "{r69}"))))
+  [r69])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f69
+                  {f69}
+                  "f69"
+                  "{f69}"))))
+  [f69])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r70
+                  {r70}
+                  "r70"
+                  "{r70}"))))
+  [r70])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f70
+                  {f70}
+                  "f70"
+                  "{f70}"))))
+  [f70])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r71
+                  {r71}
+                  "r71"
+                  "{r71}"))))
+  [r71])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f71
+                  {f71}
+                  "f71"
+                  "{f71}"))))
+  [f71])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r72
+                  {r72}
+                  "r72"
+                  "{r72}"))))
+  [r72])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f72
+                  {f72}
+                  "f72"
+                  "{f72}"))))
+  [f72])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r73
+                  {r73}
+                  "r73"
+                  "{r73}"))))
+  [r73])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f73
+                  {f73}
+                  "f73"
+                  "{f73}"))))
+  [f73])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r74
+                  {r74}
+                  "r74"
+                  "{r74}"))))
+  [r74])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f74
+                  {f74}
+                  "f74"
+                  "{f74}"))))
+  [f74])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r75
+                  {r75}
+                  "r75"
+                  "{r75}"))))
+  [r75])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f75
+                  {f75}
+                  "f75"
+                  "{f75}"))))
+  [f75])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r76
+                  {r76}
+                  "r76"
+                  "{r76}"))))
+  [r76])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f76
+                  {f76}
+                  "f76"
+                  "{f76}"))))
+  [f76])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r77
+                  {r77}
+                  "r77"
+                  "{r77}"))))
+  [r77])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f77
+                  {f77}
+                  "f77"
+                  "{f77}"))))
+  [f77])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r78
+                  {r78}
+                  "r78"
+                  "{r78}"))))
+  [r78])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f78
+                  {f78}
+                  "f78"
+                  "{f78}"))))
+  [f78])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r79
+                  {r79}
+                  "r79"
+                  "{r79}"))))
+  [r79])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f79
+                  {f79}
+                  "f79"
+                  "{f79}"))))
+  [f79])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r80
+                  {r80}
+                  "r80"
+                  "{r80}"))))
+  [r80])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f80
+                  {f80}
+                  "f80"
+                  "{f80}"))))
+  [f80])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r81
+                  {r81}
+                  "r81"
+                  "{r81}"))))
+  [r81])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f81
+                  {f81}
+                  "f81"
+                  "{f81}"))))
+  [f81])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r82
+                  {r82}
+                  "r82"
+                  "{r82}"))))
+  [r82])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f82
+                  {f82}
+                  "f82"
+                  "{f82}"))))
+  [f82])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r83
+                  {r83}
+                  "r83"
+                  "{r83}"))))
+  [r83])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f83
+                  {f83}
+                  "f83"
+                  "{f83}"))))
+  [f83])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r84
+                  {r84}
+                  "r84"
+                  "{r84}"))))
+  [r84])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f84
+                  {f84}
+                  "f84"
+                  "{f84}"))))
+  [f84])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r85
+                  {r85}
+                  "r85"
+                  "{r85}"))))
+  [r85])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f85
+                  {f85}
+                  "f85"
+                  "{f85}"))))
+  [f85])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r86
+                  {r86}
+                  "r86"
+                  "{r86}"))))
+  [r86])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f86
+                  {f86}
+                  "f86"
+                  "{f86}"))))
+  [f86])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r87
+                  {r87}
+                  "r87"
+                  "{r87}"))))
+  [r87])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f87
+                  {f87}
+                  "f87"
+                  "{f87}"))))
+  [f87])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r88
+                  {r88}
+                  "r88"
+                  "{r88}"))))
+  [r88])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f88
+                  {f88}
+                  "f88"
+                  "{f88}"))))
+  [f88])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r89
+                  {r89}
+                  "r89"
+                  "{r89}"))))
+  [r89])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f89
+                  {f89}
+                  "f89"
+                  "{f89}"))))
+  [f89])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r90
+                  {r90}
+                  "r90"
+                  "{r90}"))))
+  [r90])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f90
+                  {f90}
+                  "f90"
+                  "{f90}"))))
+  [f90])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r91
+                  {r91}
+                  "r91"
+                  "{r91}"))))
+  [r91])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f91
+                  {f91}
+                  "f91"
+                  "{f91}"))))
+  [f91])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r92
+                  {r92}
+                  "r92"
+                  "{r92}"))))
+  [r92])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f92
+                  {f92}
+                  "f92"
+                  "{f92}"))))
+  [f92])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r93
+                  {r93}
+                  "r93"
+                  "{r93}"))))
+  [r93])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f93
+                  {f93}
+                  "f93"
+                  "{f93}"))))
+  [f93])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r94
+                  {r94}
+                  "r94"
+                  "{r94}"))))
+  [r94])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f94
+                  {f94}
+                  "f94"
+                  "{f94}"))))
+  [f94])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r95
+                  {r95}
+                  "r95"
+                  "{r95}"))))
+  [r95])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f95
+                  {f95}
+                  "f95"
+                  "{f95}"))))
+  [f95])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r96
+                  {r96}
+                  "r96"
+                  "{r96}"))))
+  [r96])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f96
+                  {f96}
+                  "f96"
+                  "{f96}"))))
+  [f96])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r97
+                  {r97}
+                  "r97"
+                  "{r97}"))))
+  [r97])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f97
+                  {f97}
+                  "f97"
+                  "{f97}"))))
+  [f97])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r98
+                  {r98}
+                  "r98"
+                  "{r98}"))))
+  [r98])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f98
+                  {f98}
+                  "f98"
+                  "{f98}"))))
+  [f98])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r99
+                  {r99}
+                  "r99"
+                  "{r99}"))))
+  [r99])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f99
+                  {f99}
+                  "f99"
+                  "{f99}"))))
+  [f99])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r100
+                  {r100}
+                  "r100"
+                  "{r100}"))))
+  [r100])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f100
+                  {f100}
+                  "f100"
+                  "{f100}"))))
+  [f100])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r101
+                  {r101}
+                  "r101"
+                  "{r101}"))))
+  [r101])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f101
+                  {f101}
+                  "f101"
+                  "{f101}"))))
+  [f101])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r102
+                  {r102}
+                  "r102"
+                  "{r102}"))))
+  [r102])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f102
+                  {f102}
+                  "f102"
+                  "{f102}"))))
+  [f102])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r103
+                  {r103}
+                  "r103"
+                  "{r103}"))))
+  [r103])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f103
+                  {f103}
+                  "f103"
+                  "{f103}"))))
+  [f103])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r104
+                  {r104}
+                  "r104"
+                  "{r104}"))))
+  [r104])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f104
+                  {f104}
+                  "f104"
+                  "{f104}"))))
+  [f104])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r105
+                  {r105}
+                  "r105"
+                  "{r105}"))))
+  [r105])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f105
+                  {f105}
+                  "f105"
+                  "{f105}"))))
+  [f105])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r106
+                  {r106}
+                  "r106"
+                  "{r106}"))))
+  [r106])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f106
+                  {f106}
+                  "f106"
+                  "{f106}"))))
+  [f106])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r107
+                  {r107}
+                  "r107"
+                  "{r107}"))))
+  [r107])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f107
+                  {f107}
+                  "f107"
+                  "{f107}"))))
+  [f107])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r108
+                  {r108}
+                  "r108"
+                  "{r108}"))))
+  [r108])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f108
+                  {f108}
+                  "f108"
+                  "{f108}"))))
+  [f108])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r109
+                  {r109}
+                  "r109"
+                  "{r109}"))))
+  [r109])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f109
+                  {f109}
+                  "f109"
+                  "{f109}"))))
+  [f109])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r110
+                  {r110}
+                  "r110"
+                  "{r110}"))))
+  [r110])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f110
+                  {f110}
+                  "f110"
+                  "{f110}"))))
+  [f110])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r111
+                  {r111}
+                  "r111"
+                  "{r111}"))))
+  [r111])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f111
+                  {f111}
+                  "f111"
+                  "{f111}"))))
+  [f111])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r112
+                  {r112}
+                  "r112"
+                  "{r112}"))))
+  [r112])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f112
+                  {f112}
+                  "f112"
+                  "{f112}"))))
+  [f112])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r113
+                  {r113}
+                  "r113"
+                  "{r113}"))))
+  [r113])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f113
+                  {f113}
+                  "f113"
+                  "{f113}"))))
+  [f113])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r114
+                  {r114}
+                  "r114"
+                  "{r114}"))))
+  [r114])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f114
+                  {f114}
+                  "f114"
+                  "{f114}"))))
+  [f114])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r115
+                  {r115}
+                  "r115"
+                  "{r115}"))))
+  [r115])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f115
+                  {f115}
+                  "f115"
+                  "{f115}"))))
+  [f115])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r116
+                  {r116}
+                  "r116"
+                  "{r116}"))))
+  [r116])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f116
+                  {f116}
+                  "f116"
+                  "{f116}"))))
+  [f116])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r117
+                  {r117}
+                  "r117"
+                  "{r117}"))))
+  [r117])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f117
+                  {f117}
+                  "f117"
+                  "{f117}"))))
+  [f117])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r118
+                  {r118}
+                  "r118"
+                  "{r118}"))))
+  [r118])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f118
+                  {f118}
+                  "f118"
+                  "{f118}"))))
+  [f118])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r119
+                  {r119}
+                  "r119"
+                  "{r119}"))))
+  [r119])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f119
+                  {f119}
+                  "f119"
+                  "{f119}"))))
+  [f119])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r120
+                  {r120}
+                  "r120"
+                  "{r120}"))))
+  [r120])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f120
+                  {f120}
+                  "f120"
+                  "{f120}"))))
+  [f120])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r121
+                  {r121}
+                  "r121"
+                  "{r121}"))))
+  [r121])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f121
+                  {f121}
+                  "f121"
+                  "{f121}"))))
+  [f121])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r122
+                  {r122}
+                  "r122"
+                  "{r122}"))))
+  [r122])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f122
+                  {f122}
+                  "f122"
+                  "{f122}"))))
+  [f122])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r123
+                  {r123}
+                  "r123"
+                  "{r123}"))))
+  [r123])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f123
+                  {f123}
+                  "f123"
+                  "{f123}"))))
+  [f123])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r124
+                  {r124}
+                  "r124"
+                  "{r124}"))))
+  [r124])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f124
+                  {f124}
+                  "f124"
+                  "{f124}"))))
+  [f124])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r125
+                  {r125}
+                  "r125"
+                  "{r125}"))))
+  [r125])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f125
+                  {f125}
+                  "f125"
+                  "{f125}"))))
+  [f125])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r126
+                  {r126}
+                  "r126"
+                  "{r126}"))))
+  [r126])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f126
+                  {f126}
+                  "f126"
+                  "{f126}"))))
+  [f126])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  r127
+                  {r127}
+                  "r127"
+                  "{r127}"))))
+  [r127])
+(defmethod translate-register
+  ((?in LEXEME 
+        (not (neq ?current-argument
+                  f127
+                  {f127}
+                  "f127"
+                  "{f127}"))))
+  [f127])
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					and
-					"and"))))
- A)
+  ((?op LEXEME (not (neq ?current-argument
+                         and
+                         "and"))))
+  A)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					or
-					"or"))))
- A)
+  ((?op LEXEME (not (neq ?current-argument
+                         or
+                         "or"))))
+  A)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					nop.a
-					"nop.a"))))
- A)
+  ((?op LEXEME (not (neq ?current-argument
+                         nop.a
+                         "nop.a"))))
+  A)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					add
-					"add"))))
- A)
+  ((?op LEXEME (not (neq ?current-argument
+                         add
+                         "add"))))
+  A)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					mul
-					"mul"))))
- I)
+  ((?op LEXEME (not (neq ?current-argument
+                         mul
+                         "mul"))))
+  I)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					sub
-					"sub"))))
- I)
+  ((?op LEXEME (not (neq ?current-argument
+                         sub
+                         "sub"))))
+  I)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					cmp
-					"cmp"))))
- I)
+  ((?op LEXEME (not (neq ?current-argument
+                         cmp
+                         "cmp"))))
+  I)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					cmp.eq
-					"cmp.eq"))))
- I)
+  ((?op LEXEME (not (neq ?current-argument
+                         cmp.eq
+                         "cmp.eq"))))
+  I)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					cmp.gt
-					"cmp.gt"))))
- I)
+  ((?op LEXEME (not (neq ?current-argument
+                         cmp.gt
+                         "cmp.gt"))))
+  I)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					cmp.lt
-					"cmp.lt"))))
- I)
+  ((?op LEXEME (not (neq ?current-argument
+                         cmp.lt
+                         "cmp.lt"))))
+  I)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					cmp.neq
-					"cmp.neq"))))
- I)
+  ((?op LEXEME (not (neq ?current-argument
+                         cmp.neq
+                         "cmp.neq"))))
+  I)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					div
-					"div"))))
- I)
+  ((?op LEXEME (not (neq ?current-argument
+                         div
+                         "div"))))
+  I)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					shl
-					"shl"))))
- I)
+  ((?op LEXEME (not (neq ?current-argument
+                         shl
+                         "shl"))))
+  I)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					shr
-					"shr"))))
- I)
+  ((?op LEXEME (not (neq ?current-argument
+                         shr
+                         "shr"))))
+  I)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					sxt4
-					"sxt4"))))
- I)
+  ((?op LEXEME (not (neq ?current-argument
+                         sxt4
+                         "sxt4"))))
+  I)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					adds
-					"adds"))))
- I)
+  ((?op LEXEME (not (neq ?current-argument
+                         adds
+                         "adds"))))
+  I)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					nop.i
-					"nop.i"))))
- I)
+  ((?op LEXEME (not (neq ?current-argument
+                         nop.i
+                         "nop.i"))))
+  I)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					st8
-					"st8"))))
- M)
+  ((?op LEXEME (not (neq ?current-argument
+                         st8
+                         "st8"))))
+  M)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					ld8
-					"ld8"))))
- M)
+  ((?op LEXEME (not (neq ?current-argument
+                         ld8
+                         "ld8"))))
+  M)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					ld4
-					"ld4"))))
- M)
+  ((?op LEXEME (not (neq ?current-argument
+                         ld4
+                         "ld4"))))
+  M)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					st4
-					"st4"))))
- M)
+  ((?op LEXEME (not (neq ?current-argument
+                         st4
+                         "st4"))))
+  M)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					mov
-					"mov"))))
- M)
+  ((?op LEXEME (not (neq ?current-argument
+                         mov
+                         "mov"))))
+  M)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					stf.spill
-					"stf.spill"))))
- M)
+  ((?op LEXEME (not (neq ?current-argument
+                         stf.spill
+                         "stf.spill"))))
+  M)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					nop.m
-					"nop.m"))))
- M)
+  ((?op LEXEME (not (neq ?current-argument
+                         nop.m
+                         "nop.m"))))
+  M)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					alloc
-					"alloc"))))
- M)
+  ((?op LEXEME (not (neq ?current-argument
+                         alloc
+                         "alloc"))))
+  M)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					br
-					"br"))))
- B)
+  ((?op LEXEME (not (neq ?current-argument
+                         br
+                         "br"))))
+  B)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					br.ret
-					"br.ret"))))
- B)
+  ((?op LEXEME (not (neq ?current-argument
+                         br.ret
+                         "br.ret"))))
+  B)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					br.call
-					"br.call"))))
- B)
+  ((?op LEXEME (not (neq ?current-argument
+                         br.call
+                         "br.call"))))
+  B)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					br.few
-					"br.few"))))
- B)
+  ((?op LEXEME (not (neq ?current-argument
+                         br.few
+                         "br.few"))))
+  B)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					br.many
-					"br.many"))))
- B)
+  ((?op LEXEME (not (neq ?current-argument
+                         br.many
+                         "br.many"))))
+  B)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					br.ret.sptk.many
-					"br.ret.sptk.many"))))
- B)
+  ((?op LEXEME (not (neq ?current-argument
+                         br.ret.sptk.many
+                         "br.ret.sptk.many"))))
+  B)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					br.ret.sptk.few
-					"br.ret.sptk.few"))))
- B)
+  ((?op LEXEME (not (neq ?current-argument
+                         br.ret.sptk.few
+                         "br.ret.sptk.few"))))
+  B)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					br.ret.dptk.many
-					"br.ret.dptk.many"))))
- B)
+  ((?op LEXEME (not (neq ?current-argument
+                         br.ret.dptk.many
+                         "br.ret.dptk.many"))))
+  B)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					br.ret.dptk.few
-					"br.ret.dptk.few"))))
- B)
+  ((?op LEXEME (not (neq ?current-argument
+                         br.ret.dptk.few
+                         "br.ret.dptk.few"))))
+  B)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					br.call.sptk.many
-					"br.call.sptk.many"))))
- B)
+  ((?op LEXEME (not (neq ?current-argument
+                         br.call.sptk.many
+                         "br.call.sptk.many"))))
+  B)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					br.call.sptk.few
-					"br.call.sptk.few"))))
- B)
+  ((?op LEXEME (not (neq ?current-argument
+                         br.call.sptk.few
+                         "br.call.sptk.few"))))
+  B)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					br.cond.dptk.few
-					"br.cond.dptk.few"))))
- B)
+  ((?op LEXEME (not (neq ?current-argument
+                         br.cond.dptk.few
+                         "br.cond.dptk.few"))))
+  B)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					br.call.dptk.many
-					"br.call.dptk.many"))))
- B)
+  ((?op LEXEME (not (neq ?current-argument
+                         br.call.dptk.many
+                         "br.call.dptk.many"))))
+  B)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					br.call.dptk.few
-					"br.call.dptk.few"))))
- B)
+  ((?op LEXEME (not (neq ?current-argument
+                         br.call.dptk.few
+                         "br.call.dptk.few"))))
+  B)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					nop.b
-					"nop.b"))))
- B)
+  ((?op LEXEME (not (neq ?current-argument
+                         nop.b
+                         "nop.b"))))
+  B)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					ldfs
-					"ldfs"))))
- F)
+  ((?op LEXEME (not (neq ?current-argument
+                         ldfs
+                         "ldfs"))))
+  F)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					fma
-					"fma"))))
- F)
+  ((?op LEXEME (not (neq ?current-argument
+                         fma
+                         "fma"))))
+  F)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					nop.f
-					"nop.f"))))
- F)
+  ((?op LEXEME (not (neq ?current-argument
+                         nop.f
+                         "nop.f"))))
+  F)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					none
-					"none"))))
- X)
+  ((?op LEXEME (not (neq ?current-argument
+                         none
+                         "none"))))
+  X)
 (defmethod translate-operation 
- ((?op LEXEME (not (neq ?current-argument
-					nop.x
-					"nop.x"))))
- X)
+  ((?op LEXEME (not (neq ?current-argument
+                         nop.x
+                         "nop.x"))))
+  X)
 
 
 ;------------------------------------------------------------------------------
