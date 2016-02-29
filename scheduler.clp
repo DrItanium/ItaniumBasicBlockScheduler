@@ -391,11 +391,12 @@
 (defmessage-handler register front primary
                     ()
                     (nth$ 1 ?self:queue))
+
 (defmessage-handler register dequeue primary
                     ()
                     (if (<> (length$ ?self:queue) 0) then
                       (bind ?ret 
-                            (expand$ (first$ ?self:queue)))
+                            (nth$ 1 ?self:queue))
                       (slot-direct-delete$ queue 1 1)
                       ?ret))
 
@@ -407,9 +408,6 @@
         (type SYMBOL))
   (slot TimeIndex 
         (type NUMBER))
-  (slot scheduled 
-        (type SYMBOL) 
-        (allowed-symbols FALSE TRUE))
   (slot InstructionType 
         (type SYMBOL) 
         (default-dynamic nil))
@@ -468,13 +466,12 @@
                                                        ?self:source-registers))))))
 
 
-
 (defmessage-handler Instruction notify-scheduling primary
                     ()
-                    (bind ?self:scheduled TRUE)
-                    (printout ?*output-router* ?self:print-string crlf)
                     (progn$ (?c ?self:ok)
-                            (send ?c dequeue)))
+                            (send ?c 
+                                  dequeue))
+                    ?self:print-string)
 
 
 ;------------------------------------------------------------------------------
@@ -927,7 +924,8 @@
          =>
          (retract ?f)
          (assert (Restart Scheduling))
-         (send ?q notify-scheduling))
+         (printout ?*output-router* 
+                   (send ?q notify-scheduling) crlf))
 
 (defrule schedule-update::restart-scheduling
          (declare (salience -1))
@@ -939,11 +937,10 @@
 
 (defrule schedule-update::insert-branch
          (declare (salience -2))
-         (object (is-a Instruction)
-                 (InstructionType B)
-                 (name ?branch))
+         ?f <- (object (is-a Instruction)
+                       (InstructionType B))
          =>
-         (send ?branch 
+         (send ?f
                notify-scheduling)
          (printout ?*output-router* ";;" crlf))
 
