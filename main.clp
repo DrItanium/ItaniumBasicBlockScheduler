@@ -1,4 +1,4 @@
-;Copyright (c) 2012-2015, Joshua Scoggins 
+;Copyright (c) 2012-2016, Joshua Scoggins 
 ;All rights reserved.
 ;
 ;Redistribution and use in source and binary forms, with or without
