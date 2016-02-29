@@ -5,7 +5,7 @@
 ;          "When it is finished the result will be printed out." crlf
 ;          "Parallel sections of code are separated by ;;." crlf
 ;          "The groups of instructions separated by ;; are known as Instruction Groups" crlf)
-(block "examples/BlockLarge.clp")
+;(block "examples/BlockLarge.clp")
 (deffunction start 
              (?a)
              (watch statistics)
@@ -17,5 +17,11 @@
 
 ;(watch rules dependency:identify-waw-and-raw)
 ;(watch activations)
-(start constructs)
+;(watch statistics)
+;(profile-reset)
+;(profile constructs)
+(block "examples/BlockLarge.clp")
+(run)
+;(profile off)
+;(profile-info)
 (exit)
