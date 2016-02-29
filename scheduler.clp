@@ -429,13 +429,13 @@
                     ()
                     (bind ?self:ok 
                           (bind ?self:destination-queues 
-                                (filter$ instance-and-not-p0
-                                         (apply$ translate-register
-                                                 ?self:destination-registers)))
+                                (filter$ instance-and-not-p0 
+                                         (map$ translate-register
+                                               (expand$ ?self:destination-registers))))
                           (bind ?self:source-queues 
-                                (filter$ instance-and-not-p0
-                                         (apply$ translate-register
-                                                 ?self:source-registers)))
+                                (filter$ instance-and-not-p0 
+                                         (map$ translate-register
+                                               (expand$ ?self:source-registers))))
                           (if (instance-and-not-p0 (bind ?self:predicate-queue 
                                                          (translate-register ?self:Predicate))) then
                             ?self:predicate-queue
@@ -453,7 +453,7 @@
                                   ?self:Predicate
                                   ?self:Name
                                   (implode$ ?self:destination-registers)
-                                  (if (= (length$ ?self:source-registers) 0) then
+                                  (if (empty$ ?self:source-registers) then
                                     ""
                                     else
                                     (implode$ (create$ =
@@ -584,12 +584,6 @@
 ;------------------------------------------------------------------------------
 ; Itanium specific types and classes
 ;------------------------------------------------------------------------------
-
-
-
-
-
-
 (deffunction br 
              (?pred ?target)
              (make-instruction ?pred br ?target))
@@ -3605,9 +3599,9 @@
 (defrule schedule::determine-scheduability
          "An object is able to be scheduled if it has no remaining producers"
          (object (is-a register)
-                 (queue ?q $?))
-         (test (send ?q 
-                     ready-to-schedule))
+                 (queue ?q&:(send ?q ready-to-schedule)  $?))
+         ;(test (send ?q 
+         ;            ready-to-schedule))
          =>
          (assert (schedule-directive (target ?q))))
 
