@@ -879,7 +879,73 @@
 (deftemplate stage 
              (slot current (type SYMBOL))
              (multislot rest (type SYMBOL)))
-(batch* "logic.clp")
+;------------------------------------------------------------------------------
+(defmodule MAIN
+           (export ?ALL))
+(defrule MAIN::startup
+         =>
+         (focus schedule 
+                schedule-update))
+
+(defmodule schedule
+           "identify instructions to schedule"
+           (import MAIN 
+                   ?ALL)
+           (export deftemplate 
+                   schedule-directive))
+
+(deftemplate schedule::schedule-directive
+             (slot target
+                   (default ?NONE)))
+(defmodule schedule-update
+           "Update, and output, the contents of a packet"
+           (import MAIN
+                   ?ALL)
+           (import schedule
+                   deftemplate
+                   schedule-directive))
+
+;------------------------------------------------------------------------------
+; Scheduling rules
+;------------------------------------------------------------------------------
+; The use of the producer-count slot instead of producers is because we don't
+; actually care what the producer was, only if we have no producers remaining
+; This allows us to just decrement the value instead of doing expensive pattern
+; matching
+;------------------------------------------------------------------------------
+(defrule schedule::determine-scheduability
+         "An object is able to be scheduled if it has no remaining producers"
+         (object (is-a register)
+                 (queue ?q $?))
+         (test (send ?q 
+                     ready-to-schedule))
+         =>
+         (assert (schedule-directive (target ?q))))
+
+(defrule schedule-update::update-producer-set
+         ?f <- (schedule-directive (target ?q))
+         =>
+         (retract ?f)
+         (assert (Restart Scheduling))
+         (send ?q notify-scheduling))
+
+(defrule schedule-update::restart-scheduling
+         (declare (salience -1))
+         ?f <- (Restart Scheduling)
+         =>
+         (retract ?f)
+         (printout ?*output-router* ";;" crlf)
+         (focus schedule))
+
+(defrule schedule-update::insert-branch
+         (declare (salience -2))
+         (object (is-a Instruction)
+                 (InstructionType B)
+                 (name ?branch))
+         =>
+         (send ?branch 
+               notify-scheduling)
+         (printout ?*output-router* ";;" crlf))
 
 (printout t 
           "Welcome to the Code Scheduler!" crlf
