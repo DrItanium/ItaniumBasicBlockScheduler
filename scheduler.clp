@@ -25,8 +25,15 @@
 ;------------------------------------------------------------------------------
 (defglobal MAIN 
            ; TIME Index generator
-           ?*TIME* = 0
            ?*output-router* = t)
+;------------------------------------------------------------------------------
+; generics
+;------------------------------------------------------------------------------
+(defgeneric translate-register)
+(defgeneric translate-operation)
+(defgeneric make-instruction)
+(defgeneric apply$)
+(defgeneric filter$)
 ;------------------------------------------------------------------------------
 ; Classes
 ;------------------------------------------------------------------------------
@@ -34,8 +41,6 @@
   (is-a USER)
   (multislot queue))
 
-(defgeneric translate-register)
-(defgeneric translate-operation)
 
 (defmethod translate-operation
   (?i)
@@ -391,8 +396,6 @@
         (type SYMBOL))
   (slot Name 
         (type SYMBOL))
-  (slot TimeIndex 
-        (type NUMBER))
   (slot InstructionType 
         (type SYMBOL) 
         (default-dynamic nil))
@@ -403,46 +406,52 @@
   (multislot destination-queues)
   (multislot source-queues)
   (slot predicate-queue)
-  (slot producer-count 
-        (type INTEGER))
-  (multislot consumers 
-             (type SYMBOL))
-  (slot print-string)
+  (slot print-string
+        (type STRING))
   (multislot ok)
   (message-handler init after)
   (message-handler ready-to-schedule primary)
   (message-handler notify-scheduling primary))
 (defmessage-handler Instruction ready-to-schedule primary
                     ()
-                    (bind ?title
-                          (instance-name ?self))
                     (progn$ (?a ?self:ok)
                             (if (neq (send ?a front)
-                                     ?title) then
+                                     ?self) then
                               (return FALSE)))
                     TRUE)
 
+(deffunction instance-and-not-p0
+             (?a)
+             (and (instancep ?a)
+                  (neq (instance-name ?a) [p0])))
+
 (defmessage-handler Instruction init after 
                     ()
-                    (bind ?self:InstructionType
-                          (translate-operation ?self:Name))
                     (bind ?self:ok 
-                          ?self:destination-queues
-                          ?self:source-queues
-                          (if (neq ?self:predicate-queue
-                                   [p0]) then
+                          (bind ?self:destination-queues 
+                                (filter$ instance-and-not-p0
+                                         (apply$ translate-register
+                                                 ?self:destination-registers)))
+                          (bind ?self:source-queues 
+                                (filter$ instance-and-not-p0
+                                         (apply$ translate-register
+                                                 ?self:source-registers)))
+                          (if (instance-and-not-p0 (bind ?self:predicate-queue 
+                                                         (translate-register ?self:Predicate))) then
                             ?self:predicate-queue
                             else
                             (create$)))
-                    (if (neq ?self:InstructionType B) then
+
+                    (if (neq (bind ?self:InstructionType
+                                   (translate-operation ?self:Name))
+                             B) then
                       (progn$ (?a ?self:ok)
-                              (send ?a 
-                                    enqueue 
-                                    (instance-name ?self))))
+                              (send ?a enqueue ?self)))
                     (bind ?self:print-string
-                          (format nil "(%s) %s %s %s" 
+                          (format nil 
+                                  "(%s) %s %s %s"
                                   ?self:Predicate
-                                  ?self:Name 
+                                  ?self:Name
                                   (implode$ ?self:destination-registers)
                                   (if (= (length$ ?self:source-registers) 0) then
                                     ""
@@ -458,33 +467,10 @@
                                   dequeue))
                     ?self:print-string)
 
-
-;------------------------------------------------------------------------------
-; TimeIndex - Global Time Index Tracker
-;------------------------------------------------------------------------------
-
-(deffunction time-length 
-             "Gets the time count of the program" 
-             ()
-             (return ?*TIME*))
-
-(deffunction new-time-index 
-             "Returns the current time index and increments the time by one" 
-             ()
-             (bind ?result ?*TIME*)
-             (bind ?*TIME* 
-                   (+ ?*TIME* 1))
-             (return ?result))
-
-(deffunction reset-time-index 
-             () 
-             (bind ?*TIME* 0))
-
 ;------------------------------------------------------------------------------
 ; Instruction construction functions and methods
 ;------------------------------------------------------------------------------
 
-(defgeneric make-instruction)
 (defmethod apply$
   ((?func SYMBOL)
    (?args MULTIFIELD))
@@ -520,89 +506,79 @@
   (filter$ ?func
            ?args))
 
-(deffunction instance-and-not-p0
-             (?a)
-             (and (instance-namep ?a)
-                  (neq ?a [p0])))
 (defmethod make-instruction
-  ((?time-index INTEGER)
-   (?predicate SYMBOL)
+  ((?predicate SYMBOL)
    (?name LEXEME)
    (?destination-registers MULTIFIELD)
    (?source-registers MULTIFIELD))
   (make-instance of Instruction
                  (Predicate ?predicate)
-                 (TimeIndex ?time-index)
                  (Name ?name)
                  (destination-registers ?destination-registers)
-                 (source-registers ?source-registers)
-                 (predicate-queue (translate-register ?predicate))
-                 (destination-queues (filter$ instance-and-not-p0
-                                              (apply$ translate-register
-                                                      ?destination-registers)))
-                 (source-queues (filter$ instance-and-not-p0
-                                         (apply$ translate-register
-                                                 ?source-registers)))))
+                 (source-registers ?source-registers)))
 
-(defmethod make-instruction
-  ((?predicate SYMBOL)
-   (?operation SYMBOL)
-   (?destination-registers MULTIFIELD)
-   (?source-registers MULTIFIELD))
-  (make-instruction (new-time-index)
-                    ?predicate 
-                    ?operation 
-                    ?destination-registers
-                    ?source-registers))
 (defmethod make-instruction 
   ((?predicate SYMBOL)
    (?operation SYMBOL)
-   (?d0 NUMBER LEXEME INSTANCE)
-   (?d1 NUMBER LEXEME INSTANCE)
-   (?s0 NUMBER LEXEME INSTANCE)
-   (?s1 NUMBER LEXEME INSTANCE))
-  (make-instruction ?predicate
-                    ?operation
-                    (create$ ?d0 ?d1)
-                    (create$ ?s0 ?s1)))
-
+   (?d0 NUMBER 
+        LEXEME 
+        INSTANCE)
+   (?d1 NUMBER 
+        LEXEME 
+        INSTANCE)
+   (?s0 NUMBER 
+        LEXEME 
+        INSTANCE)
+   (?s1 NUMBER 
+        LEXEME 
+        INSTANCE))
+  (make-instance of Instruction
+                 (Predicate ?predicate)
+                 (Name ?operation)
+                 (destination-registers ?d0 ?d1)
+                 (source-registers ?s0 ?s1)))
 
 (defmethod make-instruction
   ((?predicate SYMBOL)
    (?operation SYMBOL)
    (?destination LEXEME)
-   (?s0 NUMBER LEXEME INSTANCE)
-   (?s1 NUMBER LEXEME INSTANCE))
-  (make-instruction ?predicate 
-                    ?operation 
-                    (create$ ?destination) 
-                    (create$ ?s0 ?s1)))
+   (?s0 NUMBER 
+        LEXEME 
+        INSTANCE)
+   (?s1 NUMBER 
+        LEXEME 
+        INSTANCE))
+  (make-instance of Instruction
+                 (Predicate ?predicate)
+                 (Name ?operation)
+                 (destination-registers ?destination)
+                 (source-registers ?s0 ?s1)))
 
 (defmethod make-instruction
   ((?predicate SYMBOL)
    (?operation SYMBOL)
-   (?destination NUMBER LEXEME INSTANCE)
-   (?source NUMBER LEXEME INSTANCE))
-  (make-instruction ?predicate 
-                    ?operation
-                    (create$ ?destination)
-                    (create$ ?source)))
+   (?destination NUMBER 
+                 LEXEME 
+                 INSTANCE)
+   (?source NUMBER 
+            LEXEME 
+            INSTANCE))
+  (make-instance of Instruction
+                 (Predicate ?predicate)
+                 (Name ?operation)
+                 (destination-registers ?destination)
+                 (source-registers ?source)))
 
-(defmethod make-instruction 
-  ((?predicate SYMBOL)
-   (?operation SYMBOL)
-   (?destination MULTIFIELD))
-  (make-instruction ?predicate
-                    ?operation
-                    ?destination
-                    (create$)))
 (defmethod make-instruction
   ((?predicate SYMBOL)
    (?operation SYMBOL)
-   (?destination LEXEME NUMBER))
-  (make-instruction ?predicate
-                    ?operation
-                    (create$ ?destination)))
+   (?destination LEXEME 
+                 NUMBER))
+  (make-instance of Instruction
+                 (Predicate ?predicate)
+                 (Name ?operation)
+                 (destination-registers ?destination)
+                 (source-registers)))
 
 
 ;------------------------------------------------------------------------------
@@ -799,16 +775,10 @@
 ;------------------------------------------------------------------------------
 ; REPL Interaction functions
 ;------------------------------------------------------------------------------
-(deffunction reload-environment 
-             () 
-             (reset) 
-             (reset-time-index) 
-             )
-
 (deffunction block 
              "Loads a new block from a file" 
              (?B) 
-             (reload-environment)
+             (reset)
              (batch* ?B))
 
 ;------------------------------------------------------------------------------
@@ -3632,11 +3602,6 @@
 ;------------------------------------------------------------------------------
 ; Scheduling rules
 ;------------------------------------------------------------------------------
-; The use of the producer-count slot instead of producers is because we don't
-; actually care what the producer was, only if we have no producers remaining
-; This allows us to just decrement the value instead of doing expensive pattern
-; matching
-;------------------------------------------------------------------------------
 (defrule schedule::determine-scheduability
          "An object is able to be scheduled if it has no remaining producers"
          (object (is-a register)
@@ -3666,10 +3631,10 @@
          (declare (salience -2))
          (object (is-a Instruction)
                  (InstructionType B)
-                 (name ?f))
+                 (name ?op))
          =>
          (printout ?*output-router* 
-                   (send ?f
+                   (send ?op
                          notify-scheduling) crlf
                    ";;" crlf))
 
