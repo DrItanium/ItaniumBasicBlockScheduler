@@ -32,8 +32,6 @@
 (defgeneric translate-register)
 (defgeneric translate-operation)
 (defgeneric make-instruction)
-(defgeneric apply$)
-(defgeneric filter$)
 ;------------------------------------------------------------------------------
 ; Classes
 ;------------------------------------------------------------------------------
@@ -42,13 +40,9 @@
   (multislot queue))
 
 
-(defmethod translate-operation
-  (?i)
-  UNKNOWN)
+(defmethod translate-operation (?i) UNKNOWN)
 
-(defmethod translate-register
-  (?val)
-  ?val)
+(defmethod translate-register (?val) ?val)
 
 
 
@@ -384,30 +378,20 @@
 
 (defmessage-handler register dequeue primary
                     ()
-                    (if (<> (length$ ?self:queue) 0) then
+                    (if (not (empty$ ?self:queue)) then
                       (bind ?ret 
-                            (expand$ (first$ ?self:queue)))
+                            (nth$ 1 
+                                  ?self:queue))
                       (slot-direct-delete$ queue 1 1)
                       ?ret))
 
 (defclass Instruction 
   (is-a USER)
-  (slot Predicate 
-        (type SYMBOL))
-  (slot Name 
-        (type SYMBOL))
+  (slot print-string
+        (type STRING))
   (slot InstructionType 
         (type SYMBOL) 
         (default-dynamic nil))
-  (multislot destination-registers 
-             (type SYMBOL))
-  (multislot source-registers 
-             (type SYMBOL))
-  (multislot destination-queues)
-  (multislot source-queues)
-  (slot predicate-queue)
-  (slot print-string
-        (type STRING))
   (multislot ok)
   (message-handler init after)
   (message-handler ready-to-schedule primary)
@@ -419,45 +403,44 @@
                                      ?self) then
                               (return FALSE)))
                     TRUE)
-
 (deffunction instance-and-not-p0
              (?a)
              (and (instancep ?a)
                   (neq (instance-name ?a) [p0])))
+(defmethod make-instruction
+  ((?predicate SYMBOL)
+   (?operation SYMBOL)
+   (?dreg MULTIFIELD)
+   (?sreg MULTIFIELD))
+  (bind ?op 
+        (translate-operation ?operation))
+  (make-instance of Instruction
+                 (print-string (format nil
+                                       "(%s) %s %s %s"
+                                       ?predicate
+                                       ?operation
+                                       (implode$ ?dreg)
+                                       (if (empty$ ?sreg) then
+                                         ""
+                                         else
+                                         (implode$ (create$ =
+                                                            ?sreg)))))
+                 (InstructionType ?op)
+                 (ok (if (neq ?op B) then
+                       (filter instance-and-not-p0
+                               (expand$ (map translate-register
+                                             (expand$ ?dreg)
+                                             (expand$ ?sreg)
+                                             ?predicate)))
+                       else
+                       (create$)))))
 
 (defmessage-handler Instruction init after 
                     ()
-                    (bind ?self:ok 
-                          (bind ?self:destination-queues 
-                                (filter$ instance-and-not-p0 
-                                         (map$ translate-register
-                                               (expand$ ?self:destination-registers))))
-                          (bind ?self:source-queues 
-                                (filter$ instance-and-not-p0 
-                                         (map$ translate-register
-                                               (expand$ ?self:source-registers))))
-                          (if (instance-and-not-p0 (bind ?self:predicate-queue 
-                                                         (translate-register ?self:Predicate))) then
-                            ?self:predicate-queue
-                            else
-                            (create$)))
-
-                    (if (neq (bind ?self:InstructionType
-                                   (translate-operation ?self:Name))
-                             B) then
-                      (progn$ (?a ?self:ok)
-                              (send ?a enqueue ?self)))
-                    (bind ?self:print-string
-                          (format nil 
-                                  "(%s) %s %s %s"
-                                  ?self:Predicate
-                                  ?self:Name
-                                  (implode$ ?self:destination-registers)
-                                  (if (empty$ ?self:source-registers) then
-                                    ""
-                                    else
-                                    (implode$ (create$ =
-                                                       ?self:source-registers))))))
+                    (progn$ (?a ?self:ok)
+                            (send ?a 
+                                  enqueue 
+                                  ?self)))
 
 
 (defmessage-handler Instruction notify-scheduling primary
@@ -470,52 +453,6 @@
 ;------------------------------------------------------------------------------
 ; Instruction construction functions and methods
 ;------------------------------------------------------------------------------
-
-(defmethod apply$
-  ((?func SYMBOL)
-   (?args MULTIFIELD))
-  (bind ?output
-        (create$))
-  (progn$ (?a ?args)
-          (bind ?output
-                ?output
-                (funcall ?func
-                         ?a)))
-  ?output)
-(defmethod apply$
-  ((?func SYMBOL)
-   $?args)
-  (apply$ ?func
-          ?args))
-(defmethod filter$
-  ((?func SYMBOL)
-   (?args MULTIFIELD))
-  (bind ?output
-        (create$))
-  (progn$ (?a ?args)
-          (bind ?output
-                ?output
-                (if (funcall ?func ?a) then
-                  ?a
-                  else
-                  (create$))))
-  ?output)
-(defmethod filter$
-  ((?func SYMBOL)
-   $?args)
-  (filter$ ?func
-           ?args))
-
-(defmethod make-instruction
-  ((?predicate SYMBOL)
-   (?name LEXEME)
-   (?destination-registers MULTIFIELD)
-   (?source-registers MULTIFIELD))
-  (make-instance of Instruction
-                 (Predicate ?predicate)
-                 (Name ?name)
-                 (destination-registers ?destination-registers)
-                 (source-registers ?source-registers)))
 
 (defmethod make-instruction 
   ((?predicate SYMBOL)
@@ -532,11 +469,10 @@
    (?s1 NUMBER 
         LEXEME 
         INSTANCE))
-  (make-instance of Instruction
-                 (Predicate ?predicate)
-                 (Name ?operation)
-                 (destination-registers ?d0 ?d1)
-                 (source-registers ?s0 ?s1)))
+  (make-instruction ?predicate
+                    ?operation
+                    (create$ ?d0 ?d1)
+                    (create$ ?s0 ?s1)))
 
 (defmethod make-instruction
   ((?predicate SYMBOL)
@@ -548,11 +484,10 @@
    (?s1 NUMBER 
         LEXEME 
         INSTANCE))
-  (make-instance of Instruction
-                 (Predicate ?predicate)
-                 (Name ?operation)
-                 (destination-registers ?destination)
-                 (source-registers ?s0 ?s1)))
+  (make-instruction ?predicate
+                    ?operation
+                    (create$ ?destination)
+                    (create$ ?s0 ?s1)))
 
 (defmethod make-instruction
   ((?predicate SYMBOL)
@@ -563,22 +498,20 @@
    (?source NUMBER 
             LEXEME 
             INSTANCE))
-  (make-instance of Instruction
-                 (Predicate ?predicate)
-                 (Name ?operation)
-                 (destination-registers ?destination)
-                 (source-registers ?source)))
+  (make-instruction ?predicate
+                    ?operation
+                    (create$ ?destination)
+                    (create$ ?source)))
 
 (defmethod make-instruction
   ((?predicate SYMBOL)
    (?operation SYMBOL)
    (?destination LEXEME 
                  NUMBER))
-  (make-instance of Instruction
-                 (Predicate ?predicate)
-                 (Name ?operation)
-                 (destination-registers ?destination)
-                 (source-registers)))
+  (make-instruction ?predicate
+                    ?operation
+                    (create$ ?destination)
+                    (create$)))
 
 
 ;------------------------------------------------------------------------------
@@ -743,8 +676,8 @@
              (make-instruction ?P getf.sig ?D ?S))
 
 (deffunction ld8 
-             (?P ?D ?S)
-             (make-instruction ?P ld8 ?D ?S))
+             (?p ?d ?s)
+             (make-instruction ?p ld8 ?d ?s))
 
 (deffunction ld4 
              (?P ?D ?S)
@@ -756,11 +689,11 @@
 
 (deffunction st4 
              (?P ?D ?S)
-             (make-instruction ?P st4 ?D ?S))
+             (make-instruction ?P st8 ?D ?S))
 
 (deffunction alloc 
-             (?P ?D ?I ?L ?O ?R)
-             (make-instruction ?P alloc ?D (create$ ar.pfs ?I ?L ?O ?R)))
+             (?pred ?dest ?i ?l ?o ?r)
+             (make-instruction ?pred alloc (create$ ?dest) (create$ ar.pfs ?i ?l ?o ?r)))
 
 
 
@@ -780,7 +713,7 @@
 ;------------------------------------------------------------------------------
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p0
                   {p0}
                   "p0"
@@ -788,7 +721,7 @@
   [p0])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p1
                   {p1}
                   "p1"
@@ -796,7 +729,7 @@
   [p1])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p2
                   {p2}
                   "p2"
@@ -804,7 +737,7 @@
   [p2])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p3
                   {p3}
                   "p3"
@@ -812,7 +745,7 @@
   [p3])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p4
                   {p4}
                   "p4"
@@ -820,7 +753,7 @@
   [p4])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p5
                   {p5}
                   "p5"
@@ -828,7 +761,7 @@
   [p5])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p6
                   {p6}
                   "p6"
@@ -836,7 +769,7 @@
   [p6])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p7
                   {p7}
                   "p7"
@@ -844,7 +777,7 @@
   [p7])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p8
                   {p8}
                   "p8"
@@ -852,7 +785,7 @@
   [p8])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p9
                   {p9}
                   "p9"
@@ -860,7 +793,7 @@
   [p9])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p10
                   {p10}
                   "p10"
@@ -868,7 +801,7 @@
   [p10])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p11
                   {p11}
                   "p11"
@@ -876,7 +809,7 @@
   [p11])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p12
                   {p12}
                   "p12"
@@ -884,7 +817,7 @@
   [p12])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p13
                   {p13}
                   "p13"
@@ -892,7 +825,7 @@
   [p13])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p14
                   {p14}
                   "p14"
@@ -900,7 +833,7 @@
   [p14])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p15
                   {p15}
                   "p15"
@@ -908,7 +841,7 @@
   [p15])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p16
                   {p16}
                   "p16"
@@ -916,7 +849,7 @@
   [p16])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p17
                   {p17}
                   "p17"
@@ -924,7 +857,7 @@
   [p17])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p18
                   {p18}
                   "p18"
@@ -932,7 +865,7 @@
   [p18])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p19
                   {p19}
                   "p19"
@@ -940,7 +873,7 @@
   [p19])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p20
                   {p20}
                   "p20"
@@ -948,7 +881,7 @@
   [p20])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p21
                   {p21}
                   "p21"
@@ -956,7 +889,7 @@
   [p21])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p22
                   {p22}
                   "p22"
@@ -964,7 +897,7 @@
   [p22])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p23
                   {p23}
                   "p23"
@@ -972,7 +905,7 @@
   [p23])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p24
                   {p24}
                   "p24"
@@ -980,7 +913,7 @@
   [p24])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p25
                   {p25}
                   "p25"
@@ -988,7 +921,7 @@
   [p25])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p26
                   {p26}
                   "p26"
@@ -996,7 +929,7 @@
   [p26])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p27
                   {p27}
                   "p27"
@@ -1004,7 +937,7 @@
   [p27])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p28
                   {p28}
                   "p28"
@@ -1012,7 +945,7 @@
   [p28])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p29
                   {p29}
                   "p29"
@@ -1020,7 +953,7 @@
   [p29])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p30
                   {p30}
                   "p30"
@@ -1028,7 +961,7 @@
   [p30])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p31
                   {p31}
                   "p31"
@@ -1036,7 +969,7 @@
   [p31])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p32
                   {p32}
                   "p32"
@@ -1044,7 +977,7 @@
   [p32])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p33
                   {p33}
                   "p33"
@@ -1052,7 +985,7 @@
   [p33])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p34
                   {p34}
                   "p34"
@@ -1060,7 +993,7 @@
   [p34])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p35
                   {p35}
                   "p35"
@@ -1068,7 +1001,7 @@
   [p35])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p36
                   {p36}
                   "p36"
@@ -1076,7 +1009,7 @@
   [p36])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p37
                   {p37}
                   "p37"
@@ -1084,7 +1017,7 @@
   [p37])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p38
                   {p38}
                   "p38"
@@ -1092,7 +1025,7 @@
   [p38])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p39
                   {p39}
                   "p39"
@@ -1100,7 +1033,7 @@
   [p39])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p40
                   {p40}
                   "p40"
@@ -1108,7 +1041,7 @@
   [p40])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p41
                   {p41}
                   "p41"
@@ -1116,7 +1049,7 @@
   [p41])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p42
                   {p42}
                   "p42"
@@ -1124,7 +1057,7 @@
   [p42])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p43
                   {p43}
                   "p43"
@@ -1132,7 +1065,7 @@
   [p43])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p44
                   {p44}
                   "p44"
@@ -1140,7 +1073,7 @@
   [p44])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p45
                   {p45}
                   "p45"
@@ -1148,7 +1081,7 @@
   [p45])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p46
                   {p46}
                   "p46"
@@ -1156,7 +1089,7 @@
   [p46])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p47
                   {p47}
                   "p47"
@@ -1164,7 +1097,7 @@
   [p47])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p48
                   {p48}
                   "p48"
@@ -1172,7 +1105,7 @@
   [p48])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p49
                   {p49}
                   "p49"
@@ -1180,7 +1113,7 @@
   [p49])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p50
                   {p50}
                   "p50"
@@ -1188,7 +1121,7 @@
   [p50])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p51
                   {p51}
                   "p51"
@@ -1196,7 +1129,7 @@
   [p51])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p52
                   {p52}
                   "p52"
@@ -1204,7 +1137,7 @@
   [p52])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p53
                   {p53}
                   "p53"
@@ -1212,7 +1145,7 @@
   [p53])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p54
                   {p54}
                   "p54"
@@ -1220,7 +1153,7 @@
   [p54])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p55
                   {p55}
                   "p55"
@@ -1228,7 +1161,7 @@
   [p55])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p56
                   {p56}
                   "p56"
@@ -1236,7 +1169,7 @@
   [p56])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p57
                   {p57}
                   "p57"
@@ -1244,7 +1177,7 @@
   [p57])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p58
                   {p58}
                   "p58"
@@ -1252,7 +1185,7 @@
   [p58])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p59
                   {p59}
                   "p59"
@@ -1260,7 +1193,7 @@
   [p59])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p60
                   {p60}
                   "p60"
@@ -1268,7 +1201,7 @@
   [p60])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p61
                   {p61}
                   "p61"
@@ -1276,7 +1209,7 @@
   [p61])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p62
                   {p62}
                   "p62"
@@ -1284,7 +1217,7 @@
   [p62])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   p63
                   {p63}
                   "p63"
@@ -1292,7 +1225,7 @@
   [p63])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r0
                   {r0}
                   "r0"
@@ -1300,7 +1233,7 @@
   [r0])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f0
                   {f0}
                   "f0"
@@ -1308,7 +1241,7 @@
   [f0])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r1
                   {r1}
                   "r1"
@@ -1316,7 +1249,7 @@
   [r1])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f1
                   {f1}
                   "f1"
@@ -1324,7 +1257,7 @@
   [f1])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r2
                   {r2}
                   "r2"
@@ -1332,7 +1265,7 @@
   [r2])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f2
                   {f2}
                   "f2"
@@ -1340,7 +1273,7 @@
   [f2])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r3
                   {r3}
                   "r3"
@@ -1348,7 +1281,7 @@
   [r3])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f3
                   {f3}
                   "f3"
@@ -1356,7 +1289,7 @@
   [f3])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r4
                   {r4}
                   "r4"
@@ -1364,7 +1297,7 @@
   [r4])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f4
                   {f4}
                   "f4"
@@ -1372,7 +1305,7 @@
   [f4])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r5
                   {r5}
                   "r5"
@@ -1380,7 +1313,7 @@
   [r5])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f5
                   {f5}
                   "f5"
@@ -1388,7 +1321,7 @@
   [f5])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r6
                   {r6}
                   "r6"
@@ -1396,7 +1329,7 @@
   [r6])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f6
                   {f6}
                   "f6"
@@ -1404,7 +1337,7 @@
   [f6])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r7
                   {r7}
                   "r7"
@@ -1412,7 +1345,7 @@
   [r7])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f7
                   {f7}
                   "f7"
@@ -1420,7 +1353,7 @@
   [f7])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r8
                   {r8}
                   "r8"
@@ -1428,7 +1361,7 @@
   [r8])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f8
                   {f8}
                   "f8"
@@ -1436,7 +1369,7 @@
   [f8])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r9
                   {r9}
                   "r9"
@@ -1444,7 +1377,7 @@
   [r9])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f9
                   {f9}
                   "f9"
@@ -1452,7 +1385,7 @@
   [f9])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r10
                   {r10}
                   "r10"
@@ -1460,7 +1393,7 @@
   [r10])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f10
                   {f10}
                   "f10"
@@ -1468,7 +1401,7 @@
   [f10])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r11
                   {r11}
                   "r11"
@@ -1476,7 +1409,7 @@
   [r11])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f11
                   {f11}
                   "f11"
@@ -1484,7 +1417,7 @@
   [f11])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r12
                   {r12}
                   "r12"
@@ -1492,7 +1425,7 @@
   [r12])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f12
                   {f12}
                   "f12"
@@ -1500,7 +1433,7 @@
   [f12])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r13
                   {r13}
                   "r13"
@@ -1508,7 +1441,7 @@
   [r13])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f13
                   {f13}
                   "f13"
@@ -1516,7 +1449,7 @@
   [f13])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r14
                   {r14}
                   "r14"
@@ -1524,7 +1457,7 @@
   [r14])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f14
                   {f14}
                   "f14"
@@ -1532,7 +1465,7 @@
   [f14])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r15
                   {r15}
                   "r15"
@@ -1540,7 +1473,7 @@
   [r15])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f15
                   {f15}
                   "f15"
@@ -1548,7 +1481,7 @@
   [f15])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r16
                   {r16}
                   "r16"
@@ -1556,7 +1489,7 @@
   [r16])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f16
                   {f16}
                   "f16"
@@ -1564,7 +1497,7 @@
   [f16])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r17
                   {r17}
                   "r17"
@@ -1572,7 +1505,7 @@
   [r17])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f17
                   {f17}
                   "f17"
@@ -1580,7 +1513,7 @@
   [f17])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r18
                   {r18}
                   "r18"
@@ -1588,7 +1521,7 @@
   [r18])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f18
                   {f18}
                   "f18"
@@ -1596,7 +1529,7 @@
   [f18])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r19
                   {r19}
                   "r19"
@@ -1604,7 +1537,7 @@
   [r19])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f19
                   {f19}
                   "f19"
@@ -1612,7 +1545,7 @@
   [f19])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r20
                   {r20}
                   "r20"
@@ -1620,7 +1553,7 @@
   [r20])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f20
                   {f20}
                   "f20"
@@ -1628,7 +1561,7 @@
   [f20])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r21
                   {r21}
                   "r21"
@@ -1636,7 +1569,7 @@
   [r21])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f21
                   {f21}
                   "f21"
@@ -1644,7 +1577,7 @@
   [f21])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r22
                   {r22}
                   "r22"
@@ -1652,7 +1585,7 @@
   [r22])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f22
                   {f22}
                   "f22"
@@ -1660,7 +1593,7 @@
   [f22])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r23
                   {r23}
                   "r23"
@@ -1668,7 +1601,7 @@
   [r23])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f23
                   {f23}
                   "f23"
@@ -1676,7 +1609,7 @@
   [f23])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r24
                   {r24}
                   "r24"
@@ -1684,7 +1617,7 @@
   [r24])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f24
                   {f24}
                   "f24"
@@ -1692,7 +1625,7 @@
   [f24])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r25
                   {r25}
                   "r25"
@@ -1700,7 +1633,7 @@
   [r25])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f25
                   {f25}
                   "f25"
@@ -1708,7 +1641,7 @@
   [f25])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r26
                   {r26}
                   "r26"
@@ -1716,7 +1649,7 @@
   [r26])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f26
                   {f26}
                   "f26"
@@ -1724,7 +1657,7 @@
   [f26])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r27
                   {r27}
                   "r27"
@@ -1732,7 +1665,7 @@
   [r27])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f27
                   {f27}
                   "f27"
@@ -1740,7 +1673,7 @@
   [f27])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r28
                   {r28}
                   "r28"
@@ -1748,7 +1681,7 @@
   [r28])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f28
                   {f28}
                   "f28"
@@ -1756,7 +1689,7 @@
   [f28])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r29
                   {r29}
                   "r29"
@@ -1764,7 +1697,7 @@
   [r29])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f29
                   {f29}
                   "f29"
@@ -1772,7 +1705,7 @@
   [f29])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r30
                   {r30}
                   "r30"
@@ -1780,7 +1713,7 @@
   [r30])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f30
                   {f30}
                   "f30"
@@ -1788,7 +1721,7 @@
   [f30])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r31
                   {r31}
                   "r31"
@@ -1796,7 +1729,7 @@
   [r31])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f31
                   {f31}
                   "f31"
@@ -1804,7 +1737,7 @@
   [f31])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r32
                   {r32}
                   "r32"
@@ -1812,7 +1745,7 @@
   [r32])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f32
                   {f32}
                   "f32"
@@ -1820,7 +1753,7 @@
   [f32])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r33
                   {r33}
                   "r33"
@@ -1828,7 +1761,7 @@
   [r33])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f33
                   {f33}
                   "f33"
@@ -1836,7 +1769,7 @@
   [f33])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r34
                   {r34}
                   "r34"
@@ -1844,7 +1777,7 @@
   [r34])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f34
                   {f34}
                   "f34"
@@ -1852,7 +1785,7 @@
   [f34])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r35
                   {r35}
                   "r35"
@@ -1860,7 +1793,7 @@
   [r35])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f35
                   {f35}
                   "f35"
@@ -1868,7 +1801,7 @@
   [f35])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r36
                   {r36}
                   "r36"
@@ -1876,7 +1809,7 @@
   [r36])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f36
                   {f36}
                   "f36"
@@ -1884,7 +1817,7 @@
   [f36])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r37
                   {r37}
                   "r37"
@@ -1892,7 +1825,7 @@
   [r37])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f37
                   {f37}
                   "f37"
@@ -1900,7 +1833,7 @@
   [f37])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r38
                   {r38}
                   "r38"
@@ -1908,7 +1841,7 @@
   [r38])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f38
                   {f38}
                   "f38"
@@ -1916,7 +1849,7 @@
   [f38])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r39
                   {r39}
                   "r39"
@@ -1924,7 +1857,7 @@
   [r39])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f39
                   {f39}
                   "f39"
@@ -1932,7 +1865,7 @@
   [f39])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r40
                   {r40}
                   "r40"
@@ -1940,7 +1873,7 @@
   [r40])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f40
                   {f40}
                   "f40"
@@ -1948,7 +1881,7 @@
   [f40])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r41
                   {r41}
                   "r41"
@@ -1956,7 +1889,7 @@
   [r41])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f41
                   {f41}
                   "f41"
@@ -1964,7 +1897,7 @@
   [f41])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r42
                   {r42}
                   "r42"
@@ -1972,7 +1905,7 @@
   [r42])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f42
                   {f42}
                   "f42"
@@ -1980,7 +1913,7 @@
   [f42])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r43
                   {r43}
                   "r43"
@@ -1988,7 +1921,7 @@
   [r43])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f43
                   {f43}
                   "f43"
@@ -1996,7 +1929,7 @@
   [f43])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r44
                   {r44}
                   "r44"
@@ -2004,7 +1937,7 @@
   [r44])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f44
                   {f44}
                   "f44"
@@ -2012,7 +1945,7 @@
   [f44])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r45
                   {r45}
                   "r45"
@@ -2020,7 +1953,7 @@
   [r45])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f45
                   {f45}
                   "f45"
@@ -2028,7 +1961,7 @@
   [f45])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r46
                   {r46}
                   "r46"
@@ -2036,7 +1969,7 @@
   [r46])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f46
                   {f46}
                   "f46"
@@ -2044,7 +1977,7 @@
   [f46])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r47
                   {r47}
                   "r47"
@@ -2052,7 +1985,7 @@
   [r47])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f47
                   {f47}
                   "f47"
@@ -2060,7 +1993,7 @@
   [f47])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r48
                   {r48}
                   "r48"
@@ -2068,7 +2001,7 @@
   [r48])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f48
                   {f48}
                   "f48"
@@ -2076,7 +2009,7 @@
   [f48])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r49
                   {r49}
                   "r49"
@@ -2084,7 +2017,7 @@
   [r49])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f49
                   {f49}
                   "f49"
@@ -2092,7 +2025,7 @@
   [f49])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r50
                   {r50}
                   "r50"
@@ -2100,7 +2033,7 @@
   [r50])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f50
                   {f50}
                   "f50"
@@ -2108,7 +2041,7 @@
   [f50])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r51
                   {r51}
                   "r51"
@@ -2116,7 +2049,7 @@
   [r51])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f51
                   {f51}
                   "f51"
@@ -2124,7 +2057,7 @@
   [f51])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r52
                   {r52}
                   "r52"
@@ -2132,7 +2065,7 @@
   [r52])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f52
                   {f52}
                   "f52"
@@ -2140,7 +2073,7 @@
   [f52])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r53
                   {r53}
                   "r53"
@@ -2148,7 +2081,7 @@
   [r53])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f53
                   {f53}
                   "f53"
@@ -2156,7 +2089,7 @@
   [f53])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r54
                   {r54}
                   "r54"
@@ -2164,7 +2097,7 @@
   [r54])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f54
                   {f54}
                   "f54"
@@ -2172,7 +2105,7 @@
   [f54])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r55
                   {r55}
                   "r55"
@@ -2180,7 +2113,7 @@
   [r55])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f55
                   {f55}
                   "f55"
@@ -2188,7 +2121,7 @@
   [f55])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r56
                   {r56}
                   "r56"
@@ -2196,7 +2129,7 @@
   [r56])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f56
                   {f56}
                   "f56"
@@ -2204,7 +2137,7 @@
   [f56])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r57
                   {r57}
                   "r57"
@@ -2212,7 +2145,7 @@
   [r57])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f57
                   {f57}
                   "f57"
@@ -2220,7 +2153,7 @@
   [f57])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r58
                   {r58}
                   "r58"
@@ -2228,7 +2161,7 @@
   [r58])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f58
                   {f58}
                   "f58"
@@ -2236,7 +2169,7 @@
   [f58])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r59
                   {r59}
                   "r59"
@@ -2244,7 +2177,7 @@
   [r59])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f59
                   {f59}
                   "f59"
@@ -2252,7 +2185,7 @@
   [f59])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r60
                   {r60}
                   "r60"
@@ -2260,7 +2193,7 @@
   [r60])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f60
                   {f60}
                   "f60"
@@ -2268,7 +2201,7 @@
   [f60])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r61
                   {r61}
                   "r61"
@@ -2276,7 +2209,7 @@
   [r61])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f61
                   {f61}
                   "f61"
@@ -2284,7 +2217,7 @@
   [f61])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r62
                   {r62}
                   "r62"
@@ -2292,7 +2225,7 @@
   [r62])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f62
                   {f62}
                   "f62"
@@ -2300,7 +2233,7 @@
   [f62])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r63
                   {r63}
                   "r63"
@@ -2308,7 +2241,7 @@
   [r63])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f63
                   {f63}
                   "f63"
@@ -2316,7 +2249,7 @@
   [f63])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r64
                   {r64}
                   "r64"
@@ -2324,7 +2257,7 @@
   [r64])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f64
                   {f64}
                   "f64"
@@ -2332,7 +2265,7 @@
   [f64])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r65
                   {r65}
                   "r65"
@@ -2340,7 +2273,7 @@
   [r65])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f65
                   {f65}
                   "f65"
@@ -2348,7 +2281,7 @@
   [f65])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r66
                   {r66}
                   "r66"
@@ -2356,7 +2289,7 @@
   [r66])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f66
                   {f66}
                   "f66"
@@ -2364,7 +2297,7 @@
   [f66])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r67
                   {r67}
                   "r67"
@@ -2372,7 +2305,7 @@
   [r67])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f67
                   {f67}
                   "f67"
@@ -2380,7 +2313,7 @@
   [f67])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r68
                   {r68}
                   "r68"
@@ -2388,7 +2321,7 @@
   [r68])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f68
                   {f68}
                   "f68"
@@ -2396,7 +2329,7 @@
   [f68])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r69
                   {r69}
                   "r69"
@@ -2404,7 +2337,7 @@
   [r69])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f69
                   {f69}
                   "f69"
@@ -2412,7 +2345,7 @@
   [f69])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r70
                   {r70}
                   "r70"
@@ -2420,7 +2353,7 @@
   [r70])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f70
                   {f70}
                   "f70"
@@ -2428,7 +2361,7 @@
   [f70])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r71
                   {r71}
                   "r71"
@@ -2436,7 +2369,7 @@
   [r71])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f71
                   {f71}
                   "f71"
@@ -2444,7 +2377,7 @@
   [f71])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r72
                   {r72}
                   "r72"
@@ -2452,7 +2385,7 @@
   [r72])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f72
                   {f72}
                   "f72"
@@ -2460,7 +2393,7 @@
   [f72])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r73
                   {r73}
                   "r73"
@@ -2468,7 +2401,7 @@
   [r73])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f73
                   {f73}
                   "f73"
@@ -2476,7 +2409,7 @@
   [f73])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r74
                   {r74}
                   "r74"
@@ -2484,7 +2417,7 @@
   [r74])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f74
                   {f74}
                   "f74"
@@ -2492,7 +2425,7 @@
   [f74])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r75
                   {r75}
                   "r75"
@@ -2500,7 +2433,7 @@
   [r75])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f75
                   {f75}
                   "f75"
@@ -2508,7 +2441,7 @@
   [f75])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r76
                   {r76}
                   "r76"
@@ -2516,7 +2449,7 @@
   [r76])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f76
                   {f76}
                   "f76"
@@ -2524,7 +2457,7 @@
   [f76])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r77
                   {r77}
                   "r77"
@@ -2532,7 +2465,7 @@
   [r77])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f77
                   {f77}
                   "f77"
@@ -2540,7 +2473,7 @@
   [f77])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r78
                   {r78}
                   "r78"
@@ -2548,7 +2481,7 @@
   [r78])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f78
                   {f78}
                   "f78"
@@ -2556,7 +2489,7 @@
   [f78])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r79
                   {r79}
                   "r79"
@@ -2564,7 +2497,7 @@
   [r79])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f79
                   {f79}
                   "f79"
@@ -2572,7 +2505,7 @@
   [f79])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r80
                   {r80}
                   "r80"
@@ -2580,7 +2513,7 @@
   [r80])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f80
                   {f80}
                   "f80"
@@ -2588,7 +2521,7 @@
   [f80])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r81
                   {r81}
                   "r81"
@@ -2596,7 +2529,7 @@
   [r81])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f81
                   {f81}
                   "f81"
@@ -2604,7 +2537,7 @@
   [f81])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r82
                   {r82}
                   "r82"
@@ -2612,7 +2545,7 @@
   [r82])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f82
                   {f82}
                   "f82"
@@ -2620,7 +2553,7 @@
   [f82])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r83
                   {r83}
                   "r83"
@@ -2628,7 +2561,7 @@
   [r83])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f83
                   {f83}
                   "f83"
@@ -2636,7 +2569,7 @@
   [f83])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r84
                   {r84}
                   "r84"
@@ -2644,7 +2577,7 @@
   [r84])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f84
                   {f84}
                   "f84"
@@ -2652,7 +2585,7 @@
   [f84])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r85
                   {r85}
                   "r85"
@@ -2660,7 +2593,7 @@
   [r85])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f85
                   {f85}
                   "f85"
@@ -2668,7 +2601,7 @@
   [f85])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r86
                   {r86}
                   "r86"
@@ -2676,7 +2609,7 @@
   [r86])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f86
                   {f86}
                   "f86"
@@ -2684,7 +2617,7 @@
   [f86])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r87
                   {r87}
                   "r87"
@@ -2692,7 +2625,7 @@
   [r87])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f87
                   {f87}
                   "f87"
@@ -2700,7 +2633,7 @@
   [f87])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r88
                   {r88}
                   "r88"
@@ -2708,7 +2641,7 @@
   [r88])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f88
                   {f88}
                   "f88"
@@ -2716,7 +2649,7 @@
   [f88])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r89
                   {r89}
                   "r89"
@@ -2724,7 +2657,7 @@
   [r89])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f89
                   {f89}
                   "f89"
@@ -2732,7 +2665,7 @@
   [f89])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r90
                   {r90}
                   "r90"
@@ -2740,7 +2673,7 @@
   [r90])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f90
                   {f90}
                   "f90"
@@ -2748,7 +2681,7 @@
   [f90])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r91
                   {r91}
                   "r91"
@@ -2756,7 +2689,7 @@
   [r91])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f91
                   {f91}
                   "f91"
@@ -2764,7 +2697,7 @@
   [f91])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r92
                   {r92}
                   "r92"
@@ -2772,7 +2705,7 @@
   [r92])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f92
                   {f92}
                   "f92"
@@ -2780,7 +2713,7 @@
   [f92])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r93
                   {r93}
                   "r93"
@@ -2788,7 +2721,7 @@
   [r93])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f93
                   {f93}
                   "f93"
@@ -2796,7 +2729,7 @@
   [f93])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r94
                   {r94}
                   "r94"
@@ -2804,7 +2737,7 @@
   [r94])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f94
                   {f94}
                   "f94"
@@ -2812,7 +2745,7 @@
   [f94])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r95
                   {r95}
                   "r95"
@@ -2820,7 +2753,7 @@
   [r95])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f95
                   {f95}
                   "f95"
@@ -2828,7 +2761,7 @@
   [f95])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r96
                   {r96}
                   "r96"
@@ -2836,7 +2769,7 @@
   [r96])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f96
                   {f96}
                   "f96"
@@ -2844,7 +2777,7 @@
   [f96])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r97
                   {r97}
                   "r97"
@@ -2852,7 +2785,7 @@
   [r97])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f97
                   {f97}
                   "f97"
@@ -2860,7 +2793,7 @@
   [f97])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r98
                   {r98}
                   "r98"
@@ -2868,7 +2801,7 @@
   [r98])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f98
                   {f98}
                   "f98"
@@ -2876,7 +2809,7 @@
   [f98])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r99
                   {r99}
                   "r99"
@@ -2884,7 +2817,7 @@
   [r99])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f99
                   {f99}
                   "f99"
@@ -2892,7 +2825,7 @@
   [f99])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r100
                   {r100}
                   "r100"
@@ -2900,7 +2833,7 @@
   [r100])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f100
                   {f100}
                   "f100"
@@ -2908,7 +2841,7 @@
   [f100])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r101
                   {r101}
                   "r101"
@@ -2916,7 +2849,7 @@
   [r101])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f101
                   {f101}
                   "f101"
@@ -2924,7 +2857,7 @@
   [f101])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r102
                   {r102}
                   "r102"
@@ -2932,7 +2865,7 @@
   [r102])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f102
                   {f102}
                   "f102"
@@ -2940,7 +2873,7 @@
   [f102])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r103
                   {r103}
                   "r103"
@@ -2948,7 +2881,7 @@
   [r103])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f103
                   {f103}
                   "f103"
@@ -2956,7 +2889,7 @@
   [f103])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r104
                   {r104}
                   "r104"
@@ -2964,7 +2897,7 @@
   [r104])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f104
                   {f104}
                   "f104"
@@ -2972,7 +2905,7 @@
   [f104])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r105
                   {r105}
                   "r105"
@@ -2980,7 +2913,7 @@
   [r105])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f105
                   {f105}
                   "f105"
@@ -2988,7 +2921,7 @@
   [f105])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r106
                   {r106}
                   "r106"
@@ -2996,7 +2929,7 @@
   [r106])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f106
                   {f106}
                   "f106"
@@ -3004,7 +2937,7 @@
   [f106])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r107
                   {r107}
                   "r107"
@@ -3012,7 +2945,7 @@
   [r107])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f107
                   {f107}
                   "f107"
@@ -3020,7 +2953,7 @@
   [f107])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r108
                   {r108}
                   "r108"
@@ -3028,7 +2961,7 @@
   [r108])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f108
                   {f108}
                   "f108"
@@ -3036,7 +2969,7 @@
   [f108])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r109
                   {r109}
                   "r109"
@@ -3044,7 +2977,7 @@
   [r109])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f109
                   {f109}
                   "f109"
@@ -3052,7 +2985,7 @@
   [f109])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r110
                   {r110}
                   "r110"
@@ -3060,7 +2993,7 @@
   [r110])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f110
                   {f110}
                   "f110"
@@ -3068,7 +3001,7 @@
   [f110])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r111
                   {r111}
                   "r111"
@@ -3076,7 +3009,7 @@
   [r111])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f111
                   {f111}
                   "f111"
@@ -3084,7 +3017,7 @@
   [f111])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r112
                   {r112}
                   "r112"
@@ -3092,7 +3025,7 @@
   [r112])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f112
                   {f112}
                   "f112"
@@ -3100,7 +3033,7 @@
   [f112])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r113
                   {r113}
                   "r113"
@@ -3108,7 +3041,7 @@
   [r113])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f113
                   {f113}
                   "f113"
@@ -3116,7 +3049,7 @@
   [f113])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r114
                   {r114}
                   "r114"
@@ -3124,7 +3057,7 @@
   [r114])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f114
                   {f114}
                   "f114"
@@ -3132,7 +3065,7 @@
   [f114])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r115
                   {r115}
                   "r115"
@@ -3140,7 +3073,7 @@
   [r115])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f115
                   {f115}
                   "f115"
@@ -3148,7 +3081,7 @@
   [f115])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r116
                   {r116}
                   "r116"
@@ -3156,7 +3089,7 @@
   [r116])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f116
                   {f116}
                   "f116"
@@ -3164,7 +3097,7 @@
   [f116])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r117
                   {r117}
                   "r117"
@@ -3172,7 +3105,7 @@
   [r117])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f117
                   {f117}
                   "f117"
@@ -3180,7 +3113,7 @@
   [f117])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r118
                   {r118}
                   "r118"
@@ -3188,7 +3121,7 @@
   [r118])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f118
                   {f118}
                   "f118"
@@ -3196,7 +3129,7 @@
   [f118])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r119
                   {r119}
                   "r119"
@@ -3204,7 +3137,7 @@
   [r119])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f119
                   {f119}
                   "f119"
@@ -3212,7 +3145,7 @@
   [f119])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r120
                   {r120}
                   "r120"
@@ -3220,7 +3153,7 @@
   [r120])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f120
                   {f120}
                   "f120"
@@ -3228,7 +3161,7 @@
   [f120])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r121
                   {r121}
                   "r121"
@@ -3236,7 +3169,7 @@
   [r121])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f121
                   {f121}
                   "f121"
@@ -3244,7 +3177,7 @@
   [f121])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r122
                   {r122}
                   "r122"
@@ -3252,7 +3185,7 @@
   [r122])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f122
                   {f122}
                   "f122"
@@ -3260,7 +3193,7 @@
   [f122])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r123
                   {r123}
                   "r123"
@@ -3268,7 +3201,7 @@
   [r123])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f123
                   {f123}
                   "f123"
@@ -3276,7 +3209,7 @@
   [f123])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r124
                   {r124}
                   "r124"
@@ -3284,7 +3217,7 @@
   [r124])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f124
                   {f124}
                   "f124"
@@ -3292,7 +3225,7 @@
   [f124])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r125
                   {r125}
                   "r125"
@@ -3300,7 +3233,7 @@
   [r125])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f125
                   {f125}
                   "f125"
@@ -3308,7 +3241,7 @@
   [f125])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r126
                   {r126}
                   "r126"
@@ -3316,7 +3249,7 @@
   [r126])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f126
                   {f126}
                   "f126"
@@ -3324,7 +3257,7 @@
   [f126])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   r127
                   {r127}
                   "r127"
@@ -3332,234 +3265,234 @@
   [r127])
 (defmethod translate-register
   ((?in LEXEME 
-        (not (neq ?current-argument
+        (not (neq ?in
                   f127
                   {f127}
                   "f127"
                   "{f127}"))))
   [f127])
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          and
                          "and"))))
   A)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          or
                          "or"))))
   A)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          nop.a
                          "nop.a"))))
   A)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          add
                          "add"))))
   A)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          mul
                          "mul"))))
   I)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          sub
                          "sub"))))
   I)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          cmp
                          "cmp"))))
   I)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          cmp.eq
                          "cmp.eq"))))
   I)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          cmp.gt
                          "cmp.gt"))))
   I)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          cmp.lt
                          "cmp.lt"))))
   I)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          cmp.neq
                          "cmp.neq"))))
   I)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          div
                          "div"))))
   I)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          shl
                          "shl"))))
   I)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          shr
                          "shr"))))
   I)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          sxt4
                          "sxt4"))))
   I)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          adds
                          "adds"))))
   I)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          nop.i
                          "nop.i"))))
   I)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          st8
                          "st8"))))
   M)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          ld8
                          "ld8"))))
   M)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          ld4
                          "ld4"))))
   M)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          st4
                          "st4"))))
   M)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          mov
                          "mov"))))
   M)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          stf.spill
                          "stf.spill"))))
   M)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          nop.m
                          "nop.m"))))
   M)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          alloc
                          "alloc"))))
   M)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          br
                          "br"))))
   B)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          br.ret
                          "br.ret"))))
   B)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          br.call
                          "br.call"))))
   B)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          br.few
                          "br.few"))))
   B)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          br.many
                          "br.many"))))
   B)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          br.ret.sptk.many
                          "br.ret.sptk.many"))))
   B)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          br.ret.sptk.few
                          "br.ret.sptk.few"))))
   B)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          br.ret.dptk.many
                          "br.ret.dptk.many"))))
   B)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          br.ret.dptk.few
                          "br.ret.dptk.few"))))
   B)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          br.call.sptk.many
                          "br.call.sptk.many"))))
   B)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          br.call.sptk.few
                          "br.call.sptk.few"))))
   B)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          br.cond.dptk.few
                          "br.cond.dptk.few"))))
   B)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          br.call.dptk.many
                          "br.call.dptk.many"))))
   B)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          br.call.dptk.few
                          "br.call.dptk.few"))))
   B)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          nop.b
                          "nop.b"))))
   B)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          ldfs
                          "ldfs"))))
   F)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          fma
                          "fma"))))
   F)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          nop.f
                          "nop.f"))))
   F)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          none
                          "none"))))
   X)
 (defmethod translate-operation 
-  ((?op LEXEME (not (neq ?current-argument
+  ((?op LEXEME (not (neq ?op
                          nop.x
                          "nop.x"))))
   X)
@@ -3599,9 +3532,9 @@
 (defrule schedule::determine-scheduability
          "An object is able to be scheduled if it has no remaining producers"
          (object (is-a register)
-                 (queue ?q&:(send ?q ready-to-schedule)  $?))
-         ;(test (send ?q 
-         ;            ready-to-schedule))
+                 (queue ?q $?))
+         (test (send ?q
+                     ready-to-schedule))
          =>
          (assert (schedule-directive (target ?q))))
 
