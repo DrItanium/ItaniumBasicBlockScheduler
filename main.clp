@@ -56,7 +56,7 @@
 
 
 
-					           
+
 (definstances registers
 	      (p0 of register)
 	      (p1 of register)
@@ -388,10 +388,10 @@
 (defmessage-handler register pop primary
 		    ()
 		    (if (> (length$ ?self:stack) 0) then
-		        (bind ?ret 
-			      (nth$ 1 ?self:stack))
-			(slot-direct-delete$ stack 1 1)
-			?ret))
+		      (bind ?ret 
+			    (nth$ 1 ?self:stack))
+		      (slot-direct-delete$ stack 1 1)
+		      ?ret))
 
 (defclass Instruction 
   (is-a USER)
@@ -457,7 +457,7 @@
 (defmessage-handler Instruction notify-scheduling primary
 		    ()
 		    (bind ?self:scheduled TRUE)
-	     	    (printout t ?self:print-string crlf)
+		    (printout t ?self:print-string crlf)
 		    (progn$ (?c ?self:ok)
 			    (send ?c pop)))
 
@@ -521,16 +521,16 @@
   (progn$ (?a ?args)
 	  (bind ?output
 		?output
-	  (if (funcall ?func ?a) then
-	       ?a
-	       else
-	       (create$)))))
+		(if (funcall ?func ?a) then
+		  ?a
+		  else
+		  (create$)))))
 (defmethod filter$
   ((?func SYMBOL)
    $?args)
   (filter$ ?func
 	   ?args))
-	      
+
 (deffunction instance-and-not-p0
 	     (?a)
 	     (and (instance-namep ?a)
@@ -1024,19 +1024,19 @@
 	 (printout t ";;" crlf))
 
 
-(printout t 
- "Welcome to the Code Scheduler!" crlf
- "To start scheduling type in (block \"/path/to/file\")" crlf
- "Then type in (analyze)" crlf
- "When it is finished the result will be printed out." crlf
- "Parallel sections of code are separated by ;;." crlf
- "The groups of instructions separated by ;; are known as Instruction Groups" crlf)
+(printout stdout
+	  "Welcome to the Code Scheduler!" crlf
+	  "To start scheduling type in (block \"/path/to/file\")" crlf
+	  "Then type in (analyze)" crlf
+	  "When it is finished the result will be printed out." crlf
+	  "Parallel sections of code are separated by ;;." crlf
+	  "The groups of instructions separated by ;; are known as Instruction Groups" crlf)
 (block "examples/BlockLarge.clp")
 (deffunction start (?a)
- (watch statistics)
- (profile-reset)
- (profile ?a)
- (run)
- (profile off)
- (profile-info))
+	     (watch statistics)
+	     (profile-reset)
+	     (profile ?a)
+	     (run)
+	     (profile off)
+	     (profile-info))
 
