@@ -1,5 +1,5 @@
 	;; Begin Test Code
-	(alloc p0 r35 25 24 0 0)
+	;(alloc p0 r35 25 24 0 0)
 	(mov p0 r34 r12)
 	(adds p0 r12 -176 r12)
 	(mov p0 r37 r1)

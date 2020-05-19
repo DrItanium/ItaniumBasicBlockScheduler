@@ -40,6 +40,8 @@
   ?val)
 (defmessage-handler register init after
 		    ()
+		    (bind ?iname 
+			  (instance-name-to-symbol (instance-name ?self)))
 		    (build (format nil "(defmethod translate-register
 					  ((?in LEXEME 
 						(not (neq ?current-argument
@@ -48,13 +50,11 @@
 							  \"%s\"
 							  \"{%s}\"))))
 					  [%s])"
-				   (instance-name ?self)
-				   (instance-name ?self)
-				   (instance-name ?self)
-				   (instance-name ?self)
-				   (instance-name ?self))))
-
-
+				   ?iname
+				   ?iname
+				   ?iname
+				   ?iname
+				   ?iname)))
 
 
 (definstances registers
@@ -457,7 +457,7 @@
 (defmessage-handler Instruction notify-scheduling primary
 		    ()
 		    (bind ?self:scheduled TRUE)
-		    (printout t ?self:print-string crlf)
+		    (printout stdout ?self:print-string crlf)
 		    (progn$ (?c ?self:ok)
 			    (send ?c pop)))
 
@@ -1008,7 +1008,7 @@
 	 ?stg <- (stage (current Schedule-Update) 
 			(rest $?rest))
 	 =>
-	 (printout t ";;" crlf)
+	 (printout stdout ";;" crlf)
 	 (retract ?f)
 	 (modify ?stg 
 		 (current Schedule) 
@@ -1021,7 +1021,7 @@
 		 (name ?branch))
 	 =>
 	 (send ?branch notify-scheduling)
-	 (printout t ";;" crlf))
+	 (printout stdout ";;" crlf))
 
 
 (printout stdout
@@ -1032,7 +1032,7 @@
 	  "Parallel sections of code are separated by ;;." crlf
 	  "The groups of instructions separated by ;; are known as Instruction Groups" crlf)
 
-(block "examples/BlockLarge.clp")
+;(block "examples/BlockLarge.clp")
 (deffunction start (?a)
 	     (watch statistics)
 	     (profile-reset)
